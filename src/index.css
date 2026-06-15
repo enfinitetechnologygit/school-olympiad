@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&family=Outfit:wght@300..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+@media print {
+  /* Reset layout containers for clean printing */
+  html, body, #root, #eno-student-panel, .flex, main, div {
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Override grids, flexboxes, and viewport constraints */
+  #eno-student-panel, .flex:not(.no-print), main {
+    display: block !important;
+  }
+
+  /* Setup portrait page layout with standard margins */
+  @page {
+    size: portrait;
+    margin: 8mm 12mm;
+  }
+
+  /* Target the printable admit card frame */
+  #admit-card-printable {
+    border: 4px double #000 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+    box-shadow: none !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+  }
+
+  /* Avoid page breaks inside layout items */
+  .grid, .grid > * {
+    page-break-inside: avoid !important;
+  }
+
+  /* Adjust spacing slightly to ensure full single page fit */
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+
+  /* Ensure colors and backgrounds render in modern browsers */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide standard UI elements and other layers - placed last to override .flex rules */
+  header,
+  aside,
+  button,
+  #admit-stage-tabs,
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+}
+
+

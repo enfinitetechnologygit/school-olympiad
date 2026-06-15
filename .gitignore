@@ -1,0 +1,58 @@
+# ==============================================================================
+# Dependencies (Never commit node_modules)
+# ==============================================================================
+node_modules/
+**/node_modules/
+
+# ==============================================================================
+# Environment Variables & Secrets (Crucial for Express backend)
+# ==============================================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# ==============================================================================
+# Production Build Outputs (React builds and Express assets)
+# ==============================================================================
+# Common React build folders (CRA / Vite / Next)
+build/
+dist/
+out/
+.next/
+
+# Express or backend compilation/transpilation outputs
+bin/
+lib/
+
+# ==============================================================================
+# Logs and Debugging
+# ==============================================================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# ==============================================================================
+# Testing & Coverage
+# ==============================================================================
+coverage/
+.nyc_output/
+
+# ==============================================================================
+# IDEs, Text Editors, and System Files
+# ==============================================================================
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+
+# JetBrains (WebStorm, IntelliJ)
+.idea/
+
+# System specific files
+.DS_Store
+Thumbs.db
