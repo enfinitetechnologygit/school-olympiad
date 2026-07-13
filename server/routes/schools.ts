@@ -6,6 +6,32 @@ import { School } from "../../src/types";
 
 const router = Router();
 
+function getNextSchoolId(): string {
+  let maxNum = 1000;
+  for (const s of schools) {
+    if (s.id && s.id.startsWith("SCH-")) {
+      const num = parseInt(s.id.split("-")[1], 10);
+      if (!isNaN(num) && num > maxNum) {
+        maxNum = num;
+      }
+    }
+  }
+  return `SCH-${maxNum + 1}`;
+}
+
+function getNextRequestId(): string {
+  let maxNum = 1000;
+  for (const s of schools) {
+    if (s.id && s.id.startsWith("RQ-")) {
+      const num = parseInt(s.id.split("-")[1], 10);
+      if (!isNaN(num) && num > maxNum) {
+        maxNum = num;
+      }
+    }
+  }
+  return `RQ-${maxNum + 1}`;
+}
+
   router.post("", async (req, res) => {
     const { name, principalName, coordinatorName, mobile, email, address, city, state, boardType, totalStudents } = req.body;
 
@@ -18,7 +44,7 @@ const router = Router();
       return res.status(400).json({ error: "A school with this email is already registered." });
     }
 
-    const requestSchoolId = "RQ-" + Math.floor(1000 + Math.random() * 9000);
+    const requestSchoolId = getNextRequestId();
     const newSchool: School = {
       id: requestSchoolId,
       name,
@@ -181,12 +207,13 @@ const router = Router();
     }
 
     const school = schools[schoolIdx];
-    const generatedSchoolId = "SCH-" + Math.floor(3000 + Math.random() * 6999);
+    const generatedSchoolId = getNextSchoolId();
     const oldId = school.id;
     
+    const generatedPassword = Math.random().toString(36).slice(-8);
     school.id = generatedSchoolId;
     school.status = "APPROVED";
-    school.password = "school123";
+    school.password = generatedPassword;
 
     // Update in-place
     schools[schoolIdx] = school;
@@ -198,7 +225,7 @@ const router = Router();
         await db.collection("schools").insertOne(school);
         await db.collection("users").updateOne(
           { email: school.email },
-          { $set: { email: school.email, password: "school123", name: school.name, role: "school" } },
+          { $set: { email: school.email, password: school.password, name: school.name, role: "school" } },
           { upsert: true }
         );
       } catch (err: any) {
@@ -207,7 +234,7 @@ const router = Router();
     }
 
     // Send approved credentials email
-    sendLoginCredentials(school.email, "school", school.id, "school123").catch((e) => {
+    sendLoginCredentials(school.email, "school", school.id, school.password).catch((e) => {
       console.error("Error sending school approval credentials email:", e.message);
     });
 

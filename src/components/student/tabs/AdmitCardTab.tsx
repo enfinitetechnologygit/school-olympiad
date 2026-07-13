@@ -2,6 +2,22 @@ import React from 'react';
 import { Printer, Clock, AlertCircle, Trophy, User } from 'lucide-react';
 import { Student, School, ExamSchedule, ExamCenter } from '../../../types';
 
+const formatDateToDMY = (dateStr?: string): string => {
+  if (!dateStr || dateStr.trim() === '') return '';
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    return `${match[3]}-${match[2]}-${match[1]}`;
+  }
+  const parsed = Date.parse(dateStr);
+  if (isNaN(parsed)) return dateStr;
+  const d = new Date(parsed);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${day}-${month}-${d.getFullYear()}`;
+};
+
 interface AdmitCardTabProps {
   student: Student;
   schoolInfo: School | null;
@@ -103,12 +119,9 @@ export default function AdmitCardTab({
         ) : (
           <div className="max-w-2xl mx-auto border-4 border-double border-slate-400 bg-white p-6 space-y-6" id="admit-card-printable">
             {/* Badge and Title */}
-            <div className="text-center pb-4 border-b-2 border-dashed space-y-1">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Government Affiliated Testing Scheme</span>
-              <h3 className="text-base sm:text-lg font-extrabold font-display uppercase tracking-widest text-slate-950">
-                ENFINITE NATIONAL COMPUTER SCIENCE OLYMPIAD BOARD
-              </h3>
-              <div className="inline-block px-3 py-0.5 bg-blue-50 text-blue-700 font-bold border border-blue-200 text-[10px] rounded uppercase mt-1 tracking-wider">
+            <div className="text-center pb-4 border-b-2 border-dashed space-y-3 flex flex-col items-center">
+              <img src="/logo.png?v=3" alt="Enfinite National Olympiad Logo" className="h-16 w-auto object-contain" />
+              <div className="inline-block px-4 py-1 bg-blue-50 text-blue-700 font-bold border border-blue-200 text-xs rounded uppercase tracking-wider">
                 Stage 1 Pre-Exam Entry Hall Ticket
               </div>
             </div>
@@ -128,16 +141,16 @@ export default function AdmitCardTab({
                   <p className="font-extrabold text-slate-900 text-[13px]">{student.name}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Admit Roll Number</span>
-                  <p className="font-mono font-black text-blue-600 text-sm">{student.stage1AdmitNumber || "ENO-S1-NOTGEN"}</p>
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Student Unique ID</span>
+                  <p className="font-mono font-black text-blue-600 text-sm">{student.id}</p>
                 </div>
                 <div>
                   <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Olympiad Class Standard</span>
                   <p className="font-bold text-slate-900">{student.classLevel} Division</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Enrollment Identifier</span>
-                  <p className="font-mono text-slate-700 font-semibold">{student.id}</p>
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">School Name</span>
+                  <p className="font-sans text-slate-700 font-bold">{student.schoolName}</p>
                 </div>
               </div>
             </div>
@@ -148,7 +161,7 @@ export default function AdmitCardTab({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-slate-200 p-4 rounded-lg bg-slate-50 text-xs">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Exam Scheduled Date</span>
-                <p className="font-black text-slate-950 mt-0.5">{schoolInfo?.preExamDate}</p>
+                <p className="font-black text-slate-950 mt-0.5">{formatDateToDMY(schoolInfo?.preExamDate)}</p>
                 <p className="text-[10px] text-slate-500">Exam Time: {schoolInfo?.preExamTime}</p>
               </div>
 
@@ -171,6 +184,7 @@ export default function AdmitCardTab({
             <div className="space-y-2">
               <h5 className="text-[10px] uppercase font-extrabold tracking-widest text-slate-400">Stage 1 Scholastic Code of Conduct</h5>
               <ul className="list-decimal list-inside text-[9px] text-slate-600 space-y-1">
+                <li>Student must paste their original photo in photo holder.</li>
                 <li>Candidates must write Stage-1 examinations within their original enrolled school campus premises.</li>
                 <li>Exam is administered offline under close supervision of the local school designated coordinator.</li>
                 <li>Valid school identification badge or card is required to be held on table throughout proctored timings.</li>
@@ -186,7 +200,7 @@ export default function AdmitCardTab({
 
               <div className="text-right">
                 <span className="text-[9px] text-slate-400 block font-mono">Olympiad Scholastic Registrar</span>
-                <p className="font-display font-semibold text-slate-950 text-xs italic tracking-wider mt-1 block">Dr. Sandeep Singh</p>
+                <p className="font-display font-semibold text-slate-950 text-xs italic tracking-wider mt-1 block">Deepak Gola</p>
               </div>
             </div>
           </div>
@@ -226,12 +240,9 @@ export default function AdmitCardTab({
         ) : (
           <div className="max-w-2xl mx-auto border-4 border-double border-blue-500 bg-white p-6 space-y-6" id="admit-card-printable">
             {/* Badge and Title */}
-            <div className="text-center pb-4 border-b-2 border-dashed space-y-1">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Official Government Affiliated Level-2 Scheme</span>
-              <h3 className="text-base sm:text-lg font-extrabold font-display uppercase tracking-widest text-slate-950">
-                ENFINITE NATIONAL COMPUTER SCIENCE OLYMPIAD BOARD
-              </h3>
-              <div className="inline-block px-3 py-0.5 bg-amber-500 text-white font-black text-[10px] rounded uppercase mt-1 tracking-wider">
+            <div className="text-center pb-4 border-b-2 border-dashed space-y-3 flex flex-col items-center">
+              <img src="/logo.png?v=3" alt="Enfinite National Olympiad Logo" className="h-16 w-auto object-contain" />
+              <div className="inline-block px-4 py-1 bg-amber-500 text-white font-black text-xs rounded uppercase tracking-wider">
                 Stage 2 Mains Entry Hall Ticket
               </div>
             </div>
@@ -251,16 +262,16 @@ export default function AdmitCardTab({
                   <p className="font-extrabold text-slate-900 text-[13px]">{student.name}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Mains Roll Number</span>
-                  <p className="font-mono font-black text-amber-600 text-sm">{student.stage2AdmitNumber || "ENO-S2-NOTGEN"}</p>
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Student Unique ID</span>
+                  <p className="font-mono font-black text-amber-600 text-sm">{student.id}</p>
                 </div>
                 <div>
                   <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Olympiad Class Standard</span>
                   <p className="font-bold text-slate-900">{student.classLevel} Division</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Enrollment Identifier</span>
-                  <p className="font-mono text-slate-700 font-semibold">{student.id}</p>
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">School Name</span>
+                  <p className="font-sans text-slate-700 font-bold">{student.schoolName}</p>
                 </div>
               </div>
             </div>
@@ -271,7 +282,7 @@ export default function AdmitCardTab({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-blue-100 p-4 rounded-lg bg-blue-50/40 text-xs">
               <div>
                 <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Mains Exam Scheduled Date</span>
-                <p className="font-black text-slate-950 mt-0.5">{schedule?.mainExamDate}</p>
+                <p className="font-black text-slate-950 mt-0.5">{formatDateToDMY(schedule?.mainExamDate)}</p>
                 <p className="text-[10px] text-slate-500">Exam Time: {schedule?.mainExamTime}</p>
               </div>
 
@@ -297,6 +308,7 @@ export default function AdmitCardTab({
             <div className="space-y-2">
               <h5 className="text-[10px] uppercase font-extrabold tracking-widest text-slate-400">Stage 2 Mains Official Instructions</h5>
               <ul className="list-decimal list-inside text-[9px] text-slate-600 space-y-1">
+                <li>Student must paste their original photo in photo holder.</li>
                 <li>Stage 2 must be taken in-person at the specified external test center venue. No home-school bypass is permitted.</li>
                 <li>Heavy biometric verification will be triggered at entry gates. Bring this printed card and government registration copy.</li>
                 <li>Strict non-smart device guidelines will be held active under direct external center proctors.</li>
@@ -312,7 +324,7 @@ export default function AdmitCardTab({
 
               <div className="text-right">
                 <span className="text-[9px] text-slate-400 block font-mono">Olympiad Scholastic Registrar</span>
-                <p className="font-display font-semibold text-slate-950 text-xs italic tracking-wider mt-1 block">Dr. Sandeep Singh</p>
+                <p className="font-display font-semibold text-slate-950 text-xs italic tracking-wider mt-1 block">Deepak Gola</p>
               </div>
             </div>
           </div>

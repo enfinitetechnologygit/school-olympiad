@@ -2,6 +2,33 @@ import React from 'react';
 import { Calendar, CheckCircle, ShieldAlert, Check, Search, Building } from 'lucide-react';
 import { ExamSchedule, School } from '../../../types';
 
+const formatDateToDMY = (dateStr?: string): string => {
+  if (!dateStr || dateStr.trim() === '') return '';
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    return `${match[3]}-${match[2]}-${match[1]}`;
+  }
+  const parsed = Date.parse(dateStr);
+  if (isNaN(parsed)) return dateStr;
+  const d = new Date(parsed);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${day}-${month}-${d.getFullYear()}`;
+};
+
+const formatDateToInput = (dateStr?: string): string => {
+  if (!dateStr || dateStr.trim() === '') return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  const parsed = Date.parse(dateStr);
+  if (isNaN(parsed)) return '';
+  const d = new Date(parsed);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${month}-${day}`;
+};
+
 interface ScheduleTabProps {
   schedule: ExamSchedule;
   setSchedule: React.Dispatch<React.SetStateAction<ExamSchedule>>;
@@ -133,9 +160,8 @@ export default function ScheduleTab({
                 <label className="font-bold block mb-1">Mains Exam Date</label>
                 <input
                   id="input-main-date"
-                  type="text"
-                  placeholder="e.g. September 15, 2026"
-                  value={schedule.mainExamDate || ''}
+                  type="date"
+                  value={formatDateToInput(schedule.mainExamDate)}
                   onChange={(e) => setSchedule(prev => ({ ...prev, mainExamDate: e.target.value }))}
                   className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-lg p-2.5 text-slate-900 font-semibold outline-none transition text-xs"
                 />
@@ -372,7 +398,7 @@ export default function ScheduleTab({
                         <div className="text-[10px] text-slate-500 font-mono mt-0.5">{sch.id} | Coordinator: {sch.coordinatorName || 'N/A'}</div>
                       </td>
                       <td className="p-3 font-semibold">
-                        {sch.preExamDate ? sch.preExamDate : (
+                        {sch.preExamDate ? formatDateToDMY(sch.preExamDate) : (
                           <span className="text-slate-400 italic">Not Scheduled</span>
                         )}
                       </td>

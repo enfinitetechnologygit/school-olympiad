@@ -2,6 +2,22 @@ import React from 'react';
 import { Calendar } from 'lucide-react';
 import { School } from '../../../types';
 
+const formatDateToDMY = (dateStr?: string): string => {
+  if (!dateStr || dateStr.trim() === '') return '';
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    return `${match[3]}-${match[2]}-${match[1]}`;
+  }
+  const parsed = Date.parse(dateStr);
+  if (isNaN(parsed)) return dateStr;
+  const d = new Date(parsed);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${day}-${month}-${d.getFullYear()}`;
+};
+
 interface ScheduleTabProps {
   school: School;
 }
@@ -85,7 +101,7 @@ export default function ScheduleTab({ school }: ScheduleTabProps) {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                 <div className="bg-white border rounded-xl p-3">
                   <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pre-Exam Date</span>
-                  <span className="font-bold text-slate-900">{school.preExamDate}</span>
+                  <span className="font-bold text-slate-900">{formatDateToDMY(school.preExamDate)}</span>
                 </div>
                 <div className="bg-white border rounded-xl p-3">
                   <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Start Time</span>

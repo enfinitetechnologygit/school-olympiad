@@ -252,6 +252,32 @@ export async function initializeDatabase() {
       Object.assign(require("./store").examSchedule, scheduleData);
     }
 
+    // Load header announcement if stored in DB
+    try {
+      const dbHeaderAnc = await db.collection("settings").findOne({ _id: "header_announcement" as any });
+      if (dbHeaderAnc) {
+        require("./store").headerAnnouncement.text = dbHeaderAnc.text;
+      }
+    } catch (err: any) {
+      console.warn("Could not sync header announcement from database:", err.message);
+    }
+
+    // Load slider images if stored in DB
+    try {
+      const dbSlider = await db.collection("settings").findOne({ _id: "slider_images" as any });
+      if (dbSlider && Array.isArray(dbSlider.images)) {
+        require("./store").sliderImages.splice(0, require("./store").sliderImages.length, ...dbSlider.images);
+      } else {
+        await db.collection("settings").updateOne(
+          { _id: "slider_images" as any },
+          { $setOnInsert: { images: require("./store").defaultSliderImages } },
+          { upsert: true }
+        );
+      }
+    } catch (err: any) {
+      console.warn("Could not sync slider images from database:", err.message);
+    }
+
     // Seed default users if empty
     const usersCount = await db.collection("users").countDocuments();
     if (usersCount === 0) {

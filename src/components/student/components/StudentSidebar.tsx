@@ -4,8 +4,8 @@ import { Student } from '../../../types';
 
 interface StudentSidebarProps {
   student: Student;
-  activeTab: 'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus' | 'items';
-  setActiveTab: (tab: 'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus' | 'items') => void;
+  activeTab: 'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus';
+  setActiveTab: (tab: 'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus') => void;
   setActiveExam: (exam: any) => void;
 }
 
@@ -59,15 +59,7 @@ export default function StudentSidebar({ student, activeTab, setActiveTab, setAc
           Olympiad Syllabus
         </button>
 
-        <button
-          onClick={() => { setActiveTab('items'); setActiveExam(null); }}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'items' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
-          }`}
-        >
-          <Sparkles className="w-4.5 h-4.5" />
-          Study Materials
-        </button>
+
       </div>
 
       <div className="border-t border-slate-100 pt-4 space-y-2">

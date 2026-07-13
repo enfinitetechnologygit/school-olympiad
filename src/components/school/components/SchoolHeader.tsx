@@ -9,15 +9,20 @@ interface SchoolHeaderProps {
 
 export default function SchoolHeader({ school, onLogout }: SchoolHeaderProps) {
   return (
-    <header className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
+    <header className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0 relative">
       <div className="flex items-center gap-3">
-        <div className="bg-blue-600 text-white p-2.5 rounded-xl flex items-center justify-center shadow">
-          <SchoolIcon className="w-5 h-5" />
+        <img src="/logo.png?v=3" alt="Enfinite Logo" className="h-10 w-auto object-contain" />
+        <div className="pl-3 border-l border-slate-800">
+          <h2 className="text-xs font-bold font-display text-white">{school.name}</h2>
+          <p className="text-[9px] text-slate-400 font-mono tracking-wider">BOARD APPROVED SCHOOL COORD PANEL • ID: {school.id}</p>
         </div>
-        <div>
-          <h2 className="text-base font-bold font-display text-white">{school.name}</h2>
-          <p className="text-[10px] text-slate-400 font-mono tracking-wider">BOARD APPROVED SCHOOL COORD PANEL • ID: {school.id}</p>
-        </div>
+      </div>
+
+      {/* Centered Heading */}
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden md:flex flex-col items-center select-none font-cinzel leading-none text-center pointer-events-none">
+        <span className="text-base lg:text-lg font-extrabold tracking-widest text-slate-100 uppercase">
+          Enfinite National Olympiad
+        </span>
       </div>
 
       <div className="flex items-center gap-3">

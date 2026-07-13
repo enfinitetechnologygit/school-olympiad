@@ -204,6 +204,13 @@ export const defaultAnnouncements: Announcement[] = [];
 
 export let announcements: Announcement[] = loadFallbackData("db_announcements.json", defaultAnnouncements);
 
+export const defaultHeaderAnnouncement = { text: "Registration ends July 15, 2026. Stage 1 National Pre-Exams on July 30, 2026." };
+export let headerAnnouncement = loadFallbackData("db_header_announcement.json", defaultHeaderAnnouncement);
+
+export const defaultSliderImages = ["/girl_laptop.png"];
+export let sliderImages = loadFallbackData("db_slider_images.json", defaultSliderImages);
+
+
 export const defaultExamCenters: ExamCenter[] = [
   { id: "CEN-3001", name: "National Tech Center, New Delhi", city: "New Delhi", capacity: 300, allocatedStudentsCount: 0 },
   { id: "CEN-3002", name: "Silicon Valley Institute, Bengaluru", city: "Bengaluru", capacity: 250, allocatedStudentsCount: 0 },

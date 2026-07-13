@@ -2,6 +2,22 @@ import React from 'react';
 import { Search, Download, Plus, Users } from 'lucide-react';
 import { School, Student } from '../../../types';
 
+const formatDateToDMY = (dateStr?: string): string => {
+  if (!dateStr || dateStr.trim() === '') return '—';
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    return `${match[3]}-${match[2]}-${match[1]}`;
+  }
+  const parsed = Date.parse(dateStr);
+  if (isNaN(parsed)) return dateStr;
+  const d = new Date(parsed);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${day}-${month}-${d.getFullYear()}`;
+};
+
 interface RosterTabProps {
   school: School;
   students: Student[];
@@ -219,7 +235,7 @@ export default function RosterTab({
                     <p className="text-[10px] font-mono text-blue-600 font-bold mt-0.5">{st.id}</p>
                   </td>
                   <td className="p-4 font-semibold text-slate-700">{st.classLevel}</td>
-                  <td className="p-4 font-mono font-medium text-slate-700">{st.dob || "—"}</td>
+                  <td className="p-4 font-mono font-medium text-slate-700">{formatDateToDMY(st.dob)}</td>
                   <td className="p-4">
                     <p className="text-[11px] text-slate-600 font-light">{st.email}</p>
                     <p className="text-[10px] text-slate-400 mt-0.5 font-mono">Mob: {st.mobile || "—"}</p>

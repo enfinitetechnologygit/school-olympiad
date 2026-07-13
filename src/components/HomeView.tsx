@@ -6,7 +6,6 @@ import HomeHero from './home/components/HomeHero';
 import HomeHighlights from './home/components/HomeHighlights';
 import HomeWorkflow from './home/components/HomeWorkflow';
 import HomeSyllabus from './home/components/HomeSyllabus';
-import HomeTimeline from './home/components/HomeTimeline';
 import HomeBenefits from './home/components/HomeBenefits';
 import HomeFaq from './home/components/HomeFaq';
 import HomeContact from './home/components/HomeContact';
@@ -47,8 +46,7 @@ export default function HomeView({ onOpenModal, schools }: HomeViewProps) {
         setSelectedSyllabusGroup={setSelectedSyllabusGroup}
       />
 
-      {/* Agenda & Important deadlines */}
-      <HomeTimeline />
+
 
       {/* Benefits list & registration stats */}
       <HomeBenefits approvedSchoolsCount={approvedSchools.length} />

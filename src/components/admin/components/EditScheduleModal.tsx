@@ -75,14 +75,13 @@ export default function EditScheduleModal({
             <div>
               <label className="font-bold block mb-1">Pre-Exam Date</label>
               <input
-                type="text"
-                placeholder="e.g. July 28, 2026"
+                type="date"
                 required
                 value={editPreExamDate}
                 onChange={(e) => setEditPreExamDate(e.target.value)}
                 className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-lg p-2.5 text-slate-900 font-semibold outline-none transition"
               />
-              <p className="text-[10px] text-slate-400 mt-0.5">Use formats like "July 28, 2026" or "YYYY-MM-DD" for proper status calculation.</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">Select the pre-exam date using the calendar selector.</p>
             </div>
 
             <div>

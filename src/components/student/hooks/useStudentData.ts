@@ -8,7 +8,7 @@ interface UseStudentDataProps {
 
 export function useStudentData({ user, onLogout }: UseStudentDataProps) {
   const [student, setStudent] = useState<Student | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus' | 'items'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus'>('overview');
   const [selectedSyllabusId, setSelectedSyllabusId] = useState<string>('5-6');
   const [exams, setExams] = useState<MockExam[]>([]);
   const [attempts, setAttempts] = useState<StudentExamAttempt[]>([]);

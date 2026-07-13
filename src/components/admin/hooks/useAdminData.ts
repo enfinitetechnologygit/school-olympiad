@@ -90,6 +90,17 @@ export function useAdminData() {
   const [bulkInputText, setBulkInputText] = useState('');
   const [bulkStatusMessage, setBulkStatusMessage] = useState('');
 
+  // Header Announcement State
+  const [headerAnnouncementText, setHeaderAnnouncementText] = useState('');
+  const [savingHeaderAnnouncement, setSavingHeaderAnnouncement] = useState(false);
+  const [headerAnnouncementSuccess, setHeaderAnnouncementSuccess] = useState('');
+
+  // Slider Images State
+  const [sliderImages, setSliderImages] = useState<string[]>([]);
+  const [newSliderImageUrl, setNewSliderImageUrl] = useState('');
+  const [savingSliderImage, setSavingSliderImage] = useState(false);
+  const [sliderSuccess, setSliderSuccess] = useState('');
+
   const fetchAdminData = async () => {
     try {
       setLoading(true);
@@ -112,6 +123,28 @@ export function useAdminData() {
       const ancRes = await fetch('/api/announcements');
       const ancData = await ancRes.json();
       setAnnouncements(ancData);
+
+      // Fetch header announcement
+      try {
+        const haRes = await fetch('/api/announcements/header');
+        if (haRes.ok) {
+          const haData = await haRes.json();
+          setHeaderAnnouncementText(haData.text || '');
+        }
+      } catch (err) {
+        console.error("Error fetching header announcement:", err);
+      }
+
+      // Fetch slider images
+      try {
+        const slRes = await fetch('/api/settings/slider');
+        if (slRes.ok) {
+          const slData = await slRes.json();
+          setSliderImages(slData || []);
+        }
+      } catch (err) {
+        console.error("Error fetching slider images:", err);
+      }
 
       // Fetch centers
       const cenRes = await fetch('/api/centers');
@@ -620,6 +653,147 @@ export function useAdminData() {
     }
   };
 
+  const handleSaveHeaderAnnouncement = async (text: string) => {
+    setSavingHeaderAnnouncement(true);
+    setHeaderAnnouncementSuccess('');
+    try {
+      const response = await fetch('/api/announcements/header', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      if (response.ok) {
+        setHeaderAnnouncementSuccess("Header announcement updated successfully!");
+        setHeaderAnnouncementText(text);
+        setTimeout(() => setHeaderAnnouncementSuccess(''), 3000);
+      } else {
+        alert("Failed to save header announcement.");
+      }
+    } catch (err) {
+      alert("Error saving header announcement");
+    } finally {
+      setSavingHeaderAnnouncement(false);
+    }
+  };
+
+  const handleDeleteHeaderAnnouncement = async () => {
+    if (!confirm("Are you sure you want to delete the header announcement? This will remove the announcement bar from the home page.")) return;
+    setSavingHeaderAnnouncement(true);
+    setHeaderAnnouncementSuccess('');
+    try {
+      const response = await fetch('/api/announcements/header', {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        setHeaderAnnouncementSuccess("Header announcement deleted/removed successfully!");
+        setHeaderAnnouncementText('');
+        setTimeout(() => setHeaderAnnouncementSuccess(''), 3000);
+      } else {
+        alert("Failed to delete header announcement.");
+      }
+    } catch (err) {
+      alert("Error deleting header announcement");
+    } finally {
+      setSavingHeaderAnnouncement(false);
+    }
+  };
+
+  const handleSaveSliderImage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSliderImageUrl || !newSliderImageUrl.trim()) return;
+
+    setSavingSliderImage(true);
+    setSliderSuccess('');
+    try {
+      const response = await fetch('/api/settings/slider', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: newSliderImageUrl })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSliderSuccess("Slider image added successfully!");
+        setSliderImages(data.images || []);
+        setNewSliderImageUrl('');
+        setTimeout(() => setSliderSuccess(''), 3000);
+      } else {
+        alert("Failed to add slider image.");
+      }
+    } catch (err) {
+      alert("Error adding slider image.");
+    } finally {
+      setSavingSliderImage(false);
+    }
+  };
+
+  const handleUploadSliderImage = async (file: File) => {
+    if (!file) return;
+
+    setSavingSliderImage(true);
+    setSliderSuccess('');
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        const base64Data = reader.result as string;
+        try {
+          const response = await fetch('/api/settings/slider/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filename: file.name,
+              base64Data
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setSliderSuccess("Image uploaded successfully!");
+            setSliderImages(data.images || []);
+            setTimeout(() => setSliderSuccess(''), 3000);
+          } else {
+            const errData = await response.json();
+            alert("Failed to upload image: " + (errData.error || "Server error"));
+          }
+        } catch (err: any) {
+          alert("Error sending upload payload: " + err.message);
+        }
+      };
+      reader.onerror = () => {
+        alert("Failed to read the image file.");
+      };
+    } catch (err: any) {
+      alert("Error reading file: " + err.message);
+    } finally {
+      setSavingSliderImage(false);
+    }
+  };
+
+  const handleDeleteSliderImage = async (url: string) => {
+    if (!confirm("Are you sure you want to delete this slider image?")) return;
+    setSavingSliderImage(true);
+    setSliderSuccess('');
+    try {
+      const response = await fetch('/api/settings/slider', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSliderSuccess("Slider image deleted successfully!");
+        setSliderImages(data.images || []);
+        setTimeout(() => setSliderSuccess(''), 3000);
+      } else {
+        alert("Failed to delete slider image.");
+      }
+    } catch (err) {
+      alert("Error deleting slider image.");
+    } finally {
+      setSavingSliderImage(false);
+    }
+  };
+
   const handleCreateCenter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cenName || !cenCity || !cenCap) return;
@@ -700,7 +874,17 @@ export function useAdminData() {
 
   const handleEditScheduleClick = (school: School) => {
     setEditingSchoolId(school.id);
-    setEditPreExamDate(school.preExamDate || '');
+    let dateVal = school.preExamDate || '';
+    if (dateVal && !/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+      const parsed = Date.parse(dateVal);
+      if (!isNaN(parsed)) {
+        const d = new Date(parsed);
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        dateVal = `${d.getFullYear()}-${month}-${day}`;
+      }
+    }
+    setEditPreExamDate(dateVal);
     setEditPreExamTime(school.preExamTime || '');
     setEditPreExamDuration(school.preExamDuration || '120');
     setEditSaveError('');
@@ -888,6 +1072,21 @@ export function useAdminData() {
     handleDeleteDBItem,
     getSchoolExamStatus,
     handleEditScheduleClick,
-    handleSaveSchoolSchedule
+    handleSaveSchoolSchedule,
+    headerAnnouncementText,
+    setHeaderAnnouncementText,
+    savingHeaderAnnouncement,
+    headerAnnouncementSuccess,
+    handleSaveHeaderAnnouncement,
+    handleDeleteHeaderAnnouncement,
+    sliderImages,
+    setSliderImages,
+    newSliderImageUrl,
+    setNewSliderImageUrl,
+    savingSliderImage,
+    sliderSuccess,
+    handleSaveSliderImage,
+    handleDeleteSliderImage,
+    handleUploadSliderImage
   };
 }

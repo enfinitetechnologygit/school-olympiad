@@ -18,12 +18,16 @@ export default function App() {
   const fetchSchoolsList = async () => {
     try {
       const response = await fetch('/api/schools');
-      if (response.ok) {
+      if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
         const data = await response.json();
         setSchools(data);
+      } else {
+        console.warn("Schools API returned non-JSON/invalid response, using empty fallback");
+        setSchools([]);
       }
     } catch (e) {
       console.error("Error reading school array checklist detail", e);
+      setSchools([]);
     }
   };
 

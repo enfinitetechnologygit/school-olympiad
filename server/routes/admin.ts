@@ -1,8 +1,128 @@
 import { Router } from "express";
 import { db, dbConnected } from "../db";
-import { schools, students, mockItems, saveFallbackData } from "../store";
+import { schools, students, mockItems, saveFallbackData, sliderImages } from "../store";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
+
+  // GET Slider Images
+  router.get("/settings/slider", (req, res) => {
+    res.json(sliderImages);
+  });
+
+  // POST Add Slider Image Link
+  router.post("/settings/slider", async (req, res) => {
+    const { url } = req.body;
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ error: "Image URL string is mandatory." });
+    }
+    const cleanUrl = url.trim();
+    if (!sliderImages.includes(cleanUrl)) {
+      sliderImages.push(cleanUrl);
+      saveFallbackData("db_slider_images.json", sliderImages);
+
+      if (dbConnected && db) {
+        try {
+          await db.collection("settings").updateOne(
+            { _id: "slider_images" as any },
+            { $set: { images: sliderImages } },
+            { upsert: true }
+          );
+        } catch (err: any) {
+          console.error("Error saving slider images to database:", err.message);
+        }
+      }
+    }
+    res.json({ status: "success", images: sliderImages });
+  });
+
+  // POST Upload Slider Image (Base64)
+  router.post("/settings/slider/upload", async (req, res) => {
+    const { filename, base64Data } = req.body;
+    if (!filename || !base64Data) {
+      return res.status(400).json({ error: "Missing filename or base64Data." });
+    }
+
+    try {
+      const cleanBase64 = base64Data.replace(/^data:image\/\w+;base64,/, "");
+      const buffer = Buffer.from(cleanBase64, 'base64');
+
+      const uploadDir = path.join(process.cwd(), "public", "slider_uploads");
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const ext = path.extname(filename) || ".png";
+      const baseName = path.basename(filename, ext).replace(/[^a-zA-Z0-9]/g, "_");
+      const uniqueFilename = `${baseName}_${Date.now()}${ext}`;
+      const filePath = path.join(uploadDir, uniqueFilename);
+
+      fs.writeFileSync(filePath, buffer);
+
+      const relativeUrl = `/slider_uploads/${uniqueFilename}`;
+      
+      if (!sliderImages.includes(relativeUrl)) {
+        sliderImages.push(relativeUrl);
+        saveFallbackData("db_slider_images.json", sliderImages);
+
+        if (dbConnected && db) {
+          try {
+            await db.collection("settings").updateOne(
+              { _id: "slider_images" as any },
+              { $set: { images: sliderImages } },
+              { upsert: true }
+            );
+          } catch (err: any) {
+            console.error("Error saving slider images to database:", err.message);
+          }
+        }
+      }
+
+      res.json({ status: "success", images: sliderImages });
+    } catch (err: any) {
+      console.error("Error uploading slider image:", err);
+      res.status(500).json({ error: "Failed to upload image: " + err.message });
+    }
+  });
+
+  // DELETE Slider Image
+  router.delete("/settings/slider", async (req, res) => {
+    const { url } = req.body;
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ error: "Image URL string is mandatory." });
+    }
+    const cleanUrl = url.trim();
+    const index = sliderImages.indexOf(cleanUrl);
+    if (index !== -1) {
+      sliderImages.splice(index, 1);
+      saveFallbackData("db_slider_images.json", sliderImages);
+
+      if (cleanUrl.startsWith("/slider_uploads/")) {
+        try {
+          const filePath = path.join(process.cwd(), "public", cleanUrl);
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (e) {
+          console.error("Error deleting local slider image file:", e);
+        }
+      }
+
+      if (dbConnected && db) {
+        try {
+          await db.collection("settings").updateOne(
+            { _id: "slider_images" as any },
+            { $set: { images: sliderImages } },
+            { upsert: true }
+          );
+        } catch (err: any) {
+          console.error("Error deleting slider image from database:", err.message);
+        }
+      }
+    }
+    res.json({ status: "success", images: sliderImages });
+  });
 
   router.get("/stats", (req, res) => {
     const pendingSchools = schools.filter(s => s.status === "PENDING").length;

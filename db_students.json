@@ -1,0 +1,26 @@
+[
+  {
+    "id": "ENO-2026-1330",
+    "name": "Harsh Kumar",
+    "classLevel": "Class 9",
+    "gender": "Male",
+    "dob": "2026-07-08",
+    "mobile": "4444444444",
+    "parentName": "mr",
+    "parentMobile": "",
+    "email": "enfinitetechnology@gmail.com",
+    "password": "jv1su0qg",
+    "schoolId": "SCH-3926",
+    "schoolName": "deepak school",
+    "paymentStatus": "COMPLETED",
+    "qualificationStatus": "TBD",
+    "admitCardGenerated": true,
+    "paymentId": "pay_ENO3218252",
+    "paymentAmount": 200,
+    "paymentDate": "2026-07-08T09:28:02.680Z",
+    "admitCardNumber": "ENO-AC-51567",
+    "stage1AdmitNumber": "ENO-S1-81061",
+    "stage1AdmitReleased": true,
+    "examCenterId": "CEN-3001"
+  }
+]

@@ -39,6 +39,12 @@ export default function HomeSyllabus({
               {Object.entries(OLYMPIAD_SYLLABUS).map(([id, syllabus]) => {
                 const isActive = selectedSyllabusGroup === id;
                 const groupNo = id === '5-6' ? '1' : id === '7-8' ? '2' : id === '9-10' ? '3' : '4';
+                const classLabelMap: Record<string, string> = {
+                  '5-6': 'Class 5th & 6th',
+                  '7-8': 'Class 7th & 8th',
+                  '9-10': 'Class 9th & 10th',
+                  '11-12': 'Class 11th & 12th'
+                };
                 
                 return (
                   <button
@@ -55,7 +61,7 @@ export default function HomeSyllabus({
                       Group {groupNo}
                     </div>
                     <div className="font-extrabold text-sm font-display mt-1">
-                      Class {id}
+                      {classLabelMap[id] || `Class ${id}`}
                     </div>
                   </button>
                 );

@@ -6,6 +6,19 @@ import { Student } from "../../src/types";
 
 const router = Router();
 
+function getNextStudentId(): string {
+  let maxNum = 1000;
+  for (const s of students) {
+    if (s.id && s.id.startsWith("ENO-2026-")) {
+      const num = parseInt(s.id.split("ENO-2026-")[1], 10);
+      if (!isNaN(num) && num > maxNum) {
+        maxNum = num;
+      }
+    }
+  }
+  return `ENO-2026-${maxNum + 1}`;
+}
+
   router.get("/", (req, res) => {
     res.json(students);
   });
@@ -26,7 +39,7 @@ const router = Router();
       return res.status(400).json({ error: "Selected high school coordinate not found inside verified directories." });
     }
 
-    const genStudentId = "ENO-2026-" + Math.floor(1100 + Math.random() * 8900);
+    const genStudentId = getNextStudentId();
     const generatedPassword = Math.random().toString(36).slice(-8);
     const newStudent: Student = {
       id: genStudentId,
@@ -114,7 +127,7 @@ const router = Router();
     }
 
     // Send credentials welcome email upon online checkout success
-    sendLoginCredentials(student.email, "student", student.id, student.password || "student123").catch((e) => {
+    sendLoginCredentials(student.email, "student", student.id, student.password).catch((e) => {
       console.error("Error sending student registration credentials email:", e.message);
     });
 
@@ -176,7 +189,7 @@ const router = Router();
     }
 
     // Send credentials welcome email upon cash payment approval
-    sendLoginCredentials(student.email, "student", student.id, student.password || "student123").catch((e) => {
+    sendLoginCredentials(student.email, "student", student.id, student.password).catch((e) => {
       console.error("Error sending student credentials email on cash approval:", e.message);
     });
 

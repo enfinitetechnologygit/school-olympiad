@@ -149,6 +149,20 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   noticeAudience={admin.noticeAudience}
                   setNoticeAudience={admin.setNoticeAudience}
                   handleCreateAnnouncement={admin.handleCreateAnnouncement}
+                  headerAnnouncementText={admin.headerAnnouncementText}
+                  setHeaderAnnouncementText={admin.setHeaderAnnouncementText}
+                  savingHeaderAnnouncement={admin.savingHeaderAnnouncement}
+                  headerAnnouncementSuccess={admin.headerAnnouncementSuccess}
+                  handleSaveHeaderAnnouncement={admin.handleSaveHeaderAnnouncement}
+                  handleDeleteHeaderAnnouncement={admin.handleDeleteHeaderAnnouncement}
+                  sliderImages={admin.sliderImages}
+                  newSliderImageUrl={admin.newSliderImageUrl}
+                  setNewSliderImageUrl={admin.setNewSliderImageUrl}
+                  savingSliderImage={admin.savingSliderImage}
+                  sliderSuccess={admin.sliderSuccess}
+                  handleSaveSliderImage={admin.handleSaveSliderImage}
+                  handleDeleteSliderImage={admin.handleDeleteSliderImage}
+                  handleUploadSliderImage={admin.handleUploadSliderImage}
                 />
               )}
 

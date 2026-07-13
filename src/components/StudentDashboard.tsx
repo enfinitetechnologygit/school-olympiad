@@ -8,7 +8,6 @@ import OverviewTab from './student/tabs/OverviewTab';
 import ExamsTab from './student/tabs/ExamsTab';
 import AdmitCardTab from './student/tabs/AdmitCardTab';
 import SyllabusTab from './student/tabs/SyllabusTab';
-import MaterialsTab from './student/tabs/MaterialsTab';
 
 interface StudentDashboardProps {
   user: any;
@@ -160,10 +159,6 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
             />
           )}
 
-          {/* STUDY MATERIALS PANEL */}
-          {activeTab === 'items' && (
-            <MaterialsTab dbItems={dbItems} />
-          )}
         </main>
       </div>
     </div>

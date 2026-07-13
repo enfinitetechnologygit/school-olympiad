@@ -38,7 +38,7 @@ export default function AuthModals({
   
   if (!isOpen || !type) return null;
 
-  const [modalView, setModalView] = useState<'studentLogin' | 'schoolLogin' | 'adminLogin' | 'studentRegister' | 'schoolRegister' | 'studentPayment' | 'studentSuccess'>(type);
+  const [modalView, setModalView] = useState<'studentLogin' | 'schoolLogin' | 'adminLogin' | 'studentRegister' | 'schoolRegister' | 'studentPayment' | 'studentSuccess' | 'forgotPassword'>(type);
 
   React.useEffect(() => {
     if (type) {
@@ -117,6 +117,11 @@ export default function AuthModals({
           password: loginPassword,
         }),
       });
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error("Received non-JSON response from server. The server might be down or misconfigured.");
+      }
 
       const data = await response.json();
       if (!response.ok) {
@@ -253,6 +258,35 @@ export default function AuthModals({
     }
   };
 
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          role: activeLoginRole,
+          email: loginEmail
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reset password.");
+      }
+
+      setSuccess(data.message || "A new password has been successfully sent to your email!");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative">
@@ -266,6 +300,7 @@ export default function AuthModals({
               {modalView === 'studentRegister' && "NATIONAL CS OLYMPIAD STUDENT ENROLLMENT"}
               {modalView === 'studentPayment' && "REGISTRATION FEE PAYMENT"}
               {modalView === 'studentSuccess' && "REGISTRATION SUCCESSFUL!"}
+              {modalView === 'forgotPassword' && "RESET ACCOUNT PASSWORD"}
             </h3>
             <p className="text-xs text-blue-100 mt-0.5">
               Enfinite National IT & Computer Science Olympiad Board
@@ -410,9 +445,17 @@ export default function AuthModals({
                     <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block">
                       Secure Access Pin / Password
                     </label>
-                    <span className="text-[10px] text-slate-400">
-                      Case-sensitive password security
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalView('forgotPassword');
+                        setError(null);
+                        setSuccess(null);
+                      }}
+                      className="text-[11px] text-blue-600 hover:text-blue-500 font-bold hover:underline cursor-pointer"
+                    >
+                      Forgot Password?
+                    </button>
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
@@ -468,6 +511,78 @@ export default function AuthModals({
                     </button>
                   </div>
                 )}
+              </form>
+            </div>
+          )}
+
+          {/* FORGOT PASSWORD VIEW */}
+          {modalView === 'forgotPassword' && !success && (
+            <div className="space-y-4">
+              <div className="p-3 bg-blue-50 text-blue-900 rounded-xl border border-blue-100 text-xs flex items-center gap-2">
+                <Info className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>Enter your email address below. We will generate a new secure password and send it to your email inbox.</span>
+              </div>
+
+              {/* UTILITY TABS for Forgot Password Role */}
+              <div className="flex border border-slate-100 rounded-xl overflow-hidden bg-slate-50 p-1 shrink-0">
+                {(['student', 'school', 'admin'] as const).map((roleVal) => (
+                  <button
+                    key={roleVal}
+                    type="button"
+                    onClick={() => { setActiveLoginRole(roleVal); setError(null); }}
+                    className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                      activeLoginRole === roleVal 
+                        ? 'bg-blue-600 text-white shadow-sm' 
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    {roleVal === 'student' && "Student"}
+                    {roleVal === 'school' && "School Coordinator"}
+                    {roleVal === 'admin' && "Head Office Admin"}
+                  </button>
+                ))}
+              </div>
+
+              <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1">
+                    Registered Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                    <input 
+                      type="email" 
+                      required
+                      placeholder="Enter your registered email address"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="w-full mt-1 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl p-3 pl-10 text-sm outline-none transition"
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm tracking-wide rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition"
+                >
+                  {loading ? "Verifying identity & resetting..." : "RESET & SEND NEW PASSWORD"}
+                </button>
+
+                <div className="text-center pt-2 text-xs text-slate-500 border-t border-slate-100 mt-4">
+                  Remembered password?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalView(activeLoginRole === 'student' ? 'studentLogin' : activeLoginRole === 'school' ? 'schoolLogin' : 'adminLogin');
+                      setError(null);
+                      setSuccess(null);
+                    }}
+                    className="text-blue-600 font-bold hover:underline cursor-pointer"
+                  >
+                    Back to login
+                  </button>
+                </div>
               </form>
             </div>
           )}

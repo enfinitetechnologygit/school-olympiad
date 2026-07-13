@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Award, ArrowRight, School as SchoolIcon, Cpu } from 'lucide-react';
 
@@ -6,7 +6,54 @@ interface HomeHeroProps {
   onOpenModal: (type: 'studentLogin' | 'schoolLogin' | 'adminLogin' | 'studentRegister' | 'schoolRegister') => void;
 }
 
+const resolveImageUrl = (url: string): string => {
+  if (!url) return '';
+  if (url.includes('drive.google.com/file/d/')) {
+    const match = url.match(/\/file\/d\/([^\/]+)/);
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    }
+  }
+  if (url.includes('drive.google.com/open?id=')) {
+    const match = url.match(/id=([^&]+)/);
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    }
+  }
+  return url;
+};
+
 export default function HomeHero({ onOpenModal }: HomeHeroProps) {
+  const [images, setImages] = useState<string[]>(['/girl_laptop.png']);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/settings/slider')
+      .then(res => {
+        if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+          return res.json();
+        }
+        throw new Error("Invalid response content-type");
+      })
+      .then(data => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          setImages(data);
+        }
+      })
+      .catch(err => {
+        console.warn("Error fetching slider images (using fallback):", err.message);
+        setImages(['/girl_laptop.png']); // Fallback slider image
+      });
+  }, []);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [images]);
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 text-white py-20 px-6 lg:py-28">
       {/* Background visual graphics */}
@@ -91,42 +138,18 @@ export default function HomeHero({ onOpenModal }: HomeHeroProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7 }}
-            className="w-full max-w-sm aspect-square bg-gradient-to-tr from-blue-900 to-indigo-900 rounded-2xl p-6 relative border border-blue-500/25 flex flex-col justify-between shadow-2xl overflow-hidden font-sans"
+            className="w-full max-w-md aspect-[4/3] rounded-2xl overflow-hidden border border-blue-500/20 shadow-2xl relative bg-slate-900/50 backdrop-blur-sm"
           >
-            <div className="absolute top-0 right-0 w-44 h-44 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
-                LIVE INTERFACE
-              </span>
-              <Cpu className="w-8 h-8 text-blue-400 animate-spin-slow" />
-            </div>
-
-            <div>
-              <p className="text-slate-400 uppercase tracking-widest text-[9px] font-bold">Olympiad Syllabus Base</p>
-              <h3 className="text-xl font-bold font-display leading-tight text-white mt-1">
-                Computational Intel & Logic Patterns
-              </h3>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded text-slate-300">Basic Programming</span>
-                <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded text-slate-300">Logic & Truth Grids</span>
-                <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded text-slate-300">Binary Arithmetic</span>
-              </div>
-            </div>
-
-            <div className="bg-slate-950/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-600/30 rounded-lg flex items-center justify-center border border-blue-500/40 text-blue-400">
-                  <span className="font-mono text-lg font-extrabold tracking-tight">₹1.5L</span>
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-white">National Scholar Cash</h4>
-                  <p className="text-[10px] text-slate-400">Certificate & Rank Medals</p>
-                </div>
-              </div>
-              <span className="text-xs bg-emerald-500 text-slate-950 font-bold px-2 py-0.5 rounded">
-                STAGE 1 & 2
-              </span>
-            </div>
+            {images.map((imgUrl, idx) => (
+              <img 
+                key={idx}
+                src={resolveImageUrl(imgUrl)} 
+                alt={`Slide ${idx + 1}`} 
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                  idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                }`}
+              />
+            ))}
           </motion.div>
         </div>
       </div>

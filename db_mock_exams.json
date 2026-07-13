@@ -1,0 +1,437 @@
+[
+  {
+    "id": "EXM-101",
+    "title": "Class 5-6 Computer Science Foundation Mock",
+    "classGroup": "5-6",
+    "durationMinutes": 45,
+    "totalQuestions": 5,
+    "isActive": true,
+    "questions": [
+      {
+        "id": "Q-101-1",
+        "question": "Which component of the computer is known as the 'Brain of the Computer'?",
+        "options": [
+          "Monitor",
+          "Central Processing Unit (CPU)",
+          "Keyboard",
+          "Hard Disk"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-101-2",
+        "question": "In Scratch programming, what is the visual character object called?",
+        "options": [
+          "Sprite",
+          "Script",
+          "Background",
+          "Costume"
+        ],
+        "correctOption": 0
+      },
+      {
+        "id": "Q-101-3",
+        "question": "Which of these is a popular high-level operating system developed by Microsoft?",
+        "options": [
+          "Chrome OS",
+          "Linux",
+          "Windows",
+          "Unix"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-101-4",
+        "question": "What is the key combination used to 'Copy' selected text or images?",
+        "options": [
+          "Ctrl + V",
+          "Ctrl + X",
+          "Ctrl + C",
+          "Ctrl + Z"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-101-5",
+        "question": "Which of the following is an input device?",
+        "options": [
+          "Monitor",
+          "Printer",
+          "Speaker",
+          "Scanner"
+        ],
+        "correctOption": 3
+      }
+    ]
+  },
+  {
+    "id": "EXM-102",
+    "title": "Class 7-8 Computational Logic & Algorithms Practice",
+    "classGroup": "7-8",
+    "durationMinutes": 45,
+    "totalQuestions": 5,
+    "isActive": true,
+    "questions": [
+      {
+        "id": "Q-102-1",
+        "question": "The binary system uses only two digits to represent data. What are they?",
+        "options": [
+          "1 and 2",
+          "0 and 1",
+          "A and B",
+          "-1 and +1"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-102-2",
+        "question": "What shape is standardly used for 'Decision Making' in a flowchart?",
+        "options": [
+          "Rectangle",
+          "Oval",
+          "Diamond",
+          "Parallelogram"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-102-3",
+        "question": "In Python, which function is used to output text to the screen?",
+        "options": [
+          "echo()",
+          "print()",
+          "write()",
+          "output()"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-102-4",
+        "question": "Convert the decimal number 5 into binary form.",
+        "options": [
+          "101",
+          "110",
+          "111",
+          "010"
+        ],
+        "correctOption": 0
+      },
+      {
+        "id": "Q-102-5",
+        "question": "What is a step-by-step set of instructions to solve a specific problem called?",
+        "options": [
+          "Variable",
+          "Flowchart",
+          "Algorithm",
+          "Condition"
+        ],
+        "correctOption": 2
+      }
+    ]
+  },
+  {
+    "id": "EXM-103",
+    "title": "Class 9-10 Information Technology & Coding Quiz",
+    "classGroup": "9-10",
+    "durationMinutes": 45,
+    "totalQuestions": 5,
+    "isActive": true,
+    "questions": [
+      {
+        "id": "Q-103-1",
+        "question": "Which HTML tag is used to create a hyperlink on a webpage?",
+        "options": [
+          "<link>",
+          "<a>",
+          "<href>",
+          "<url>"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-103-2",
+        "question": "What does CSS stand for in web development?",
+        "options": [
+          "Computer System Sheet",
+          "Cascading Style Sheets",
+          "Creative Solid Syntax",
+          "Common Stylus Sheet"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-103-3",
+        "question": "In Python, which of the following is NOT a valid data type?",
+        "options": [
+          "int",
+          "float",
+          "double",
+          "string"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-103-4",
+        "question": "What does SQL stand for when interacting with structured databases?",
+        "options": [
+          "Structured Query Language",
+          "System Question Logic",
+          "Simplified Queue List",
+          "Simple Query Layout"
+        ],
+        "correctOption": 0
+      },
+      {
+        "id": "Q-103-5",
+        "question": "What is the time complexity of searching a sorted array using Binary Search?",
+        "options": [
+          "O(1)",
+          "O(n)",
+          "O(log n)",
+          "O(n^2)"
+        ],
+        "correctOption": 2
+      }
+    ]
+  },
+  {
+    "id": "EXM-104",
+    "title": "Class 11-12 Advanced Computer Science Olympiad",
+    "classGroup": "11-12",
+    "durationMinutes": 60,
+    "totalQuestions": 5,
+    "isActive": true,
+    "questions": [
+      {
+        "id": "Q-104-1",
+        "question": "In Object-Oriented Programming, what is the process of hiding internal details and showing only functionality called?",
+        "options": [
+          "Polymorphism",
+          "Encapsulation",
+          "Inheritence",
+          "Abstraction"
+        ],
+        "correctOption": 3
+      },
+      {
+        "id": "Q-104-2",
+        "question": "Which data structure operates on a Last-In-First-Out (LIFO) protocol?",
+        "options": [
+          "Queue",
+          "Stack",
+          "Linked List",
+          "Tree"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-104-3",
+        "question": "What is the decimal equivalent of the hexadecimal number 'A'?",
+        "options": [
+          "10",
+          "12",
+          "15",
+          "1"
+        ],
+        "correctOption": 0
+      },
+      {
+        "id": "Q-104-4",
+        "question": "Which of the following joins returns all matching records from two tables?",
+        "options": [
+          "LEFT JOIN",
+          "INNER JOIN",
+          "CROSS JOIN",
+          "RIGHT JOIN"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-104-5",
+        "question": "What is the primary function of the Transport Layer in the TCP/IP networking model?",
+        "options": [
+          "Routing packets",
+          "Process-to-process delivery",
+          "Framing data",
+          "Interfacing physical copper wire"
+        ],
+        "correctOption": 1
+      }
+    ]
+  },
+  {
+    "id": "EXM-217",
+    "title": "Computer Science & Logical Olympiad Mock Test - Class 9-10",
+    "classGroup": "9-10",
+    "durationMinutes": 45,
+    "totalQuestions": 15,
+    "questions": [
+      {
+        "id": "Q-EXM-217-1",
+        "question": "Which component is considered the 'brain' of the computer, responsible for executing instructions?",
+        "options": [
+          "RAM",
+          "Hard Disk Drive",
+          "Central Processing Unit (CPU)",
+          "Graphics Processing Unit (GPU)"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-EXM-217-2",
+        "question": "Which protocol is primarily used for securely transferring web pages over the internet?",
+        "options": [
+          "FTP",
+          "SMTP",
+          "HTTP",
+          "HTTPS"
+        ],
+        "correctOption": 3
+      },
+      {
+        "id": "Q-EXM-217-3",
+        "question": "Which of the following is a key advantage of using cloud computing for data storage?",
+        "options": [
+          "Increased on-premise hardware costs",
+          "Limited accessibility from different locations",
+          "Enhanced scalability and reliability",
+          "Reduced reliance on internet connectivity"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-EXM-217-4",
+        "question": "In a relational database, what is a 'row' commonly referred to as?",
+        "options": [
+          "Field",
+          "Table",
+          "Record",
+          "Schema"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-EXM-217-5",
+        "question": "What will be the output of the following Python code?\nx = 10\ny = 3\nprint(x // y)",
+        "options": [
+          "3.33",
+          "3",
+          "1",
+          "0"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-EXM-217-6",
+        "question": "Which keyword is used to define a function in Python?",
+        "options": [
+          "function",
+          "define",
+          "func",
+          "def"
+        ],
+        "correctOption": 3
+      },
+      {
+        "id": "Q-EXM-217-7",
+        "question": "What is the correct way to access the value 'apple' from the following Python dictionary?\nmy_dict = {\"fruit\": \"apple\", \"color\": \"red\"}",
+        "options": [
+          "my_dict[0]",
+          "my_dict[\"fruit\"]",
+          "my_dict.fruit",
+          "my_dict.get(0)"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-EXM-217-8",
+        "question": "Which mode is used to open a file for both reading and writing, creating it if it doesn't exist and truncating it if it does?",
+        "options": [
+          "'r'",
+          "'w+'",
+          "'a'",
+          "'rb'"
+        ],
+        "correctOption": 1
+      },
+      {
+        "id": "Q-EXM-217-9",
+        "question": "Which branch of Artificial Intelligence focuses on enabling computers to 'learn' from data without being explicitly programmed?",
+        "options": [
+          "Robotics",
+          "Natural Language Processing (NLP)",
+          "Machine Learning (ML)",
+          "Computer Vision"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-EXM-217-10",
+        "question": "Training a model to classify emails as \"spam\" or \"not spam\" based on a labeled dataset is an example of what type of machine learning?",
+        "options": [
+          "Unsupervised Learning",
+          "Reinforcement Learning",
+          "Supervised Learning",
+          "Deep Learning"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-EXM-217-11",
+        "question": "What type of cyber attack involves tricking users into revealing sensitive information by impersonating a trustworthy entity?",
+        "options": [
+          "DDoS attack",
+          "Malware",
+          "Phishing",
+          "Brute-force attack"
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-EXM-217-12",
+        "question": "Which of the following is considered a strong practice for creating secure passwords?",
+        "options": [
+          "Using personal information like birthdates",
+          "Keeping passwords short and simple",
+          "Reusing the same password for multiple accounts",
+          "Combining uppercase, lowercase, numbers, and symbols"
+        ],
+        "correctOption": 3
+      },
+      {
+        "id": "Q-EXM-217-13",
+        "question": "A key characteristic of blockchain technology is its distributed and immutable ledger. What does \"immutable\" primarily mean in this context?",
+        "options": [
+          "The data can be easily modified by any participant.",
+          "The data is stored in a centralized server.",
+          "Once a transaction is recorded, it cannot be altered or deleted.",
+          "The network is controlled by a single authority."
+        ],
+        "correctOption": 2
+      },
+      {
+        "id": "Q-EXM-217-14",
+        "question": "Which of the following is NOT typically considered a fundamental component of a robot?",
+        "options": [
+          "Sensor",
+          "Actuator",
+          "Power Source",
+          "Organic Brain"
+        ],
+        "correctOption": 3
+      },
+      {
+        "id": "Q-EXM-217-15",
+        "question": "Consider the following pseudocode:\nSTART\n  SET N = 5\n  SET RESULT = 1\n  FOR I FROM 1 TO N DO\n    RESULT = RESULT * I\n  END FOR\n  PRINT RESULT\nEND\nWhat value will be printed as RESULT?",
+        "options": [
+          "5",
+          "15",
+          "25",
+          "120"
+        ],
+        "correctOption": 3
+      }
+    ],
+    "isActive": true
+  }
+]

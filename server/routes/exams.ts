@@ -41,45 +41,55 @@ const router = Router();
 
   // --- EXAMS & QUESTIONS BANK ---
 
-  router.get("/exams/exams", (req, res) => {
+  router.get("/exams", (req, res) => {
     res.json(mockExams);
   });
 
-  router.post("/exams/exams", async (req, res) => {
+  router.post("/exams", async (req, res) => {
     const { title, classGroup, durationMinutes, questions } = req.body;
 
     if (!title || !classGroup || !questions || !Array.isArray(questions)) {
       return res.status(400).json({ error: "Exam definition missing title, classGroup or formatted questions list." });
     }
 
-    const nextId = "EXM-" + Math.floor(200 + Math.random() * 200);
-    const parsedExam: MockExam = {
-      id: nextId,
-      title,
-      classGroup,
-      durationMinutes: Number(durationMinutes) || 45,
-      totalQuestions: questions.length,
-      questions: questions.map((q: any, idx: number) => ({
-        id: `Q-${nextId}-${idx + 1}`,
-        question: q.question,
-        options: q.options || ["A", "B", "C", "D"],
-        correctOption: Number(q.correctOption) || 0
-      })),
-      isActive: true
-    };
+    try {
+      const nextId = "EXM-" + Math.floor(200 + Math.random() * 200);
+      const parsedExam: MockExam = {
+        id: nextId,
+        title,
+        classGroup,
+        durationMinutes: Number(durationMinutes) || 45,
+        totalQuestions: questions.length,
+        questions: questions.map((q: any, idx: number) => {
+          if (!q) {
+            throw new Error(`Question at index ${idx} is undefined or null.`);
+          }
+          return {
+            id: `Q-${nextId}-${idx + 1}`,
+            question: q.question || "Untitled Question",
+            options: q.options || ["A", "B", "C", "D"],
+            correctOption: Number(q.correctOption) !== undefined && !isNaN(Number(q.correctOption)) ? Number(q.correctOption) : 0
+          };
+        }),
+        isActive: true
+      };
 
-    mockExams.push(parsedExam);
-    saveFallbackData("db_mock_exams.json", mockExams);
+      mockExams.push(parsedExam);
+      saveFallbackData("db_mock_exams.json", mockExams);
 
-    if (dbConnected && db) {
-      try {
-        await db.collection("mock_exams").insertOne(parsedExam);
-      } catch (err: any) {
-        console.error("Error inserting mock exam into database:", err.message);
+      if (dbConnected && db) {
+        try {
+          await db.collection("mock_exams").insertOne(parsedExam);
+        } catch (err: any) {
+          console.error("Error inserting mock exam into database:", err.message);
+        }
       }
-    }
 
-    res.json({ status: "success", exam: parsedExam });
+      res.json({ status: "success", exam: parsedExam });
+    } catch (err: any) {
+      console.error("Error in POST /exams:", err);
+      res.status(500).json({ error: err.message || "Failed to publish exam due to an internal server error." });
+    }
   });
 
   // AI Mock Test Generator Endpoint

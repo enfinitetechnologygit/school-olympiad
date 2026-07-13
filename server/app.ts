@@ -18,9 +18,10 @@ import adminRouter from "./routes/admin";
 export async function startServer() {
   await initializeDatabase();
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "15mb" }));
+  app.use(express.urlencoded({ limit: "15mb", extended: true }));
 
   // Log API activities
   app.use((req, res, next) => {
@@ -43,7 +44,10 @@ export async function startServer() {
   // Vite integration for development mode or static mapping
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        proxy: {} // Disable proxy in middleware mode to prevent infinite loop back to Express
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);
@@ -54,6 +58,14 @@ export async function startServer() {
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
+
+  // Unhandled JSON Error Handler
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error("Unhandled server error:", err);
+    res.status(err.status || 500).json({
+      error: err.message || "An internal server error occurred."
+    });
+  });
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server started successfully on port ${PORT}`);

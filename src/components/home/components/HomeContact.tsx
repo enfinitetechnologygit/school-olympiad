@@ -25,8 +25,8 @@ export default function HomeContact() {
                 <Mail className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-slate-400">Academic Counselors Email</p>
-                <p className="text-sm font-semibold">support@enfinite-olympiad.org</p>
+                <p className="text-xs text-slate-400">Academic Coordinator Email</p>
+                <p className="text-sm font-semibold">deeksha.eno@enfinitenationalolympiad.com</p>
               </div>
             </div>
 
@@ -36,7 +36,7 @@ export default function HomeContact() {
               </div>
               <div>
                 <p className="text-xs text-slate-400">National Helpline Call Desk</p>
-                <p className="text-sm font-semibold">+91 98450 98450 (9:00 AM - 6:00 PM)</p>
+                <p className="text-sm font-semibold">+91 7906060700</p>
               </div>
             </div>
 
@@ -46,7 +46,7 @@ export default function HomeContact() {
               </div>
               <div>
                 <p className="text-xs text-slate-400">National Headquarters Office</p>
-                <p className="text-sm font-semibold">Enfinite Technology Labs, Hinjewadi Sector II, Pune</p>
+                <p className="text-sm font-semibold">1803, Centurian Park, Greater Noida</p>
               </div>
             </div>
           </div>
