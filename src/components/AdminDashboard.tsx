@@ -12,6 +12,7 @@ import BroadcastingTab from './admin/tabs/BroadcastingTab';
 import CentersTab from './admin/tabs/CentersTab';
 import DatabaseTab from './admin/tabs/DatabaseTab';
 import ScheduleTab from './admin/tabs/ScheduleTab';
+import ChangePasswordCard from './ui/ChangePasswordCard';
 
 interface AdminDashboardProps {
   user: any;
@@ -27,8 +28,60 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       {/* Admin header */}
       <AdminHeader onLogout={onLogout} />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         
+        {/* Mobile Navigation Horizontal Bar */}
+        <div className="md:hidden flex items-center gap-2 p-2.5 bg-white border-b border-slate-200 overflow-x-auto shrink-0 scrollbar-none">
+          <button
+            onClick={() => { admin.setActiveTab('approvals'); admin.setSelectedSchoolProfile(null); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'approvals' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            School Requests ({admin.schools.filter(s => s.status === 'PENDING').length})
+          </button>
+          <button
+            onClick={() => { admin.setActiveTab('students'); admin.setSelectedSchoolProfile(null); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'students' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Manage Students
+          </button>
+          <button
+            onClick={() => { admin.setActiveTab('exams'); admin.setSelectedSchoolProfile(null); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'exams' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Mock Exam Composer
+          </button>
+          <button
+            onClick={() => { admin.setActiveTab('broadcasting'); admin.setSelectedSchoolProfile(null); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'broadcasting' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Broadcasting
+          </button>
+          <button
+            onClick={() => { admin.setActiveTab('centers'); admin.setSelectedSchoolProfile(null); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'centers' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Exam Centers
+          </button>
+          <button
+            onClick={() => { admin.setActiveTab('schedule'); admin.setSelectedSchoolProfile(null); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'schedule' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Schedule Desk
+          </button>
+          <button
+            onClick={() => { admin.setActiveTab('database'); admin.setSelectedSchoolProfile(null); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'database' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Database Desk
+          </button>
+          <button
+            onClick={() => { admin.setActiveTab('security'); admin.setSelectedSchoolProfile(null); }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'security' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Security & Password
+          </button>
+        </div>
+
         {/* Left Toolbar Drawer */}
         <AdminSidebar
           activeTab={admin.activeTab}
@@ -219,6 +272,12 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                   setScheduleEndDateFilter={admin.setScheduleEndDateFilter}
                   handleEditScheduleClick={admin.handleEditScheduleClick}
                 />
+              )}
+
+              {admin.activeTab === 'security' && (
+                <div className="max-w-4xl mx-auto">
+                  <ChangePasswordCard role="admin" email={user?.email || "admin@eno.org"} />
+                </div>
               )}
             </>
           )}

@@ -9,6 +9,7 @@ import QualifiersTab from './school/tabs/QualifiersTab';
 import AnalyticsTab from './school/tabs/AnalyticsTab';
 import NoticesTab from './school/tabs/NoticesTab';
 import ScheduleTab from './school/tabs/ScheduleTab';
+import SchoolProfileTab from './school/tabs/SchoolProfileTab';
 
 interface SchoolDashboardProps {
   user: any;
@@ -47,6 +48,7 @@ export default function SchoolDashboard({ user, onLogout }: SchoolDashboardProps
     setSearchTerm,
     classFilter,
     setClassFilter,
+    fetchSchoolData,
     handleBackdoorRegister,
     handleDownloadRegistry
   } = schoolData;
@@ -94,8 +96,48 @@ export default function SchoolDashboard({ user, onLogout }: SchoolDashboardProps
       <SchoolHeader school={school} onLogout={onLogout} />
 
       {/* Main split canvas */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         
+        {/* Mobile Navigation Horizontal Bar */}
+        <div className="md:hidden flex items-center gap-2 p-2.5 bg-white border-b border-slate-200 overflow-x-auto shrink-0 scrollbar-none">
+          <button
+            onClick={() => setActiveTab('roster')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'roster' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Manage Roster
+          </button>
+          <button
+            onClick={() => setActiveTab('qualifiers')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'qualifiers' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Qualified Students
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'analytics' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Stats & Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('notices')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'notices' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Board Circulars
+          </button>
+          <button
+            onClick={() => setActiveTab('schedule')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'schedule' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            Pre-Exam Schedule
+          </button>
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'profile' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+          >
+            School Profile
+          </button>
+        </div>
+
         {/* Left Drawer Menu */}
         <SchoolSidebar school={school} activeTab={activeTab} setActiveTab={setActiveTab} />
 
@@ -158,6 +200,11 @@ export default function SchoolDashboard({ user, onLogout }: SchoolDashboardProps
           {/* Tab 5: PRE-EXAM SCHEDULE */}
           {activeTab === 'schedule' && (
             <ScheduleTab school={school} />
+          )}
+
+          {/* Tab 6: SCHOOL PROFILE */}
+          {activeTab === 'profile' && (
+            <SchoolProfileTab school={school} fetchSchoolData={fetchSchoolData} />
           )}
 
         </main>

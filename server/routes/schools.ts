@@ -3,6 +3,7 @@ import { db, dbConnected } from "../db";
 import { schools, students, saveFallbackData } from "../store";
 import { sendSchoolPendingConfirmation, sendNotificationEmail, sendLoginCredentials } from "../email";
 import { School } from "../../src/types";
+import bcryptjs from "bcryptjs";
 
 const router = Router();
 
@@ -32,114 +33,125 @@ function getNextRequestId(): string {
   return `RQ-${maxNum + 1}`;
 }
 
-  router.post("", async (req, res) => {
-    const { name, principalName, coordinatorName, mobile, email, address, city, state, boardType, totalStudents } = req.body;
+router.post("", async (req, res) => {
+  const { name, principalName, coordinatorName, mobile, email, address, city, state, boardType, totalStudents } = req.body;
 
-    if (!name || !email || !coordinatorName || !mobile || !city || !state) {
-      return res.status(400).json({ error: "Missing required school registration fields." });
-    }
+  if (!name || !email || !coordinatorName || !mobile || !city || !state) {
+    return res.status(400).json({ error: "Missing required school registration fields." });
+  }
 
-    // Check duplicate
-    if (schools.some(s => s.email.toLowerCase() === email.toLowerCase())) {
-      return res.status(400).json({ error: "A school with this email is already registered." });
-    }
-
-    const requestSchoolId = getNextRequestId();
-    const newSchool: School = {
-      id: requestSchoolId,
-      name,
-      principalName: principalName || "TBD",
-      coordinatorName,
-      mobile,
-      email,
-      address: address || "TBD Address",
-      city,
-      state,
-      boardType: boardType || "CBSE",
-      totalStudents: Number(totalStudents) || 10,
-      status: "PENDING",
-      createdAt: new Date().toISOString()
-    };
-
-    schools.push(newSchool);
-    saveFallbackData("db_schools.json", schools);
-
-    if (dbConnected && db) {
-      try {
-        await db.collection("schools").insertOne(newSchool);
-      } catch (err: any) {
-        console.error("Error inserting school into database:", err.message);
+  // Check duplicate in database first if connected
+  if (dbConnected && db) {
+    try {
+      const existingSchool = await db.collection("schools").findOne({
+        email: { $regex: new RegExp(`^${email.trim()}$`, "i") }
+      });
+      if (existingSchool) {
+        return res.status(400).json({ error: "A school with this email is already registered." });
       }
+    } catch (err: any) {
+      console.error("Error checking duplicate school in DB:", err.message);
     }
+  } else {
+    return res.status(400).json({ error: "A school with this email is already registered." });
+  }
 
-    // Send pending confirmation email
-    sendSchoolPendingConfirmation(newSchool.email, newSchool.id, newSchool.name).catch((e) => {
-      console.error("Error sending school pending confirmation email:", e.message);
-    });
+  const requestSchoolId = getNextRequestId();
+  const newSchool: School = {
+    id: requestSchoolId,
+    name,
+    principalName: principalName || "TBD",
+    coordinatorName,
+    mobile,
+    email,
+    address: address || "TBD Address",
+    city,
+    state,
+    boardType: boardType || "CBSE",
+    totalStudents: Number(totalStudents) || 10,
+    status: "PENDING",
+    createdAt: new Date().toISOString()
+  };
 
-    res.json({ status: "success", school: newSchool });
+  // schools.push(newSchool);
+  // saveFallbackData("db_schools.json", schools);
+
+  if (dbConnected && db) {
+    try {
+      await db.collection("schools").insertOne(newSchool);
+    } catch (err: any) {
+      console.error("Error inserting school into database:", err.message);
+    }
+  }
+
+  // Send pending confirmation email
+  sendSchoolPendingConfirmation(newSchool.email, newSchool.id, newSchool.name).catch((e) => {
+    console.error("Error sending school pending confirmation email:", e.message);
   });
 
-  router.get("", (req, res) => {
-    res.json(schools);
-  });
+  res.json({ status: "success", school: newSchool });
+});
 
-  // Get a single school by ID
-  router.get("/:id", (req, res) => {
-    const targetId = req.params.id;
-    const school = schools.find(s => s.id === targetId);
-    if (!school) {
-      return res.status(404).json({ error: "School not found." });
-    }
-    res.json(school);
-  });
+router.get("", (req, res) => {
+  res.json(schools);
+});
 
-  // Update a school's Pre-Exam schedule
-  router.post("/:id/schedule", async (req, res) => {
-    const targetId = req.params.id;
-    const schoolIdx = schools.findIndex(s => s.id === targetId);
+// Get a single school by ID
+router.get("/:id", (req, res) => {
+  const targetId = req.params.id;
+  const school = schools.find(s => s.id === targetId);
+  if (!school) {
+    return res.status(404).json({ error: "School not found." });
+  }
+  res.json(school);
+});
 
-    if (schoolIdx === -1) {
-      return res.status(404).json({ error: "School not found." });
-    }
+// Update a school's Pre-Exam schedule
+router.post("/:id/schedule", async (req, res) => {
+  const targetId = req.params.id;
+  const schoolIdx = schools.findIndex(s => s.id === targetId);
 
-    const { preExamDate, preExamTime, preExamDuration } = req.body;
-    if (!preExamDate || !preExamTime || !preExamDuration) {
-      return res.status(400).json({ error: "Missing required fields: preExamDate, preExamTime, preExamDuration." });
-    }
+  if (schoolIdx === -1) {
+    return res.status(404).json({ error: "School not found." });
+  }
 
-    const school = schools[schoolIdx];
-    const isModification = !!(school.preExamDate || school.preExamTime || school.preExamDuration);
-    const statusWord = isModification ? "modified" : "created";
+  const { preExamDate, preExamTime, preExamDuration } = req.body;
+  if (!preExamDate || !preExamTime || !preExamDuration) {
+    return res.status(400).json({ error: "Missing required fields: preExamDate, preExamTime, preExamDuration." });
+  }
 
-    school.preExamDate = preExamDate;
-    school.preExamTime = preExamTime;
-    school.preExamDuration = String(preExamDuration);
+  const school = schools[schoolIdx];
+  const isModification = !!(school.preExamDate || school.preExamTime || school.preExamDuration);
+  const statusWord = isModification ? "modified" : "created";
 
-    schools[schoolIdx] = school;
-    saveFallbackData("db_schools.json", schools);
+  school.preExamDate = preExamDate;
+  school.preExamTime = preExamTime;
+  school.preExamDuration = String(preExamDuration);
 
-    if (dbConnected && db) {
-      try {
-        await db.collection("schools").updateOne(
-          { id: targetId },
-          { 
-            $set: { 
-              preExamDate: school.preExamDate,
-              preExamTime: school.preExamTime,
-              preExamDuration: school.preExamDuration
-            } 
+  schools[schoolIdx] = school;
+  saveFallbackData("db_schools.json", schools);
+
+  if (dbConnected && db) {
+    try {
+      await db.collection("schools").updateOne(
+        { id: targetId },
+        {
+          $set: {
+            preExamDate: school.preExamDate,
+            preExamTime: school.preExamTime,
+            preExamDuration: school.preExamDuration
           }
-        );
-      } catch (err: any) {
-        console.error("Error updating school schedule in database:", err.message);
-      }
+        }
+      );
+    } catch (err: any) {
+      console.error("Error updating school schedule in database:", err.message);
     }
+  }
 
-    // Send notifications asynchronously
-    const subject = `Enfinite National Olympiad - Pre-Exam Schedule ${isModification ? "Updated" : "Scheduled"}`;
-    
-    const coordinatorHtml = `
+  // Send notifications asynchronously
+  const subject = `Enfinite National Olympiad - Pre-Exam Schedule ${isModification ? "Updated" : "Scheduled"}`;
+
+  const coordinatorHtml = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
         <div style="background-color: #2563eb; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; color: white;">
           <h2 style="margin: 0; font-size: 20px;">Pre-Exam Schedule ${isModification ? "Updated" : "Scheduled"}</h2>
@@ -159,15 +171,15 @@ function getNextRequestId(): string {
         </div>
       </div>
     `;
-    const coordinatorText = `Dear Coordinator,\n\nThe Pre-Exam schedule for ${school.name} has been ${statusWord} by the Administrator.\n\nDate: ${preExamDate}\nStart Time: ${preExamTime}\nDuration: ${preExamDuration} minutes\n\nPlease log in to the School Dashboard for more details.\n\nBest regards,\nEnfinite Olympiad Board`;
+  const coordinatorText = `Dear Coordinator,\n\nThe Pre-Exam schedule for ${school.name} has been ${statusWord} by the Administrator.\n\nDate: ${preExamDate}\nStart Time: ${preExamTime}\nDuration: ${preExamDuration} minutes\n\nPlease log in to the School Dashboard for more details.\n\nBest regards,\nEnfinite Olympiad Board`;
 
-    sendNotificationEmail(school.email, subject, coordinatorHtml, coordinatorText).catch((e) => {
-      console.error("Error sending school schedule update email:", e.message);
-    });
+  sendNotificationEmail(school.email, subject, coordinatorHtml, coordinatorText).catch((e) => {
+    console.error("Error sending school schedule update email:", e.message);
+  });
 
-    const schoolStudents = students.filter(s => s.schoolId === school.id);
-    for (const student of schoolStudents) {
-      const studentHtml = `
+  const schoolStudents = students.filter(s => s.schoolId === school.id);
+  for (const student of schoolStudents) {
+    const studentHtml = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
           <div style="background-color: #2563eb; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; color: white;">
             <h2 style="margin: 0; font-size: 20px;">Your Olympiad Pre-Exam Schedule ${isModification ? "Updated" : "Scheduled"}</h2>
@@ -187,193 +199,255 @@ function getNextRequestId(): string {
           </div>
         </div>
       `;
-      const studentText = `Dear ${student.name},\n\nThe Pre-Exam schedule for your school ${school.name} has been ${statusWord}.\n\nDate: ${preExamDate}\nStart Time: ${preExamTime}\nDuration: ${preExamDuration} minutes\n\nYou can now view and download your Stage 1 Admit Card from your Student Dashboard.\n\nBest regards,\nEnfinite Olympiad Board`;
+    const studentText = `Dear ${student.name},\n\nThe Pre-Exam schedule for your school ${school.name} has been ${statusWord}.\n\nDate: ${preExamDate}\nStart Time: ${preExamTime}\nDuration: ${preExamDuration} minutes\n\nYou can now view and download your Stage 1 Admit Card from your Student Dashboard.\n\nBest regards,\nEnfinite Olympiad Board`;
 
-      sendNotificationEmail(student.email, subject, studentHtml, studentText).catch((e) => {
-        console.error(`Error sending student schedule update email to ${student.email}:`, e.message);
+    sendNotificationEmail(student.email, subject, studentHtml, studentText).catch((e) => {
+      console.error(`Error sending student schedule update email to ${student.email}:`, e.message);
+    });
+  }
+
+  res.json({ status: "success", school });
+});
+
+// Approve a school
+router.post("/:id/approve", async (req, res) => {
+  const targetId = req.params.id;
+  const schoolIdx = schools.findIndex(s => s.id === targetId);
+
+  if (schoolIdx === -1) {
+    return res.status(404).json({ error: "School registration request not found." });
+  }
+
+  const school = schools[schoolIdx];
+  const generatedSchoolId = getNextSchoolId();
+  const oldId = school.id;
+
+  const generatedPassword = Math.random().toString(36).slice(-8);
+  const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+  school.id = generatedSchoolId;
+  school.status = "APPROVED";
+  school.password = hashedPassword;
+
+  // Update in-place
+  schools[schoolIdx] = school;
+  saveFallbackData("db_schools.json", schools);
+
+  if (dbConnected && db) {
+    try {
+      await db.collection("schools").deleteOne({ id: oldId });
+      await db.collection("schools").insertOne(school);
+      await db.collection("users").updateOne(
+        { email: school.email },
+        { $set: { email: school.email, password: hashedPassword, name: school.name, role: "school" } },
+        { upsert: true }
+      );
+    } catch (err: any) {
+      console.error("Error approving school in database:", err.message);
+    }
+  }
+
+  // Send approved credentials email with plain text password and personalized name
+  sendLoginCredentials(school.email, "school", school.id, generatedPassword, school.coordinatorName).catch((e) => {
+    console.error("Error sending school approval credentials email:", e.message);
+  });
+
+  res.json({ status: "success", school });
+});
+
+// Reject a school
+router.post("/:id/reject", async (req, res) => {
+  const targetId = req.params.id;
+  const schoolIdx = schools.findIndex(s => s.id === targetId);
+
+  if (schoolIdx === -1) {
+    return res.status(404).json({ error: "School registration request not found." });
+  }
+
+  schools[schoolIdx].status = "REJECTED";
+  saveFallbackData("db_schools.json", schools);
+
+  if (dbConnected && db) {
+    try {
+      await db.collection("schools").updateOne(
+        { id: targetId },
+        { $set: { status: "REJECTED" } }
+      );
+    } catch (err: any) {
+      console.error("Error rejecting school in database:", err.message);
+    }
+  }
+
+  res.json({ status: "success", school: schools[schoolIdx] });
+});
+
+// Delete a school
+router.delete("/:id", async (req, res) => {
+  const targetId = req.params.id;
+  const schoolIdx = schools.findIndex(s => s.id === targetId);
+
+  if (schoolIdx === -1) {
+    return res.status(404).json({ error: "School not found." });
+  }
+
+  const school = schools[schoolIdx];
+  schools.splice(schoolIdx, 1);
+  saveFallbackData("db_schools.json", schools);
+
+  if (dbConnected && db) {
+    try {
+      await db.collection("schools").deleteOne({ id: targetId });
+      await db.collection("users").deleteOne({
+        email: { $regex: new RegExp(`^${school.email.trim()}$`, "i") },
+        role: "school"
       });
+    } catch (err: any) {
+      console.error("Error deleting school from database:", err.message);
     }
+  }
 
-    res.json({ status: "success", school });
-  });
+  res.json({ status: "success", message: "School deleted successfully." });
+});
 
-  // Approve a school
-  router.post("/:id/approve", async (req, res) => {
-    const targetId = req.params.id;
-    const schoolIdx = schools.findIndex(s => s.id === targetId);
+// Set passing/qualification marks for a school's classes
+router.post("/:id/passing-marks", async (req, res) => {
+  const targetId = req.params.id;
+  const schoolIdx = schools.findIndex(s => s.id === targetId);
 
-    if (schoolIdx === -1) {
-      return res.status(404).json({ error: "School registration request not found." });
+  if (schoolIdx === -1) {
+    return res.status(404).json({ error: "School not found." });
+  }
+
+  const { passingMarks } = req.body;
+  if (!passingMarks || typeof passingMarks !== "object") {
+    return res.status(400).json({ error: "Invalid passing marks payload." });
+  }
+
+  // Convert values to numbers and validate
+  const sanitizedPassingMarks: Record<string, number> = {};
+  for (const key of Object.keys(passingMarks)) {
+    const val = Number(passingMarks[key]);
+    if (isNaN(val) || val < 0 || val > 100) {
+      return res.status(400).json({ error: `Passing mark for ${key} must be a number between 0 and 100.` });
     }
+    sanitizedPassingMarks[key] = val;
+  }
 
-    const school = schools[schoolIdx];
-    const generatedSchoolId = getNextSchoolId();
-    const oldId = school.id;
-    
-    const generatedPassword = Math.random().toString(36).slice(-8);
-    school.id = generatedSchoolId;
-    school.status = "APPROVED";
-    school.password = generatedPassword;
+  const school = schools[schoolIdx];
+  school.passingMarks = sanitizedPassingMarks;
+  schools[schoolIdx] = school;
+  saveFallbackData("db_schools.json", schools);
 
-    // Update in-place
-    schools[schoolIdx] = school;
-    saveFallbackData("db_schools.json", schools);
-
-    if (dbConnected && db) {
-      try {
-        await db.collection("schools").deleteOne({ id: oldId });
-        await db.collection("schools").insertOne(school);
-        await db.collection("users").updateOne(
-          { email: school.email },
-          { $set: { email: school.email, password: school.password, name: school.name, role: "school" } },
-          { upsert: true }
-        );
-      } catch (err: any) {
-        console.error("Error approving school in database:", err.message);
-      }
+  if (dbConnected && db) {
+    try {
+      await db.collection("schools").updateOne(
+        { id: targetId },
+        { $set: { passingMarks: sanitizedPassingMarks } }
+      );
+    } catch (err: any) {
+      console.error("Error saving passing marks to database:", err.message);
     }
+  }
 
-    // Send approved credentials email
-    sendLoginCredentials(school.email, "school", school.id, school.password).catch((e) => {
-      console.error("Error sending school approval credentials email:", e.message);
-    });
+  // Auto-evaluate candidate qualification statuses for this school
+  let updatedStudentsCount = 0;
+  const updatePromises: Promise<any>[] = [];
 
-    res.json({ status: "success", school });
-  });
+  students.forEach((student, idx) => {
+    if (student.schoolId === targetId && student.score !== undefined && student.score !== null) {
+      const threshold = sanitizedPassingMarks[student.classLevel] !== undefined
+        ? sanitizedPassingMarks[student.classLevel]
+        : 60;
+      const newStatus = student.score >= threshold ? "QUALIFIED" : "NOT_QUALIFIED";
 
-  // Reject a school
-  router.post("/:id/reject", async (req, res) => {
-    const targetId = req.params.id;
-    const schoolIdx = schools.findIndex(s => s.id === targetId);
+      if (student.qualificationStatus !== newStatus) {
+        students[idx].qualificationStatus = newStatus;
+        updatedStudentsCount++;
 
-    if (schoolIdx === -1) {
-      return res.status(404).json({ error: "School registration request not found." });
-    }
-
-    schools[schoolIdx].status = "REJECTED";
-    saveFallbackData("db_schools.json", schools);
-
-    if (dbConnected && db) {
-      try {
-        await db.collection("schools").updateOne(
-          { id: targetId },
-          { $set: { status: "REJECTED" } }
-        );
-      } catch (err: any) {
-        console.error("Error rejecting school in database:", err.message);
-      }
-    }
-
-    res.json({ status: "success", school: schools[schoolIdx] });
-  });
-
-  // Delete a school
-  router.delete("/:id", async (req, res) => {
-    const targetId = req.params.id;
-    const schoolIdx = schools.findIndex(s => s.id === targetId);
-
-    if (schoolIdx === -1) {
-      return res.status(404).json({ error: "School not found." });
-    }
-
-    const school = schools[schoolIdx];
-    schools.splice(schoolIdx, 1);
-    saveFallbackData("db_schools.json", schools);
-
-    if (dbConnected && db) {
-      try {
-        await db.collection("schools").deleteOne({ id: targetId });
-        await db.collection("users").deleteOne({
-          email: { $regex: new RegExp(`^${school.email.trim()}$`, "i") },
-          role: "school"
-        });
-      } catch (err: any) {
-        console.error("Error deleting school from database:", err.message);
-      }
-    }
-
-    res.json({ status: "success", message: "School deleted successfully." });
-  });
-
-  // Set passing/qualification marks for a school's classes
-  router.post("/:id/passing-marks", async (req, res) => {
-    const targetId = req.params.id;
-    const schoolIdx = schools.findIndex(s => s.id === targetId);
-
-    if (schoolIdx === -1) {
-      return res.status(404).json({ error: "School not found." });
-    }
-
-    const { passingMarks } = req.body;
-    if (!passingMarks || typeof passingMarks !== "object") {
-      return res.status(400).json({ error: "Invalid passing marks payload." });
-    }
-
-    // Convert values to numbers and validate
-    const sanitizedPassingMarks: Record<string, number> = {};
-    for (const key of Object.keys(passingMarks)) {
-      const val = Number(passingMarks[key]);
-      if (isNaN(val) || val < 0 || val > 100) {
-        return res.status(400).json({ error: `Passing mark for ${key} must be a number between 0 and 100.` });
-      }
-      sanitizedPassingMarks[key] = val;
-    }
-
-    const school = schools[schoolIdx];
-    school.passingMarks = sanitizedPassingMarks;
-    schools[schoolIdx] = school;
-    saveFallbackData("db_schools.json", schools);
-
-    if (dbConnected && db) {
-      try {
-        await db.collection("schools").updateOne(
-          { id: targetId },
-          { $set: { passingMarks: sanitizedPassingMarks } }
-        );
-      } catch (err: any) {
-        console.error("Error saving passing marks to database:", err.message);
-      }
-    }
-
-    // Auto-evaluate candidate qualification statuses for this school
-    let updatedStudentsCount = 0;
-    const updatePromises: Promise<any>[] = [];
-
-    students.forEach((student, idx) => {
-      if (student.schoolId === targetId && student.score !== undefined && student.score !== null) {
-        const threshold = sanitizedPassingMarks[student.classLevel] !== undefined
-          ? sanitizedPassingMarks[student.classLevel]
-          : 60;
-        const newStatus = student.score >= threshold ? "QUALIFIED" : "NOT_QUALIFIED";
-        
-        if (student.qualificationStatus !== newStatus) {
-          students[idx].qualificationStatus = newStatus;
-          updatedStudentsCount++;
-
-          if (dbConnected && db) {
-            updatePromises.push(
-              db.collection("students").updateOne(
-                { id: student.id },
-                { $set: { qualificationStatus: newStatus } }
-              ).catch(err => console.error("Error updating student qualification status on threshold change:", err.message))
-            );
-          }
-        }
-      }
-    });
-
-    if (updatedStudentsCount > 0) {
-      saveFallbackData("db_students.json", students);
-      if (dbConnected && db && updatePromises.length > 0) {
-        try {
-          await Promise.all(updatePromises);
-        } catch (err: any) {
-          console.error("Error executing bulk student qualification DB updates:", err.message);
+        if (dbConnected && db) {
+          updatePromises.push(
+            db.collection("students").updateOne(
+              { id: student.id },
+              { $set: { qualificationStatus: newStatus } }
+            ).catch(err => console.error("Error updating student qualification status on threshold change:", err.message))
+          );
         }
       }
     }
-
-    res.json({ status: "success", school, updatedStudentsCount });
   });
+
+  if (updatedStudentsCount > 0) {
+    saveFallbackData("db_students.json", students);
+    if (dbConnected && db && updatePromises.length > 0) {
+      try {
+        await Promise.all(updatePromises);
+      } catch (err: any) {
+        console.error("Error executing bulk student qualification DB updates:", err.message);
+      }
+    }
+  }
+
+  res.json({ status: "success", school, updatedStudentsCount });
+});
+
+// Update School Profile Details (Email & ID are read-only)
+router.put("/:id", async (req, res) => {
+  const targetId = req.params.id;
+  const schoolIdx = schools.findIndex(s => s.id === targetId);
+
+  if (schoolIdx === -1) {
+    return res.status(404).json({ error: "School record not found." });
+  }
+
+  const school = schools[schoolIdx];
+  const { name, principalName, coordinatorName, mobile, address, city, state, boardType, totalStudents } = req.body;
+
+  if (name) school.name = name;
+  if (principalName) school.principalName = principalName;
+  if (coordinatorName) school.coordinatorName = coordinatorName;
+  if (mobile) school.mobile = mobile;
+  if (address) school.address = address;
+  if (city) school.city = city;
+  if (state) school.state = state;
+  if (boardType) school.boardType = boardType;
+  if (totalStudents !== undefined) school.totalStudents = Number(totalStudents);
+
+  // Email & ID are intentionally read-only & immutable
+
+  schools[schoolIdx] = school;
+  saveFallbackData("db_schools.json", schools);
+
+  // Update schoolName for linked students if name changed
+  if (name) {
+    students.forEach(st => {
+      if (st.schoolId === targetId) {
+        st.schoolName = name;
+      }
+    });
+    saveFallbackData("db_students.json", students);
+  }
+
+  if (dbConnected && db) {
+    try {
+      await db.collection("schools").updateOne(
+        { id: targetId },
+        { $set: school }
+      );
+      if (name) {
+        await db.collection("students").updateMany(
+          { schoolId: targetId },
+          { $set: { schoolName: name } }
+        );
+      }
+      await db.collection("users").updateOne(
+        { email: school.email },
+        { $set: { name: school.name } }
+      );
+    } catch (err: any) {
+      console.error("Error updating school profile in database:", err.message);
+    }
+  }
+
+  res.json({ status: "success", school });
+});
 
 export default router;

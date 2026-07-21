@@ -10,7 +10,7 @@ export function useAdminData() {
   const [stats, setStats] = useState<any>(null);
   const [selectedSchoolProfile, setSelectedSchoolProfile] = useState<School | null>(null);
   
-  const [activeTab, setActiveTab] = useState<'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule'>('approvals');
+  const [activeTab, setActiveTab] = useState<'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule' | 'security'>('approvals');
   const [dbItems, setDbItems] = useState<DBItem[]>([]);
   const [dbUsers, setDbUsers] = useState<DBUser[]>([]);
 

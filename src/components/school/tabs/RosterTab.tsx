@@ -1,6 +1,8 @@
 import React from 'react';
 import { Search, Download, Plus, Users } from 'lucide-react';
 import { School, Student } from '../../../types';
+import Combobox from '../../ui/Combobox';
+import DatePicker from '../../ui/DatePicker';
 
 const formatDateToDMY = (dateStr?: string): string => {
   if (!dateStr || dateStr.trim() === '') return '—';
@@ -91,16 +93,13 @@ export default function RosterTab({
               className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl p-2.5 pl-10 text-xs text-slate-800 focus:bg-white outline-none"
             />
           </div>
-          <select
+          <Combobox
+            options={[{ value: "ALL", label: "All Classes" }, ...["Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((c) => ({ value: c, label: c }))] }
             value={classFilter}
-            onChange={(e) => setClassFilter(e.target.value)}
-            className="bg-white border border-slate-200 focus:border-blue-500 rounded-xl p-2.5 text-xs text-slate-850 outline-none font-semibold cursor-pointer"
-          >
-            <option value="ALL">All Classes</option>
-            {["Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((c, i) => (
-              <option key={i} value={c}>{c}</option>
-            ))}
-          </select>
+            onChange={(val) => setClassFilter(val)}
+            placeholder="All Classes"
+            className="w-40"
+          />
         </div>
 
         <div className="flex items-center gap-2">
@@ -142,34 +141,35 @@ export default function RosterTab({
 
             <div>
               <label className="text-[10px] text-slate-500 font-bold block">Class Level (5-12)</label>
-              <select 
-                value={newClass} onChange={(e) => setNewClass(e.target.value)}
-                className="w-full mt-1 border rounded-lg p-2 text-xs"
-              >
-                {["Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((cl, i) => (
-                  <option key={i} value={cl}>{cl}</option>
-                ))}
-              </select>
+              <Combobox
+                options={["Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((cl) => ({ value: cl, label: cl }))}
+                value={newClass}
+                onChange={setNewClass}
+                placeholder="Choose Class"
+              />
             </div>
 
             <div>
               <label className="text-[10px] text-slate-500 font-bold block">Gender</label>
-              <select 
-                value={newGender} onChange={(e) => setNewGender(e.target.value)}
-                className="w-full mt-1 border rounded-lg p-2 text-xs"
-              >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
+              <Combobox
+                options={[
+                  { value: "Male", label: "Male" },
+                  { value: "Female", label: "Female" },
+                  { value: "Other", label: "Other" }
+                ]}
+                value={newGender}
+                onChange={setNewGender}
+                placeholder="Gender"
+              />
             </div>
 
             <div>
               <label className="text-[10px] text-slate-500 font-bold block">Candidate DOB</label>
-              <input 
-                type="date" required
-                value={newDob} onChange={(e) => setNewDob(e.target.value)}
-                className="w-full mt-1 border rounded-lg p-2 text-xs"
+              <DatePicker
+                value={newDob}
+                onChange={setNewDob}
+                placeholder="Candidate DOB"
+                required
               />
             </div>
           </div>

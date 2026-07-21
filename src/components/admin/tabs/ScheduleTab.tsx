@@ -1,6 +1,8 @@
 import React from 'react';
 import { Calendar, CheckCircle, ShieldAlert, Check, Search, Building } from 'lucide-react';
 import { ExamSchedule, School } from '../../../types';
+import Combobox from '../../ui/Combobox';
+import DatePicker from '../../ui/DatePicker';
 
 const formatDateToDMY = (dateStr?: string): string => {
   if (!dateStr || dateStr.trim() === '') return '';
@@ -158,12 +160,10 @@ export default function ScheduleTab({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="font-bold block mb-1">Mains Exam Date</label>
-                <input
-                  id="input-main-date"
-                  type="date"
+                <DatePicker
                   value={formatDateToInput(schedule.mainExamDate)}
-                  onChange={(e) => setSchedule(prev => ({ ...prev, mainExamDate: e.target.value }))}
-                  className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-lg p-2.5 text-slate-900 font-semibold outline-none transition text-xs"
+                  onChange={(val) => setSchedule(prev => ({ ...prev, mainExamDate: val }))}
+                  placeholder="Mains Exam Date"
                 />
               </div>
 
@@ -289,38 +289,37 @@ export default function ScheduleTab({
             {/* Status */}
             <div>
               <label className="block text-[10px] font-bold text-slate-600 mb-1">Exam Status</label>
-              <select
+              <Combobox
+                options={[
+                  { value: "All", label: "All Statuses" },
+                  { value: "Not Scheduled", label: "Not Scheduled" },
+                  { value: "Upcoming", label: "Upcoming" },
+                  { value: "Active", label: "Active" },
+                  { value: "Completed", label: "Completed" }
+                ]}
                 value={scheduleStatusFilter}
-                onChange={(e) => setScheduleStatusFilter(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-200 focus:border-blue-500 rounded-lg text-slate-950 font-medium outline-none text-xs font-semibold"
-              >
-                <option value="All">All Statuses</option>
-                <option value="Not Scheduled">Not Scheduled</option>
-                <option value="Upcoming">Upcoming</option>
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-              </select>
+                onChange={(val) => setScheduleStatusFilter(val)}
+                placeholder="Choose Status..."
+              />
             </div>
 
             {/* Date Range Start */}
             <div>
               <label className="block text-[10px] font-bold text-slate-600 mb-1">Start Date Range</label>
-              <input
-                type="date"
+              <DatePicker
                 value={scheduleStartDateFilter}
-                onChange={(e) => setScheduleStartDateFilter(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-200 focus:border-blue-500 rounded-lg text-slate-950 font-medium outline-none text-xs"
+                onChange={(val) => setScheduleStartDateFilter(val)}
+                placeholder="Start Date"
               />
             </div>
 
             {/* Date Range End */}
             <div>
               <label className="block text-[10px] font-bold text-slate-600 mb-1">End Date Range</label>
-              <input
-                type="date"
+              <DatePicker
                 value={scheduleEndDateFilter}
-                onChange={(e) => setScheduleEndDateFilter(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-200 focus:border-blue-500 rounded-lg text-slate-955 font-medium outline-none text-xs"
+                onChange={(val) => setScheduleEndDateFilter(val)}
+                placeholder="End Date"
               />
             </div>
           </div>

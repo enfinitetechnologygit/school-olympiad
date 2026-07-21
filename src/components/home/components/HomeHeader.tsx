@@ -50,20 +50,20 @@ export default function HomeHeader({ onOpenModal }: HomeHeaderProps) {
         </nav>
 
         {/* Action CTAs */}
-        <div className="flex items-center gap-2.5 z-10">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 z-10">
           <button 
             id="btn-school-login-nav"
             onClick={() => onOpenModal('schoolLogin')} 
-            className="inline-flex items-center gap-1.5 px-4 py-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 rounded-lg text-slate-700 font-semibold text-sm transition bg-white cursor-pointer"
+            className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 rounded-lg text-slate-700 font-semibold text-xs sm:text-sm transition bg-white cursor-pointer"
           >
-            <SchoolIcon className="w-4 h-4 text-slate-500" />
-            School Login
+            <SchoolIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 shrink-0" />
+            <span className="hidden xs:inline">School</span> Login
           </button>
           
           <button 
             id="btn-student-login-nav"
             onClick={() => onOpenModal('studentLogin')} 
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg shadow-sm shadow-blue-100 transition cursor-pointer"
+            className="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-lg shadow-sm shadow-blue-100 transition cursor-pointer whitespace-nowrap"
           >
             Student Login
           </button>
@@ -72,9 +72,9 @@ export default function HomeHeader({ onOpenModal }: HomeHeaderProps) {
           <button 
             id="btn-admin-portal-backdoor"
             onClick={() => onOpenModal('adminLogin')} 
-            className="text-[10px] text-slate-400 hover:text-slate-600 font-semibold uppercase tracking-wider underline cursor-pointer ml-1"
+            className="text-[9px] sm:text-[10px] text-slate-400 hover:text-slate-600 font-semibold uppercase tracking-wider underline cursor-pointer ml-0.5 sm:ml-1 whitespace-nowrap"
           >
-            Admin Portal
+            Admin
           </button>
         </div>
       </header>

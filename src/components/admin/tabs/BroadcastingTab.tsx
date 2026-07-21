@@ -1,6 +1,7 @@
 import React from 'react';
 import { Send, Save, Trash2, Upload } from 'lucide-react';
 import { Announcement } from '../../../types';
+import Combobox from '../../ui/Combobox';
 
 const resolveImageUrl = (url: string): string => {
   if (!url) return '';
@@ -227,14 +228,16 @@ export default function BroadcastingTab({
 
             <div>
               <label className="font-bold block">Target Audience Group</label>
-              <select
-                value={noticeAudience} onChange={(e) => setNoticeAudience(e.target.value as any)}
-                className="w-full mt-1 bg-slate-50 border p-2.5 rounded-lg font-bold"
-              >
-                <option value="ALL">Everyone (ALL Users)</option>
-                <option value="SCHOOLS">School Coordinators Only</option>
-                <option value="STUDENTS">Olympiad Students Only</option>
-              </select>
+              <Combobox
+                options={[
+                  { value: "ALL", label: "Everyone (ALL Users)" },
+                  { value: "SCHOOLS", label: "School Coordinators Only" },
+                  { value: "STUDENTS", label: "Olympiad Students Only" }
+                ]}
+                value={noticeAudience}
+                onChange={(val) => setNoticeAudience(val as any)}
+                placeholder="Select Audience..."
+              />
             </div>
           </div>
 

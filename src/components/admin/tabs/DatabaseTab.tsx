@@ -1,5 +1,6 @@
 import React from 'react';
 import { DBItem, DBUser } from '../../../types';
+import Combobox from '../../ui/Combobox';
 
 interface DatabaseTabProps {
   dbItems: DBItem[];
@@ -56,14 +57,16 @@ export default function DatabaseTab({
 
               <div>
                 <label className="font-bold block mb-1">Resource Category</label>
-                <select
-                  value={newItemCategory} onChange={(e) => setNewItemCategory(e.target.value)}
-                  className="w-full bg-slate-50 border p-2.5 rounded-lg font-medium text-slate-900 focus:outline-blue-600 text-xs"
-                >
-                  <option value="Study Material">Study Material</option>
-                  <option value="Past Paper">Past Paper</option>
-                  <option value="Exam Kit">Exam Kit</option>
-                </select>
+                <Combobox
+                  options={[
+                    { value: "Study Material", label: "Study Material" },
+                    { value: "Past Paper", label: "Past Paper" },
+                    { value: "Exam Kit", label: "Exam Kit" }
+                  ]}
+                  value={newItemCategory}
+                  onChange={setNewItemCategory}
+                  placeholder="Select Category"
+                />
               </div>
 
               <div className="sm:col-span-2">

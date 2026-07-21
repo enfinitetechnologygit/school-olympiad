@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import { Student, ExamCenter } from '../../../types';
+import Combobox from '../../ui/Combobox';
 
 interface StudentsTabProps {
   students: Student[];
@@ -341,18 +342,12 @@ export default function StudentsTab({
                       ) : (
                         <div className="space-y-1.5 max-w-[210px]">
                           <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Exam Center Seating Allocation</span>
-                          <select
+                          <Combobox
+                            options={[{ value: "", label: "-- No Location Scheduled --" }, ...centers.map((center) => ({ value: center.id, label: `${center.name} (${center.city})` }))] }
                             value={st.examCenterId || ""}
-                            onChange={(e) => handleAllocateCenter(st.id, e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded p-1.5 text-[10px] font-semibold text-slate-700 outline-none focus:border-blue-500"
-                          >
-                            <option value="">-- No Location Scheduled --</option>
-                            {centers.map((center) => (
-                              <option key={center.id} value={center.id}>
-                                {center.name} ({center.city})
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(val) => handleAllocateCenter(st.id, val)}
+                            placeholder="Select Center..."
+                          />
                         </div>
                       )}
                     </td>

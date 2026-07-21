@@ -1,11 +1,11 @@
 import React from 'react';
-import { Award, Clock, FileText, BookOpen, Sparkles } from 'lucide-react';
+import { Award, Clock, FileText, BookOpen, Sparkles, User } from 'lucide-react';
 import { Student } from '../../../types';
 
 interface StudentSidebarProps {
   student: Student;
-  activeTab: 'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus';
-  setActiveTab: (tab: 'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus') => void;
+  activeTab: 'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus' | 'profile';
+  setActiveTab: (tab: 'overview' | 'exams' | 'history' | 'admitCard' | 'syllabus' | 'profile') => void;
   setActiveExam: (exam: any) => void;
 }
 
@@ -57,6 +57,16 @@ export default function StudentSidebar({ student, activeTab, setActiveTab, setAc
         >
           <BookOpen className="w-4.5 h-4.5" />
           Olympiad Syllabus
+        </button>
+
+        <button
+          onClick={() => { setActiveTab('profile'); setActiveExam(null); }}
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
+            activeTab === 'profile' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          <User className="w-4.5 h-4.5" />
+          My Profile & Photo
         </button>
 
 

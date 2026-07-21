@@ -1,4 +1,5 @@
 import { MongoClient, Db } from "mongodb";
+import bcryptjs from "bcryptjs";
 import {
   schools,
   students,
@@ -11,10 +12,16 @@ import {
   defaultMockExams,
   defaultExamAttempts,
   defaultAnnouncements,
-  defaultExamCenters
+  defaultExamCenters,
+  examSchedule,
+  headerAnnouncement,
+  sliderImages,
+  defaultSliderImages,
+  mockItems,
+  saveFallbackData
 } from "./store";
 
-const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/eno_db";
+const mongoUri = process.env.MONGODB_URI;
 const mongoClient = new MongoClient(mongoUri, {
   serverSelectionTimeoutMS: 3000,
 });
@@ -249,14 +256,14 @@ export async function initializeDatabase() {
     const dbSchedule = await db.collection("exam_schedule").findOne({});
     if (dbSchedule) {
       const { _id, ...scheduleData } = dbSchedule;
-      Object.assign(require("./store").examSchedule, scheduleData);
+      Object.assign(examSchedule, scheduleData);
     }
 
     // Load header announcement if stored in DB
     try {
       const dbHeaderAnc = await db.collection("settings").findOne({ _id: "header_announcement" as any });
       if (dbHeaderAnc) {
-        require("./store").headerAnnouncement.text = dbHeaderAnc.text;
+        headerAnnouncement.text = dbHeaderAnc.text;
       }
     } catch (err: any) {
       console.warn("Could not sync header announcement from database:", err.message);
@@ -266,11 +273,11 @@ export async function initializeDatabase() {
     try {
       const dbSlider = await db.collection("settings").findOne({ _id: "slider_images" as any });
       if (dbSlider && Array.isArray(dbSlider.images)) {
-        require("./store").sliderImages.splice(0, require("./store").sliderImages.length, ...dbSlider.images);
+        sliderImages.splice(0, sliderImages.length, ...dbSlider.images);
       } else {
         await db.collection("settings").updateOne(
           { _id: "slider_images" as any },
-          { $setOnInsert: { images: require("./store").defaultSliderImages } },
+          { $setOnInsert: { images: defaultSliderImages } },
           { upsert: true }
         );
       }
@@ -285,82 +292,55 @@ export async function initializeDatabase() {
       // Seed Admin
       await db.collection("users").insertOne({
         email: 'admin@eno.org',
-        password: 'admin123',
+        password: bcryptjs.hashSync('admin123', 10),
         name: 'FNO Head Office Admin',
         role: 'admin'
       });
       // Seed default schools
       for (const sch of schools) {
         if (sch.status === 'APPROVED') {
+          const pass = sch.password || 'school123';
+          sch.password = bcryptjs.hashSync(pass, 10);
           await db.collection("users").updateOne(
             { email: sch.email },
-            { $setOnInsert: { email: sch.email, password: sch.password || 'school123', name: sch.name, role: 'school' } },
+            { $setOnInsert: { email: sch.email, password: sch.password, name: sch.name, role: 'school' } },
             { upsert: true }
           );
         }
       }
       // Seed default students
       for (const st of students) {
+        const pass = st.password || 'student123';
+        st.password = bcryptjs.hashSync(pass, 10);
         await db.collection("users").updateOne(
           { email: st.email },
-          { $setOnInsert: { email: st.email, password: st.password || 'student123', name: st.name, role: 'student' } },
+          { $setOnInsert: { email: st.email, password: st.password, name: st.name, role: 'student' } },
           { upsert: true }
         );
       }
       console.log("Default users seeded.");
     }
 
-    // Seed default items if empty
-    const itemsCount = await db.collection("items").countDocuments();
-    if (itemsCount === 0) {
-      console.log("Seeding default items table...");
-      const defaultItemsList = [
-        {
-          id: 1,
-          name: "Class 5-6 Scratch Block Coding Guide",
-          description: "An interactive, colorfully illustrated guide for junior coders learning scratch block sequences, sprite controls, and algorithmic logic loops.",
-          price: 150.00,
-          category: "Study Material"
-        },
-        {
-          id: 2,
-          name: "Class 7-8 Computational Logic Handbook",
-          description: "Master flowcharts, truth tables, basic search-sort logic, and introductory Python syntax with detailed solved competition-level modules.",
-          price: 250.00,
-          category: "Study Material"
-        },
-        {
-          id: 3,
-          name: "Class 9-10 Information Technology & Python Masterclass",
-          description: "Comprehensive notes covering file handling, relational database basics (SQL queries), arrays, and high-quality past olympiad questions with hints.",
-          price: 350.00,
-          category: "Study Material"
-        },
-        {
-          id: 4,
-          name: "Class 11-12 Advanced Olympiad Prep Kit (Solved Papers)",
-          description: "Features fully annotated solutions for past mains examinations. Includes time-complexity analysis, advanced data structures, and secure networks.",
-          price: 499.00,
-          category: "Exam Kit"
-        },
-        {
-          id: 5,
-          name: "Interactive Logic Puzzle Booklet",
-          description: "Packed with over 100 logical puzzles, patterns, and computational thinking brainteasers. Perfect for Stage 1 warmup preparations.",
-          price: 0.00,
-          category: "Past Paper"
-        }
-      ];
 
-      for (const item of defaultItemsList) {
-        await db.collection("items").updateOne(
-          { id: item.id },
-          { $set: item },
-          { upsert: true }
-        );
-      }
-      console.log("Default items seeded.");
-    }
+
+    // Load items from database into local mockItems array
+    const dbItems = await db.collection("items").find().toArray();
+    mockItems.splice(0, mockItems.length, ...dbItems.map(doc => {
+      const { _id, ...itemData } = doc;
+      return itemData as any;
+    }));
+
+    // Save all state to fallback JSON files on startup to ensure sync
+    saveFallbackData("db_schools.json", schools);
+    saveFallbackData("db_students.json", students);
+    saveFallbackData("db_mock_exams.json", mockExams);
+    saveFallbackData("db_exam_attempts.json", examAttempts);
+    saveFallbackData("db_announcements.json", announcements);
+    saveFallbackData("db_exam_centers.json", examCenters);
+    saveFallbackData("db_exam_schedule.json", examSchedule);
+    saveFallbackData("db_header_announcement.json", headerAnnouncement);
+    saveFallbackData("db_slider_images.json", sliderImages);
+    saveFallbackData("db_mock_items.json", mockItems);
 
   } catch (err: any) {
     console.warn("WARNING: MongoDB connection / initialization failed:", err.message);

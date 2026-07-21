@@ -1,9 +1,9 @@
 import React from 'react';
-import { Building, Users, Clock, Rss, MapPin, Calendar, Layers } from 'lucide-react';
+import { Building, Users, Clock, Rss, MapPin, Calendar, Layers, KeyRound } from 'lucide-react';
 
 interface AdminSidebarProps {
-  activeTab: 'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule';
-  setActiveTab: (tab: 'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule') => void;
+  activeTab: 'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule' | 'security';
+  setActiveTab: (tab: 'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule' | 'security') => void;
   setSelectedSchoolProfile: (school: any) => void;
   pendingRequestsCount: number;
   earnings: number;
@@ -16,7 +16,7 @@ export default function AdminSidebar({
   pendingRequestsCount,
   earnings
 }: AdminSidebarProps) {
-  const handleTabClick = (tab: 'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule') => {
+  const handleTabClick = (tab: 'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule' | 'security') => {
     setActiveTab(tab);
     setSelectedSchoolProfile(null);
   };
@@ -103,6 +103,17 @@ export default function AdminSidebar({
         >
           <Layers className="w-4.5 h-4.5" />
           Database Desk
+        </button>
+
+        <button
+          onClick={() => handleTabClick('security')}
+          id="btn-security-desk"
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
+            activeTab === 'security' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          <KeyRound className="w-4.5 h-4.5" />
+          Security & Password
         </button>
       </div>
 

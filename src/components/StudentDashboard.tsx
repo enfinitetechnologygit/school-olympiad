@@ -8,6 +8,7 @@ import OverviewTab from './student/tabs/OverviewTab';
 import ExamsTab from './student/tabs/ExamsTab';
 import AdmitCardTab from './student/tabs/AdmitCardTab';
 import SyllabusTab from './student/tabs/SyllabusTab';
+import ProfileTab from './student/tabs/ProfileTab';
 
 interface StudentDashboardProps {
   user: any;
@@ -86,7 +87,43 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
       )}
 
       {/* Main dashboard space */}
-      <div className={isPrinting ? "" : "flex flex-1 overflow-hidden"}>
+      <div className={isPrinting ? "" : "flex flex-col md:flex-row flex-1 overflow-hidden"}>
+        {/* Mobile Navigation Horizontal Bar */}
+        {!isPrinting && (
+          <div className="md:hidden flex items-center gap-2 p-2.5 bg-white border-b border-slate-200 overflow-x-auto shrink-0 scrollbar-none">
+            <button
+              onClick={() => { setActiveTab('overview'); setActiveExam(null); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'overview' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+            >
+              Dashboard Overview
+            </button>
+            <button
+              onClick={() => { setActiveTab('exams'); setActiveExam(null); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'exams' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+            >
+              Mock Test Desk
+            </button>
+            <button
+              onClick={() => { setActiveTab('admitCard'); setActiveExam(null); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'admitCard' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+            >
+              Stage 1 Hall Ticket
+            </button>
+            <button
+              onClick={() => { setActiveTab('syllabus'); setActiveExam(null); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'syllabus' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+            >
+              Olympiad Syllabus
+            </button>
+            <button
+              onClick={() => { setActiveTab('profile'); setActiveExam(null); }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${activeTab === 'profile' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
+            >
+              My Profile & Photo
+            </button>
+          </div>
+        )}
+
         {/* Left Side menu */}
         {!isPrinting && (
           <StudentSidebar 
@@ -156,6 +193,14 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
               classGroup={classGroup}
               selectedSyllabusId={selectedSyllabusId}
               setSelectedSyllabusId={setSelectedSyllabusId}
+            />
+          )}
+
+          {/* CANDIDATE PROFILE MANAGEMENT PANEL */}
+          {activeTab === 'profile' && (
+            <ProfileTab
+              student={student}
+              fetchDashboardData={fetchDashboardData}
             />
           )}
 

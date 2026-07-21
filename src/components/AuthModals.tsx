@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
-import { 
-  X, 
-  School as SchoolIcon, 
-  User, 
-  Lock, 
-  MapPin, 
-  Mail, 
-  Phone, 
-  BookOpen, 
-  CheckCircle2, 
+import {
+  X,
+  School as SchoolIcon,
+  User,
+  Lock,
+  MapPin,
+  Mail,
+  Phone,
+  BookOpen,
+  CheckCircle2,
   AlertTriangle,
   Info,
   ShieldAlert,
   Building,
   CreditCard,
-  CreditCard as PaymentIcon
+  CreditCard as PaymentIcon,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { School } from '../types';
+import Combobox from './ui/Combobox';
+import DatePicker from './ui/DatePicker';
 
 interface AuthModalsProps {
   isOpen: boolean;
@@ -27,15 +31,15 @@ interface AuthModalsProps {
   onRefreshSchools: () => void;
 }
 
-export default function AuthModals({ 
-  isOpen, 
-  type, 
-  onClose, 
-  schools, 
+export default function AuthModals({
+  isOpen,
+  type,
+  onClose,
+  schools,
   onLoginSuccess,
-  onRefreshSchools 
+  onRefreshSchools
 }: AuthModalsProps) {
-  
+
   if (!isOpen || !type) return null;
 
   const [modalView, setModalView] = useState<'studentLogin' | 'schoolLogin' | 'adminLogin' | 'studentRegister' | 'schoolRegister' | 'studentPayment' | 'studentSuccess' | 'forgotPassword'>(type);
@@ -61,9 +65,18 @@ export default function AuthModals({
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    if ((error || success) && containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [error, success]);
+
   // --- Login Form State ---
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // --- School Register Form State ---
   const [schoolName, setSchoolName] = useState('');
@@ -96,7 +109,7 @@ export default function AuthModals({
   const [paymentDone, setPaymentDone] = useState(false);
 
   const indianStates = [
-    "Andhra Pradesh", "Assam", "Bihar", "Delhi", "Gujarat", "Haryana", 
+    "Andhra Pradesh", "Assam", "Bihar", "Delhi", "Gujarat", "Haryana",
     "Karnataka", "Maharashtra", "Punjab", "Rajasthan", "Tamil Nadu", "Telangana", "Uttar Pradesh", "West Bengal"
   ];
 
@@ -168,7 +181,7 @@ export default function AuthModals({
 
       setSuccess(`Success! Your School Registration has been submitted for approval. You will receive your School ID and login credentials at ${schoolEmail} once approved by the administrator.`);
       onRefreshSchools();
-      
+
       // Clear forms
       setSchoolName('');
       setPrincipalName('');
@@ -290,7 +303,7 @@ export default function AuthModals({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col relative">
-        
+
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 flex justify-between items-center shrink-0">
           <div>
@@ -306,8 +319,8 @@ export default function AuthModals({
               Enfinite National IT & Computer Science Olympiad Board
             </p>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="p-1 px-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition text-sm font-semibold cursor-pointer"
           >
             <X className="w-5 h-5 inline-block" />
@@ -315,7 +328,7 @@ export default function AuthModals({
         </div>
 
         {/* Modal Inner Container */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        <div ref={containerRef} className="p-6 overflow-y-auto space-y-6 flex-1">
           {error && (
             <div className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg text-xs font-semibold flex items-start gap-2">
               <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
@@ -329,7 +342,7 @@ export default function AuthModals({
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                 <span className="font-semibold">{success}</span>
               </div>
-              
+
               {registeredStudentSnapshot && paymentDone && (
                 <div className="mt-3 p-4 bg-white border border-emerald-100 rounded-xl space-y-2">
                   <div className="flex justify-between items-center pb-2 border-b border-dashed border-slate-100 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
@@ -364,7 +377,7 @@ export default function AuthModals({
                   </div>
                   <div className="border-t border-slate-100 pt-2 flex items-center justify-between">
                     <span className="text-[10px] text-slate-400">Authorized: Enfinite Scholastics Desk</span>
-                    <button 
+                    <button
                       onClick={() => {
                         window.print();
                       }}
@@ -385,33 +398,30 @@ export default function AuthModals({
                 <button
                   type="button"
                   onClick={() => { setActiveLoginRole('student'); setError(null); }}
-                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    activeLoginRole === 'student' 
-                      ? 'bg-blue-600 text-white shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeLoginRole === 'student'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
+                    }`}
                 >
                   Student Portal Login
                 </button>
                 <button
                   type="button"
                   onClick={() => { setActiveLoginRole('school'); setError(null); }}
-                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    activeLoginRole === 'school' 
-                      ? 'bg-blue-600 text-white shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeLoginRole === 'school'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
+                    }`}
                 >
                   School Portal Login
                 </button>
                 <button
                   type="button"
                   onClick={() => { setActiveLoginRole('admin'); setError(null); }}
-                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    activeLoginRole === 'admin' 
-                      ? 'bg-blue-600 text-white shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeLoginRole === 'admin'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'
+                    }`}
                 >
                   Head Office Admin
                 </button>
@@ -424,18 +434,18 @@ export default function AuthModals({
                     {activeLoginRole === 'school' && "School Coordinator Email"}
                     {activeLoginRole === 'admin' && "National Admin Username / Email"}
                   </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                    <input 
-                      type="email" 
+                  <div className="relative mt-1">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="email"
                       required
                       placeholder={
                         activeLoginRole === 'student' ? "rohan@eno.org" :
-                        activeLoginRole === 'school' ? "dpsrkp@edu.in" : "admin@eno.org"
+                          activeLoginRole === 'school' ? "dpsrkp@edu.in" : "admin@eno.org"
                       }
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      className="w-full mt-1 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl p-3 pl-10 text-sm outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl p-3 pl-10 text-sm outline-none transition"
                     />
                   </div>
                 </div>
@@ -457,21 +467,32 @@ export default function AuthModals({
                       Forgot Password?
                     </button>
                   </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                    <input 
-                      type="password" 
+                  <div className="relative mt-1">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
                       required
                       placeholder="••••••••"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      className="w-full mt-1 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl p-3 pl-10 text-sm outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl p-3 pl-10 pr-10 text-sm outline-none transition"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loading}
                   className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm tracking-wide rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition"
                 >
@@ -530,11 +551,10 @@ export default function AuthModals({
                     key={roleVal}
                     type="button"
                     onClick={() => { setActiveLoginRole(roleVal); setError(null); }}
-                    className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      activeLoginRole === roleVal 
-                        ? 'bg-blue-600 text-white shadow-sm' 
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
+                    className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeLoginRole === roleVal
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                      }`}
                   >
                     {roleVal === 'student' && "Student"}
                     {roleVal === 'school' && "School Coordinator"}
@@ -548,21 +568,21 @@ export default function AuthModals({
                   <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1">
                     Registered Email Address
                   </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                    <input 
-                      type="email" 
+                  <div className="relative mt-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="email"
                       required
                       placeholder="Enter your registered email address"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      className="w-full mt-1 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl p-3 pl-10 text-sm outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl p-3 pl-10 text-sm outline-none transition"
                     />
                   </div>
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loading}
                   className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm tracking-wide rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition"
                 >
@@ -598,7 +618,7 @@ export default function AuthModals({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-600 font-bold">School Name</label>
-                  <input 
+                  <input
                     type="text" required placeholder="e.g. Greenwood High School"
                     value={schoolName} onChange={(e) => setSchoolName(e.target.value)}
                     className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -606,7 +626,7 @@ export default function AuthModals({
                 </div>
                 <div>
                   <label className="text-xs text-slate-600 font-bold">Principal Full Name</label>
-                  <input 
+                  <input
                     type="text" required placeholder="e.g. Dr. Seema Sapru"
                     value={principalName} onChange={(e) => setPrincipalName(e.target.value)}
                     className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -617,7 +637,7 @@ export default function AuthModals({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-600 font-bold">Olympiad Coordinator (Staff Designation)</label>
-                  <input 
+                  <input
                     type="text" required placeholder="e.g. HOD Computer Science Department"
                     value={coordinatorName} onChange={(e) => setCoordinatorName(e.target.value)}
                     className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -625,14 +645,14 @@ export default function AuthModals({
                 </div>
                 <div>
                   <label className="text-xs text-slate-600 font-bold">School Contact Mobile No.</label>
-                  <input 
-                    type="tel" 
-                    required 
+                  <input
+                    type="tel"
+                    required
                     maxLength={10}
                     minLength={10}
                     pattern="[0-9]{10}"
                     placeholder="10-digit mobile number"
-                    value={schoolMobile} 
+                    value={schoolMobile}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
                       if (val.length <= 10) setSchoolMobile(val);
@@ -644,7 +664,7 @@ export default function AuthModals({
 
               <div>
                 <label className="text-xs text-slate-600 font-bold">Coordinator Email Address</label>
-                <input 
+                <input
                   type="email" required placeholder="e.g. cs.coordinator@greenwood.edu"
                   value={schoolEmail} onChange={(e) => setSchoolEmail(e.target.value)}
                   className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -653,7 +673,7 @@ export default function AuthModals({
 
               <div>
                 <label className="text-xs text-slate-600 font-bold">Address Details</label>
-                <input 
+                <input
                   type="text" required placeholder="Street Location & Landmark"
                   value={schoolAddress} onChange={(e) => setSchoolAddress(e.target.value)}
                   className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -663,7 +683,7 @@ export default function AuthModals({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="text-xs text-slate-600 font-bold">City Location</label>
-                  <input 
+                  <input
                     type="text" required placeholder="e.g. Pune"
                     value={schoolCity} onChange={(e) => setSchoolCity(e.target.value)}
                     className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -671,40 +691,40 @@ export default function AuthModals({
                 </div>
                 <div>
                   <label className="text-xs text-slate-600 font-bold">State Province</label>
-                  <select 
-                    value={schoolState} onChange={(e) => setSchoolState(e.target.value)}
-                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
-                  >
-                    {indianStates.map((st, idx) => (
-                      <option key={idx} value={st}>{st}</option>
-                    ))}
-                  </select>
+                  <Combobox
+                    options={indianStates.map((st) => ({ value: st, label: st }))}
+                    value={schoolState}
+                    onChange={setSchoolState}
+                    placeholder="Choose State..."
+                  />
                 </div>
                 <div>
                   <label className="text-xs text-slate-600 font-bold">Board Type</label>
-                  <select 
-                    value={schoolBoard} onChange={(e) => setSchoolBoard(e.target.value)}
-                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
-                  >
-                    <option value="CBSE">CBSE Board</option>
-                    <option value="ICSE">CISCE / ICSE Board</option>
-                    <option value="State Board">State Secondary Board</option>
-                    <option value="IB">IB International Board</option>
-                    <option value="Other">Other Affiliated Board</option>
-                  </select>
+                  <Combobox
+                    options={[
+                      { value: "CBSE", label: "CBSE Board" },
+                      { value: "ICSE", label: "CISCE / ICSE Board" },
+                      { value: "State Board", label: "State Secondary Board" },
+                      { value: "IB", label: "IB International Board" },
+                      { value: "Other", label: "Other Affiliated Board" }
+                    ]}
+                    value={schoolBoard}
+                    onChange={setSchoolBoard}
+                    placeholder="Choose Board..."
+                  />
                 </div>
               </div>
 
               <div>
                 <label className="text-xs text-slate-600 font-bold">Estimated Olympiad Enrollment Pool Count</label>
-                <input 
+                <input
                   type="number" required min="10"
                   value={schoolStudentsCount} onChange={(e) => setSchoolStudentsCount(Number(e.target.value))}
                   className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
                 />
               </div>
 
-              <button 
+              <button
                 type="submit" disabled={loading}
                 className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl cursor-pointer shadow transition"
               >
@@ -732,7 +752,7 @@ export default function AuthModals({
           {/* STUDENT REGISTER FORM */}
           {modalView === 'studentRegister' && !success && (
             <form onSubmit={handleStudentRegisterSubmit} className="space-y-4">
-              
+
               <div className="p-3 bg-blue-50 text-blue-900 rounded-xl border border-blue-100 text-xs flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-blue-600" />
@@ -747,7 +767,7 @@ export default function AuthModals({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-600 font-bold">Student Full Name</label>
-                  <input 
+                  <input
                     type="text" required placeholder="e.g. Sneha Nair"
                     value={studentName} onChange={(e) => setStudentName(e.target.value)}
                     className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -755,47 +775,51 @@ export default function AuthModals({
                 </div>
                 <div>
                   <label className="text-xs text-slate-600 font-bold">Class Level Selection (Class 5th - 12th)</label>
-                  <select 
-                    value={studentClass} onChange={(e) => setStudentClass(e.target.value)}
-                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
-                  >
-                    {["Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((cl, i) => (
-                      <option key={i} value={cl}>{cl}th Division (Computer Science Group)</option>
-                    ))}
-                  </select>
+                  <Combobox
+                    options={["Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((cl) => ({
+                      value: cl,
+                      label: `${cl}th Division (Computer Science Group)`
+                    }))}
+                    value={studentClass}
+                    onChange={setStudentClass}
+                    placeholder="Select Class..."
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="col-span-2 sm:col-span-1">
                   <label className="text-xs text-slate-600 font-bold">Gender</label>
-                  <select 
-                    value={studentGender} onChange={(e) => setStudentGender(e.target.value)}
-                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
-                  >
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <Combobox
+                    options={[
+                      { value: "Male", label: "Male" },
+                      { value: "Female", label: "Female" },
+                      { value: "Other", label: "Other" }
+                    ]}
+                    value={studentGender}
+                    onChange={setStudentGender}
+                    placeholder="Gender..."
+                  />
                 </div>
                 <div className="col-span-2">
                   <label className="text-xs text-slate-600 font-bold">Date of Birth</label>
-                  <input 
-                    type="date" required 
-                    value={studentDob} onChange={(e) => setStudentDob(e.target.value)}
-                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
+                  <DatePicker
+                    value={studentDob}
+                    onChange={setStudentDob}
+                    placeholder="Select Birth Date"
+                    required
                   />
                 </div>
                 <div className="col-span-2 sm:col-span-1">
                   <label className="text-xs text-slate-600 font-bold">Mobile Number</label>
-                  <input 
-                    type="tel" 
+                  <input
+                    type="tel"
                     required
                     maxLength={10}
                     minLength={10}
                     pattern="[0-9]{10}"
                     placeholder="10-digit mobile"
-                    value={studentMobile} 
+                    value={studentMobile}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
                       if (val.length <= 10) setStudentMobile(val);
@@ -807,7 +831,7 @@ export default function AuthModals({
 
               <div>
                 <label className="text-xs text-slate-600 font-bold">Parent / Guardian Full Name</label>
-                <input 
+                <input
                   type="text" required placeholder="Father or Mother"
                   value={studentParentName} onChange={(e) => setStudentParentName(e.target.value)}
                   className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -816,7 +840,7 @@ export default function AuthModals({
 
               <div>
                 <label className="text-xs text-slate-600 font-bold">Email Address ID (Login Username)</label>
-                <input 
+                <input
                   type="email" required placeholder="e.g. loginstudent@example.com"
                   value={studentEmail} onChange={(e) => setStudentEmail(e.target.value)}
                   className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
@@ -829,17 +853,17 @@ export default function AuthModals({
                   <Building className="w-4 h-4 text-slate-600" />
                   Link Registered School Group
                 </label>
-                <select 
-                  value={studentSchoolId} 
+                <Combobox
+                  options={approvedSchools.map((sch) => ({
+                    value: sch.id,
+                    label: `${sch.name} (${sch.city}, ${sch.state})`
+                  }))}
+                  value={studentSchoolId}
+                  onChange={setStudentSchoolId}
+                  placeholder="-- Choose Registered National School (Search/Select) --"
                   required
-                  onChange={(e) => setStudentSchoolId(e.target.value)}
-                  className="w-full mt-1.5 bg-blue-50/55 border border-blue-200 text-slate-900 focus:bg-white rounded-xl p-3 text-sm font-semibold"
-                >
-                  <option value="">-- Choose Registered National School (Selector list) --</option>
-                  {approvedSchools.map((sch, i) => (
-                    <option key={i} value={sch.id}>{sch.name} ({sch.city}, {sch.state})</option>
-                  ))}
-                </select>
+                  className="mt-1"
+                />
                 <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-lg text-[10px] text-slate-500 mt-2 flex items-start gap-1.5">
                   <Info className="w-3.5 h-3.5 shrink-0 text-slate-400 mt-0.5" />
                   <p>
@@ -848,7 +872,7 @@ export default function AuthModals({
                 </div>
               </div>
 
-              <button 
+              <button
                 type="submit" disabled={loading}
                 className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base tracking-wide rounded-xl shadow cursor-pointer transition flex items-center justify-center gap-2"
               >
@@ -927,11 +951,11 @@ export default function AuthModals({
                     <span className="text-[10px] font-bold text-blue-900">Cards</span>
                   </button>
                   <button type="button" disabled className="p-3 border border-slate-200 bg-slate-50 opacity-60 rounded-xl text-center flex flex-col items-center justify-center gap-1 cursor-not-allowed">
-                    <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                    <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" /></svg>
                     <span className="text-[10px] font-bold text-slate-500">UPI/GPay</span>
                   </button>
                   <button type="button" disabled className="p-3 border border-slate-200 bg-slate-50 opacity-60 rounded-xl text-center flex flex-col items-center justify-center gap-1 cursor-not-allowed">
-                    <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                    <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" /></svg>
                     <span className="text-[10px] font-bold text-slate-500">Net Banking</span>
                   </button>
                 </div>
@@ -971,24 +995,20 @@ export default function AuthModals({
                 </p>
               </div>
 
-              {/* Credentials detail card */}
+              {/* Receipt detail card */}
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4 max-w-md mx-auto text-left">
                 <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider pb-2 border-b border-dashed border-slate-200">
-                  Student Portal Access Keys
+                  Payment Receipt Summary
                 </div>
 
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between py-1">
-                    <span className="text-slate-500 font-medium">Assigned Student ID:</span>
-                    <span className="font-mono font-bold text-blue-600 text-sm">{registeredStudentSnapshot.id}</span>
+                    <span className="text-slate-500 font-medium">Student Name:</span>
+                    <span className="font-bold text-slate-800">{registeredStudentSnapshot.name}</span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-slate-500 font-medium">Username / Email:</span>
+                    <span className="text-slate-500 font-medium">Registered Email:</span>
                     <span className="font-mono font-bold text-slate-800">{registeredStudentSnapshot.email}</span>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-500 font-medium">Login Password:</span>
-                    <span className="font-mono font-bold text-red-600 text-sm bg-red-50 px-1.5 py-0.5 rounded">{registeredStudentSnapshot.password}</span>
                   </div>
                   <div className="flex justify-between py-1 border-t border-dashed border-slate-200 pt-2 font-semibold text-slate-700">
                     <span>Payment Receipt Status:</span>

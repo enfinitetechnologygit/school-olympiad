@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Check, CheckCircle, ShieldAlert } from 'lucide-react';
 import { School } from '../../../types';
+import DatePicker from '../../ui/DatePicker';
 
 interface EditScheduleModalProps {
   editingSchoolId: string | null;
@@ -74,12 +75,11 @@ export default function EditScheduleModal({
           <div className="space-y-3.5">
             <div>
               <label className="font-bold block mb-1">Pre-Exam Date</label>
-              <input
-                type="date"
-                required
+              <DatePicker
                 value={editPreExamDate}
-                onChange={(e) => setEditPreExamDate(e.target.value)}
-                className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-lg p-2.5 text-slate-900 font-semibold outline-none transition"
+                onChange={setEditPreExamDate}
+                placeholder="Pre-Exam Date"
+                required
               />
               <p className="text-[10px] text-slate-400 mt-0.5">Select the pre-exam date using the calendar selector.</p>
             </div>

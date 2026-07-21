@@ -45,6 +45,7 @@ export interface Student {
   stage2AdmitReleased?: boolean;
   score?: number;
   examCenterId?: string;
+  photo?: string;
 }
 
 export interface Question {

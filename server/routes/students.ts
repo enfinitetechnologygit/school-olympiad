@@ -3,6 +3,9 @@ import { db, dbConnected } from "../db";
 import { students, schools, examCenters, saveFallbackData } from "../store";
 import { sendLoginCredentials } from "../email";
 import { Student } from "../../src/types";
+import bcryptjs from "bcryptjs";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 
@@ -30,8 +33,22 @@ function getNextStudentId(): string {
       return res.status(400).json({ error: "Required fields name, classLevel, dob, email, and school selection must be supplied." });
     }
 
-    if (students.some(st => st.email.toLowerCase() === email.toLowerCase())) {
-      return res.status(400).json({ error: "A student is already registered with this email address." });
+    // Check duplicate in database first if connected
+    if (dbConnected && db) {
+      try {
+        const existingStudent = await db.collection("students").findOne({
+          email: { $regex: new RegExp(`^${email.trim()}$`, "i") }
+        });
+        if (existingStudent) {
+          return res.status(400).json({ error: "A student is already registered with this email address." });
+        }
+      } catch (err: any) {
+        console.error("Error checking duplicate student in DB:", err.message);
+      }
+    } else {
+      if (students.some(st => st.email.toLowerCase() === email.toLowerCase())) {
+        return res.status(400).json({ error: "A student is already registered with this email address." });
+      }
     }
 
     const parentSchool = schools.find(s => s.id === schoolId);
@@ -41,6 +58,7 @@ function getNextStudentId(): string {
 
     const genStudentId = getNextStudentId();
     const generatedPassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
     const newStudent: Student = {
       id: genStudentId,
       name,
@@ -51,7 +69,7 @@ function getNextStudentId(): string {
       parentName: parentName || "TBD",
       parentMobile: parentMobile || "",
       email,
-      password: generatedPassword,
+      password: hashedPassword,
       schoolId: parentSchool.id,
       schoolName: parentSchool.name,
       paymentStatus: "PENDING",
@@ -67,13 +85,18 @@ function getNextStudentId(): string {
         await db.collection("students").insertOne(newStudent);
         await db.collection("users").updateOne(
           { email: newStudent.email },
-          { $set: { email: newStudent.email, password: newStudent.password, name: newStudent.name, role: "student" } },
+          { $set: { email: newStudent.email, password: hashedPassword, name: newStudent.name, role: "student" } },
           { upsert: true }
         );
       } catch (err: any) {
         console.error("Error inserting registered student to database:", err.message);
       }
     }
+
+    // Send credentials welcome email immediately on registration (before payment)
+    sendLoginCredentials(newStudent.email, "student", newStudent.id, generatedPassword, newStudent.name).catch((e) => {
+      console.error("Error sending student welcome email:", e.message);
+    });
 
     res.json({ status: "success", student: newStudent });
   });
@@ -126,11 +149,7 @@ function getNextStudentId(): string {
       }
     }
 
-    // Send credentials welcome email upon online checkout success
-    sendLoginCredentials(student.email, "student", student.id, student.password).catch((e) => {
-      console.error("Error sending student registration credentials email:", e.message);
-    });
-
+    // Welcome email has already been sent immediately upon registration.
     res.json({ status: "success", student });
   });
 
@@ -188,11 +207,7 @@ function getNextStudentId(): string {
       }
     }
 
-    // Send credentials welcome email upon cash payment approval
-    sendLoginCredentials(student.email, "student", student.id, student.password).catch((e) => {
-      console.error("Error sending student credentials email on cash approval:", e.message);
-    });
-
+    // Welcome email has already been sent immediately upon registration.
     res.json({ status: "success", student });
   });
 
@@ -463,6 +478,145 @@ function getNextStudentId(): string {
     }
 
     res.json({ status: "success", processedCount, totalReceived: results.length });
+  });
+
+  // Update Student Profile Details (Email is read-only and immutable)
+  router.put("/:id", async (req, res) => {
+    const studentIdx = students.findIndex(s => s.id === req.params.id);
+    if (studentIdx === -1) {
+      return res.status(404).json({ error: "Student record not found." });
+    }
+
+    const student = students[studentIdx];
+    const { name, classLevel, gender, dob, mobile, parentName, parentMobile, schoolId, photo } = req.body;
+
+    if (name) student.name = name;
+    if (classLevel) student.classLevel = classLevel;
+    if (gender) student.gender = gender;
+    if (dob) student.dob = dob;
+    if (mobile !== undefined) student.mobile = mobile;
+    if (parentName) student.parentName = parentName;
+    if (parentMobile !== undefined) student.parentMobile = parentMobile;
+    if (photo !== undefined) student.photo = photo;
+
+    // Update linked school if changed
+    if (schoolId && schoolId !== student.schoolId) {
+      const newSchool = schools.find(s => s.id === schoolId);
+      if (newSchool) {
+        student.schoolId = newSchool.id;
+        student.schoolName = newSchool.name;
+      }
+    }
+
+    // NOTE: email is intentionally read-only & immutable
+
+    students[studentIdx] = student;
+    saveFallbackData("db_students.json", students);
+
+    if (dbConnected && db) {
+      try {
+        await db.collection("students").updateOne(
+          { id: student.id },
+          { $set: student }
+        );
+        await db.collection("users").updateOne(
+          { email: student.email },
+          { $set: { name: student.name } }
+        );
+      } catch (err: any) {
+        console.error("Error updating student profile in DB:", err.message);
+      }
+    }
+
+    res.json({ status: "success", student });
+  });
+
+  // Upload Student Photo (JPEG and PNG formats only, Max Size 100KB)
+  router.post("/:id/photo", async (req, res) => {
+    const studentIdx = students.findIndex(s => s.id === req.params.id);
+    if (studentIdx === -1) {
+      return res.status(404).json({ error: "Student record not found." });
+    }
+
+    const { photoBase64, mimeType } = req.body;
+    if (!photoBase64) {
+      return res.status(400).json({ error: "No photo content provided." });
+    }
+
+    // 1. Validate File Format (JPEG and PNG only)
+    const validMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+    const isMimeValid = mimeType && validMimeTypes.includes(mimeType.toLowerCase());
+    const isHeaderValid = /^data:image\/(jpeg|jpg|png);base64,/i.test(photoBase64);
+
+    if (!isMimeValid && !isHeaderValid) {
+      return res.status(400).json({ error: "Invalid photo format. Only JPEG (.jpg, .jpeg) and PNG (.png) images are permitted." });
+    }
+
+    // Strip Data URI header prefix if present
+    const base64Data = photoBase64.replace(/^data:image\/(jpeg|jpg|png);base64,/i, "");
+    const buffer = Buffer.from(base64Data, "base64");
+
+    // 2. Validate Size Limit: Max 100KB (100 * 1024 bytes)
+    const MAX_SIZE_BYTES = 100 * 1024;
+    if (buffer.length > MAX_SIZE_BYTES) {
+      const fileSizeKb = (buffer.length / 1024).toFixed(1);
+      return res.status(400).json({ 
+        error: `Photo file size (${fileSizeKb}KB) exceeds maximum permitted limit of 100KB. Please compress or select a smaller image.` 
+      });
+    }
+
+    // Determine extension
+    let ext = "png";
+    if (mimeType?.toLowerCase().includes("jpeg") || mimeType?.toLowerCase().includes("jpg") || photoBase64.startsWith("data:image/jpeg") || photoBase64.startsWith("data:image/jpg")) {
+      ext = "jpg";
+    }
+
+    // Ensure public/uploads directory exists
+    const uploadsDir = path.join(process.cwd(), "public", "uploads");
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const student = students[studentIdx];
+
+    // Delete previous photo file from disk if it exists
+    if (student.photo && typeof student.photo === "string" && student.photo.startsWith("/uploads/")) {
+      try {
+        const previousFileName = path.basename(student.photo);
+        const previousFilePath = path.join(uploadsDir, previousFileName);
+        if (fs.existsSync(previousFilePath) && fs.lstatSync(previousFilePath).isFile()) {
+          fs.unlinkSync(previousFilePath);
+          console.log(`[Student Photo Cleanup] Successfully removed previous photo file: ${previousFileName}`);
+        }
+      } catch (cleanupErr: any) {
+        console.warn("[Student Photo Cleanup Warning] Failed to delete previous photo file:", cleanupErr.message);
+      }
+    }
+
+    const cleanId = req.params.id.replace(/[^a-zA-Z0-9]/g, "_");
+    const filename = `student_${cleanId}_${Date.now()}.${ext}`;
+    const targetPath = path.join(uploadsDir, filename);
+
+    try {
+      fs.writeFileSync(targetPath, buffer);
+      const photoUrl = `/uploads/${filename}`;
+
+      student.photo = photoUrl;
+      students[studentIdx] = student;
+      saveFallbackData("db_students.json", students);
+
+      if (dbConnected && db) {
+        await db.collection("students").updateOne(
+          { id: student.id },
+          { $set: { photo: photoUrl } }
+        );
+      }
+
+      res.json({ status: "success", photoUrl, student });
+    } catch (err: any) {
+      console.error("Error saving photo file to server storage:", err.message);
+      res.status(500).json({ error: "Failed to write photo file to disk storage." });
+    }
   });
 
 export default router;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, Brain, ShieldAlert, CheckCircle, Plus, X, BookOpen } from 'lucide-react';
 import { MockExam, OLYMPIAD_SYLLABUS } from '../../../types';
+import Combobox from '../../ui/Combobox';
 
 interface ExamsTabProps {
   exams: MockExam[];
@@ -88,43 +89,46 @@ export default function ExamsTab({
           <form onSubmit={handleAIGenerateExam} className="bg-slate-950/50 p-5 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-12 gap-5 text-slate-200" id="form-ai-inputs">
             <div className="md:col-span-3">
               <label className="font-bold text-slate-300 block mb-1.5 text-xs">Class Cohort Group</label>
-              <select
-                id="select-ai-cohort"
-                value={aiGroup} onChange={(e) => setAiGroup(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 p-2.5 rounded-lg font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
-              >
-                <option value="5-6">Group A (Class 5th - 6th)</option>
-                <option value="7-8">Group B (Class 7th - 8th)</option>
-                <option value="9-10">Group C (Class 9th - 10th)</option>
-                <option value="11-12">Group D (Class 11th - 12th)</option>
-              </select>
+              <Combobox
+                options={[
+                  { value: "5-6", label: "Group A (Class 5th - 6th)" },
+                  { value: "7-8", label: "Group B (Class 7th - 8th)" },
+                  { value: "9-10", label: "Group C (Class 9th - 10th)" },
+                  { value: "11-12", label: "Group D (Class 11th - 12th)" }
+                ]}
+                value={aiGroup}
+                onChange={setAiGroup}
+                placeholder="Choose Class Group"
+              />
             </div>
 
             <div className="md:col-span-3">
               <label className="font-bold text-slate-300 block mb-1.5 text-xs">Cognitive Difficulty Level</label>
-              <select
-                id="select-ai-difficulty"
-                value={aiDifficulty} onChange={(e) => setAiDifficulty(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700/80 p-2.5 rounded-lg font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
-              >
-                <option value="EASY">EASY (Foundational Concepts)</option>
-                <option value="MODERATE">MODERATE (Logic & Analytics)</option>
-                <option value="HARD">HARD (Olympiad-Grade Complex Coding)</option>
-              </select>
+              <Combobox
+                options={[
+                  { value: "EASY", label: "EASY (Foundational Concepts)" },
+                  { value: "MODERATE", label: "MODERATE (Logic & Analytics)" },
+                  { value: "HARD", label: "HARD (Olympiad-Grade Complex Coding)" }
+                ]}
+                value={aiDifficulty}
+                onChange={setAiDifficulty}
+                placeholder="Select Difficulty"
+              />
             </div>
 
             <div className="md:col-span-3">
               <label className="font-bold text-slate-300 block mb-1.5 text-xs">Total Questions Count</label>
-              <select
-                id="select-ai-count"
-                value={aiCount} onChange={(e) => setAiCount(Number(e.target.value))}
-                className="w-full bg-slate-900 border border-slate-700/80 p-2.5 rounded-lg font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
-              >
-                <option value="3">3 MCQ Questions</option>
-                <option value="5">5 MCQ Questions</option>
-                <option value="10">10 MCQ Questions</option>
-                <option value="15">15 MCQ Questions</option>
-              </select>
+              <Combobox
+                options={[
+                  { value: 3, label: "3 MCQ Questions" },
+                  { value: 5, label: "5 MCQ Questions" },
+                  { value: 10, label: "10 MCQ Questions" },
+                  { value: 15, label: "15 MCQ Questions" }
+                ]}
+                value={aiCount}
+                onChange={setAiCount}
+                placeholder="Questions Count"
+              />
             </div>
 
             <div className="md:col-span-3">
@@ -210,16 +214,17 @@ export default function ExamsTab({
                   </div>
                   <div>
                     <label className="block text-slate-300 font-bold mb-1">Target Class Cohort / Group</label>
-                    <select
+                    <Combobox
+                      options={[
+                        { value: "5-6", label: "Group A (Class 5th - 6th)" },
+                        { value: "7-8", label: "Group B (Class 7th - 8th)" },
+                        { value: "9-10", label: "Group C (Class 9th - 10th)" },
+                        { value: "11-12", label: "Group D (Class 11th - 12th)" }
+                      ]}
                       value={aiPreviewExam.classGroup}
-                      onChange={(e) => handleEditPreviewClassGroup(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    >
-                      <option value="5-6">Group A (Class 5th - 6th)</option>
-                      <option value="7-8">Group B (Class 7th - 8th)</option>
-                      <option value="9-10">Group C (Class 9th - 10th)</option>
-                      <option value="11-12">Group D (Class 11th - 12th)</option>
-                    </select>
+                      onChange={handleEditPreviewClassGroup}
+                      placeholder="Choose Group"
+                    />
                   </div>
                   <div>
                     <label className="block text-slate-300 font-bold mb-1">Duration Period (Minutes)</label>
@@ -289,16 +294,17 @@ export default function ExamsTab({
 
                     <div className="w-64 pt-1 text-slate-700">
                       <label className="block text-[10px] text-slate-400 font-bold mb-1">Specify Correct Answer Option Index</label>
-                      <select
+                      <Combobox
+                        options={[
+                          { value: 0, label: "Option A" },
+                          { value: 1, label: "Option B" },
+                          { value: 2, label: "Option C" },
+                          { value: 3, label: "Option D" }
+                        ]}
                         value={q.correctOption}
-                        onChange={(e) => handleEditPreviewQuestionCorrectOption(idx, Number(e.target.value))}
-                        className="w-full bg-slate-955 bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-white font-bold font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500/50 text-xs"
-                      >
-                        <option value="0">Option A</option>
-                        <option value="1">Option B</option>
-                        <option value="2">Option C</option>
-                        <option value="3">Option D</option>
-                      </select>
+                        onChange={(val) => handleEditPreviewQuestionCorrectOption(idx, Number(val))}
+                        placeholder="Choose Option..."
+                      />
                     </div>
                   </div>
                 ))}
@@ -355,16 +361,17 @@ export default function ExamsTab({
 
         <div>
           <label className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5 font-mono">Select Group Curriculum</label>
-          <select
+          <Combobox
+            options={[
+              { value: "5-6", label: "Group A (Class 5th - 6th)" },
+              { value: "7-8", label: "Group B (Class 7th - 8th)" },
+              { value: "9-10", label: "Group C (Class 9th - 10th)" },
+              { value: "11-12", label: "Group D (Class 11th - 12th)" }
+            ]}
             value={selectedAdminSyllabusId}
-            onChange={(e) => setSelectedAdminSyllabusId(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-lg p-2.5 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="5-6">Group A (Class 5th - 6th)</option>
-            <option value="7-8">Group B (Class 7th - 8th)</option>
-            <option value="9-10">Group C (Class 9th - 10th)</option>
-            <option value="11-12">Group D (Class 11th - 12th)</option>
-          </select>
+            onChange={setSelectedAdminSyllabusId}
+            placeholder="Select Group..."
+          />
         </div>
 
         {selectedAdminSyllabusId && OLYMPIAD_SYLLABUS[selectedAdminSyllabusId] && (

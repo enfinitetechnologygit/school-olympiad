@@ -10,7 +10,7 @@ export function useSchoolData({ user, onLogout }: UseSchoolDataProps) {
   const [school, setSchool] = useState<School | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [activeTab, setActiveTab] = useState<'roster' | 'qualifiers' | 'analytics' | 'notices' | 'schedule'>('roster');
+  const [activeTab, setActiveTab] = useState<'roster' | 'qualifiers' | 'analytics' | 'notices' | 'schedule' | 'profile'>('roster');
   const [loading, setLoading] = useState(true);
 
   // New Student Add State (coordinator backdoor registering for parents)

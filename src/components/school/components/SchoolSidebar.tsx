@@ -1,11 +1,11 @@
 import React from 'react';
-import { Users, Award, Activity, Bell, Calendar } from 'lucide-react';
+import { Users, Award, Activity, Bell, Calendar, Building } from 'lucide-react';
 import { School } from '../../../types';
 
 interface SchoolSidebarProps {
   school: School;
-  activeTab: 'roster' | 'qualifiers' | 'analytics' | 'notices' | 'schedule';
-  setActiveTab: (tab: 'roster' | 'qualifiers' | 'analytics' | 'notices' | 'schedule') => void;
+  activeTab: 'roster' | 'qualifiers' | 'analytics' | 'notices' | 'schedule' | 'profile';
+  setActiveTab: (tab: 'roster' | 'qualifiers' | 'analytics' | 'notices' | 'schedule' | 'profile') => void;
 }
 
 export default function SchoolSidebar({ school, activeTab, setActiveTab }: SchoolSidebarProps) {
@@ -66,6 +66,16 @@ export default function SchoolSidebar({ school, activeTab, setActiveTab }: Schoo
         >
           <Calendar className="w-4.5 h-4.5" />
           Pre-Exam Schedule
+        </button>
+
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
+            activeTab === 'profile' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          <Building className="w-4.5 h-4.5" />
+          School Profile
         </button>
       </div>
 

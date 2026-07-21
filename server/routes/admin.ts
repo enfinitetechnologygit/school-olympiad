@@ -195,6 +195,10 @@ const router = Router();
       createdAt: new Date().toISOString()
     };
 
+    // Always sync memory and fallback file
+    mockItems.push(newItem);
+    saveFallbackData("db_mock_items.json", mockItems);
+
     try {
       if (dbConnected && db) {
         await db.collection("items").insertOne(newItem);
@@ -204,10 +208,6 @@ const router = Router();
       console.error("DB Query error in POST /api/db/items:", err.message);
     }
 
-    // Offline Fallback
-    newItem.description = `${description} [Offline Fallback Store]`;
-    mockItems.push(newItem);
-    saveFallbackData("db_mock_items.json", mockItems);
     res.json({ status: "success", item: newItem });
   });
 
@@ -218,21 +218,24 @@ const router = Router();
       return res.status(400).json({ error: "Invalid item ID." });
     }
 
+    // Always sync memory and fallback file
+    const index = mockItems.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+      mockItems.splice(index, 1);
+      saveFallbackData("db_mock_items.json", mockItems);
+    }
+
     try {
       if (dbConnected && db) {
         await db.collection("items").deleteOne({ id: itemId });
-        return res.json({ status: "success", message: "Item deleted successfully from database." });
+        return res.json({ status: "success", message: "Item deleted successfully." });
       }
     } catch (err: any) {
       console.error("DB Query error in DELETE /api/db/items/:id:", err.message);
     }
 
-    // Offline Fallback
-    const index = mockItems.findIndex(item => item.id === itemId);
     if (index !== -1) {
-      mockItems.splice(index, 1);
-      saveFallbackData("db_mock_items.json", mockItems);
-      return res.json({ status: "success", message: "Item deleted successfully from mock storage." });
+      return res.json({ status: "success", message: "Item deleted successfully." });
     }
     res.status(404).json({ error: "Item not found." });
   });

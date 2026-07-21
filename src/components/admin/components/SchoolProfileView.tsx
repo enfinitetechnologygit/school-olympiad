@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft, User, Phone, Mail, MapPin, BookOpen, Calendar, Award, Search } from 'lucide-react';
 import { School, Student } from '../../../types';
+import Combobox from '../../ui/Combobox';
 
 interface SchoolProfileViewProps {
   selectedSchoolProfile: School | null;
@@ -295,16 +296,13 @@ export default function SchoolProfileView({
                 className="w-full bg-slate-50 border p-2 pl-9 rounded-lg"
               />
             </div>
-            <select
+            <Combobox
+              options={[{ value: "ALL", label: "All Classes" }, ...["Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((c) => ({ value: c, label: c }))] }
               value={schoolRosterClassFilter}
-              onChange={(e) => setSchoolRosterClassFilter(e.target.value)}
-              className="bg-white border rounded-lg p-2 font-semibold cursor-pointer outline-none text-slate-800"
-            >
-              <option value="ALL">All Classes</option>
-              {["Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((c, i) => (
-                <option key={i} value={c}>{c}</option>
-              ))}
-            </select>
+              onChange={(val) => setSchoolRosterClassFilter(val)}
+              placeholder="All Classes"
+              className="w-40"
+            />
           </div>
         </div>
 
