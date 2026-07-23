@@ -18,7 +18,7 @@ import adminRouter from "./routes/admin";
 export async function startServer() {
   await initializeDatabase();
   const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+  const PORT = Number(process.env.PORT) || 3002;
 
   app.use(express.json({ limit: "15mb" }));
   app.use(express.urlencoded({ limit: "15mb", extended: true }));

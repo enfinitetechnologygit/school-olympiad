@@ -174,7 +174,7 @@ router.post("/forgot-password", async (req, res) => {
   }
 
   // Construct reset link URL
-  const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer as string).origin : "http://localhost:3000");
+  const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer as string).origin : "http://localhost:3002");
   const resetUrl = `${origin}/reset-password?token=${token}`;
 
   const mailSubject = `Enfinite National Olympiad - Password Reset Link`;
