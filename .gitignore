@@ -7,12 +7,12 @@ node_modules/
 # ==============================================================================
 # Environment Variables & Secrets (Crucial for Express backend)
 # ==============================================================================
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-*.env
+#.env
+#.env.local
+#.env.development.local
+#.env.test.local
+#.env.production.local
+#*.env
 
 # ==============================================================================
 # Production Build Outputs (React builds and Express assets)
