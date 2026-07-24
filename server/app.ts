@@ -16,6 +16,10 @@ import centersRouter from "./routes/centers";
 import adminRouter from "./routes/admin";
 
 export async function startServer() {
+
+  console.log("NODE_ENV =", process.env.NODE_ENV);
+  console.log("PORT =", process.env.PORT);
+  console.log("cwd =", process.cwd());
   await initializeDatabase();
   const app = express();
   const PORT = Number(process.env.PORT) || 3002;
@@ -33,7 +37,7 @@ export async function startServer() {
   app.use("/api/auth", authRouter);
   app.use("/api/schools", schoolsRouter);
   app.use("/api/students", studentsRouter);
-  
+
   app.use("/api/announcements", announcementsRouter);
   app.use("/api/centers", centersRouter);
   app.use("/api", adminRouter); // adminRouter handles /stats, /db/items, /db/users
@@ -44,7 +48,7 @@ export async function startServer() {
   // Vite integration for development mode or static mapping
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { 
+      server: {
         middlewareMode: true,
         proxy: {} // Disable proxy in middleware mode to prevent infinite loop back to Express
       },
