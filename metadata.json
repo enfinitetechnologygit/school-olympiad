@@ -2,5 +2,7 @@
   "name": "Enfinite National Olympiad",
   "description": "National-level Computer Science Olympiad portal for students in Class 5th to 12th, featuring School and Student panels, automated mock tests, and comprehensive admin controls.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
