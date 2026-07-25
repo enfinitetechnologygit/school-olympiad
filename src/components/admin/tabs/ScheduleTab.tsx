@@ -341,18 +341,18 @@ export default function ScheduleTab({
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto border rounded-xl bg-white shadow-sm text-xs">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto rounded-2xl border border-slate-150 shadow-sm">
+          <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[9px]">
-                <th className="p-3">School ID & Name</th>
-                <th className="p-3">Pre-Exam Date</th>
-                <th className="p-3">Time & Duration</th>
-                <th className="p-3">Exam Status</th>
-                <th className="p-3 text-right">Actions</th>
+              <tr className="bg-slate-900 text-white font-extrabold uppercase tracking-widest text-[10px]">
+                <th className="p-4 pl-6">School ID & Name</th>
+                <th className="p-4">Pre-Exam Date</th>
+                <th className="p-4">Time & Duration</th>
+                <th className="p-4">Exam Status</th>
+                <th className="p-4 pr-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700 font-medium text-xs">
+            <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
               {filteredSchoolsForScheduling.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-slate-400 font-semibold">
@@ -365,58 +365,58 @@ export default function ScheduleTab({
                   
                   // Style helper for status badges
                   let statusBadge = (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-100 text-slate-600 border border-slate-200">
                       Not Scheduled
                     </span>
                   );
                   if (status === 'Upcoming') {
                     statusBadge = (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-50 text-blue-700 border border-blue-200">
                         Upcoming
                       </span>
                     );
                   } else if (status === 'Active') {
                     statusBadge = (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 animate-pulse">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-250 animate-pulse">
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
                         Active
                       </span>
                     );
                   } else if (status === 'Completed') {
                     statusBadge = (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-purple-50 text-purple-750 border border-purple-250">
                         Completed
                       </span>
                     );
                   }
 
                   return (
-                    <tr key={sch.id} className="hover:bg-slate-50/50 transition">
-                      <td className="p-3">
-                        <div className="font-bold text-slate-900">{sch.name}</div>
-                        <div className="text-[10px] text-slate-500 font-mono mt-0.5">{sch.id} | Coordinator: {sch.coordinatorName || 'N/A'}</div>
+                    <tr key={sch.id} className="hover:bg-blue-50/20 transition duration-150">
+                      <td className="p-4 pl-6">
+                        <div className="font-black text-slate-900 text-sm">{sch.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono font-bold mt-1">{sch.id} | Coordinator: {sch.coordinatorName || 'N/A'}</div>
                       </td>
-                      <td className="p-3 font-semibold">
+                      <td className="p-4 font-bold text-slate-800">
                         {sch.preExamDate ? formatDateToDMY(sch.preExamDate) : (
                           <span className="text-slate-400 italic">Not Scheduled</span>
                         )}
                       </td>
-                      <td className="p-3">
+                      <td className="p-4">
                         {sch.preExamDate ? (
                           <div>
-                            <div className="font-semibold text-slate-900">{sch.preExamTime || 'N/A'}</div>
-                            <div className="text-[10px] text-slate-500">{sch.preExamDuration ? `${sch.preExamDuration} minutes` : 'N/A'}</div>
+                            <div className="font-extrabold text-slate-900">{sch.preExamTime || 'N/A'}</div>
+                            <div className="text-[10px] text-slate-400 font-bold mt-0.5">{sch.preExamDuration ? `${sch.preExamDuration} minutes` : 'N/A'}</div>
                           </div>
                         ) : (
                           <span className="text-slate-400 italic">-</span>
                         )}
                       </td>
-                      <td className="p-3">{statusBadge}</td>
-                      <td className="p-3 text-right">
+                      <td className="p-4">{statusBadge}</td>
+                      <td className="p-4 pr-6 text-right">
                         <button
                           type="button"
                           onClick={() => handleEditScheduleClick(sch)}
-                          className="px-3 py-1.5 bg-blue-55 bg-blue-50 hover:bg-blue-100 text-blue-750 text-blue-700 font-bold border border-blue-200 rounded-lg transition cursor-pointer"
+                          className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-extrabold border border-blue-200 rounded-xl transition cursor-pointer shadow-sm text-xs"
                         >
                           Edit Schedule
                         </button>

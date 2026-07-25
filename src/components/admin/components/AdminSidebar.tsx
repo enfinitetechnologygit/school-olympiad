@@ -35,8 +35,8 @@ export default function AdminSidebar({
 
         <button
           onClick={() => handleTabClick('approvals')}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'approvals' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'approvals' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <Building className="w-4.5 h-4.5" />
@@ -45,8 +45,8 @@ export default function AdminSidebar({
 
         <button
           onClick={() => handleTabClick('students')}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'students' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'students' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <Users className="w-4.5 h-4.5" />
@@ -55,8 +55,8 @@ export default function AdminSidebar({
 
         <button
           onClick={() => handleTabClick('exams')}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'exams' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'exams' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <Clock className="w-4.5 h-4.5" />
@@ -65,8 +65,8 @@ export default function AdminSidebar({
 
         <button
           onClick={() => handleTabClick('broadcasting')}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'broadcasting' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'broadcasting' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <Rss className="w-4.5 h-4.5" />
@@ -75,8 +75,8 @@ export default function AdminSidebar({
 
         <button
           onClick={() => handleTabClick('centers')}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'centers' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'centers' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <MapPin className="w-4.5 h-4.5" />
@@ -86,8 +86,8 @@ export default function AdminSidebar({
         <button
           onClick={() => handleTabClick('schedule')}
           id="btn-schedule-desk"
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'schedule' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'schedule' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <Calendar className="w-4.5 h-4.5" />
@@ -97,8 +97,8 @@ export default function AdminSidebar({
         <button
           onClick={() => handleTabClick('database')}
           id="btn-database-desk"
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'database' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'database' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <Layers className="w-4.5 h-4.5" />
@@ -108,8 +108,8 @@ export default function AdminSidebar({
         <button
           onClick={() => handleTabClick('security')}
           id="btn-security-desk"
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'security' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'security' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <KeyRound className="w-4.5 h-4.5" />
@@ -117,9 +117,9 @@ export default function AdminSidebar({
         </button>
       </div>
 
-      <div className="bg-slate-950 text-white p-3.5 rounded-xl text-center border border-slate-800">
+      <div className="bg-slate-950 text-white p-4 rounded-2xl text-center border border-slate-850 shadow-inner">
         <span className="text-[10px] text-slate-400 font-mono tracking-widest block uppercase">SECURE SESSION</span>
-        <p className="text-[10px] text-emerald-400 font-bold block mt-1">● VERIFIED ONLINE</p>
+        <p className="text-[10px] text-emerald-400 font-bold block mt-1.5">● VERIFIED ONLINE</p>
       </div>
     </aside>
   );

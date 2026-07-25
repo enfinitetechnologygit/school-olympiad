@@ -1,5 +1,6 @@
 import React from 'react';
 import { Activity, AlertCircle } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useSchoolData } from './school/hooks/useSchoolData';
 import SchoolHeader from './school/components/SchoolHeader';
 import SchoolSidebar from './school/components/SchoolSidebar';
@@ -153,58 +154,70 @@ export default function SchoolDashboard({ user, onLogout }: SchoolDashboardProps
 
           {/* Tab 1: MANAGE STUDENT ROSTER AND BACKDOOR ENTRY */}
           {activeTab === 'roster' && (
-            <RosterTab
-              school={school}
-              students={students}
-              filteredStudents={filteredStudents}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              classFilter={classFilter}
-              setClassFilter={setClassFilter}
-              handleDownloadRegistry={handleDownloadRegistry}
-              showAddForm={showAddForm}
-              setShowAddForm={setShowAddForm}
-              handleBackdoorRegister={handleBackdoorRegister}
-              newName={newName}
-              setNewName={setNewName}
-              newClass={newClass}
-              setNewClass={setNewClass}
-              newGender={newGender}
-              setNewGender={setNewGender}
-              newDob={newDob}
-              setNewDob={setNewDob}
-              newEmail={newEmail}
-              setNewEmail={setNewEmail}
-              newMobile={newMobile}
-              setNewMobile={setNewMobile}
-              newParent={newParent}
-              setNewParent={setNewParent}
-            />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <RosterTab
+                school={school}
+                students={students}
+                filteredStudents={filteredStudents}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                classFilter={classFilter}
+                setClassFilter={setClassFilter}
+                handleDownloadRegistry={handleDownloadRegistry}
+                showAddForm={showAddForm}
+                setShowAddForm={setShowAddForm}
+                handleBackdoorRegister={handleBackdoorRegister}
+                newName={newName}
+                setNewName={setNewName}
+                newClass={newClass}
+                setNewClass={setNewClass}
+                newGender={newGender}
+                setNewGender={setNewGender}
+                newDob={newDob}
+                setNewDob={setNewDob}
+                newEmail={newEmail}
+                setNewEmail={setNewEmail}
+                newMobile={newMobile}
+                setNewMobile={setNewMobile}
+                newParent={newParent}
+                setNewParent={setNewParent}
+              />
+            </motion.div>
           )}
 
           {/* Tab 2: QUALIFIED STUDENTS TALLY */}
           {activeTab === 'qualifiers' && (
-            <QualifiersTab students={students} />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <QualifiersTab students={students} />
+            </motion.div>
           )}
 
           {/* Tab 3: ANALYTICS BAR CHART VIEW */}
           {activeTab === 'analytics' && (
-            <AnalyticsTab students={students} paidCount={paidCount} />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <AnalyticsTab students={students} paidCount={paidCount} />
+            </motion.div>
           )}
 
           {/* Tab 4: NOTICES BOARD */}
           {activeTab === 'notices' && (
-            <NoticesTab announcements={announcements} />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <NoticesTab announcements={announcements} />
+            </motion.div>
           )}
 
           {/* Tab 5: PRE-EXAM SCHEDULE */}
           {activeTab === 'schedule' && (
-            <ScheduleTab school={school} />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <ScheduleTab school={school} />
+            </motion.div>
           )}
 
           {/* Tab 6: SCHOOL PROFILE */}
           {activeTab === 'profile' && (
-            <SchoolProfileTab school={school} fetchSchoolData={fetchSchoolData} />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <SchoolProfileTab school={school} fetchSchoolData={fetchSchoolData} />
+            </motion.div>
           )}
 
         </main>

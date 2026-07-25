@@ -187,36 +187,38 @@ export default function StudentsTab({
           </div>
         )}
 
-        <div className="overflow-x-auto text-[11px]">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto rounded-2xl border border-slate-150 shadow-sm">
+          <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="bg-slate-100 font-bold text-slate-700 border-b uppercase text-[9px] tracking-wider">
-                <th className="p-3 min-w-[200px]">Candidate Details</th>
-                <th className="p-3 min-w-[220px]">Stage 1 (In-Campus Venue & Release)</th>
-                <th className="p-3 text-center min-w-[170px]">Mains Selection</th>
-                <th className="p-3 min-w-[220px]">Stage 2 Seating Location</th>
-                <th className="p-3 text-right pr-6 min-w-[160px]">Stage 2 Mains Admit</th>
+              <tr className="bg-slate-900 text-white font-extrabold uppercase text-[10px] tracking-widest">
+                <th className="p-4 pl-6 min-w-[200px]">Candidate Details</th>
+                <th className="p-4 min-w-[220px]">Stage 1 (Campus & Release)</th>
+                <th className="p-4 text-center min-w-[170px]">Mains Selection</th>
+                <th className="p-4 min-w-[220px]">Stage 2 Seating Location</th>
+                <th className="p-4 pr-6 text-right min-w-[160px]">Stage 2 Mains Admit</th>
               </tr>
             </thead>
-            <tbody className="divide-y text-slate-700 font-medium">
+            <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
               {filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-10 text-center text-slate-500">No matching student logs recorded inside databases.</td>
+                  <td colSpan={5} className="p-10 text-center text-slate-500 font-semibold">No matching student logs recorded inside databases.</td>
                 </tr>
               ) : (
                 filteredStudents.map((st, i) => (
-                  <tr key={i} className="hover:bg-slate-50/50">
+                  <tr key={i} className="hover:bg-blue-50/20 transition duration-150">
                     
                     {/* Column 1: Candidate Details & Fee */}
-                    <td className="p-3 space-y-1">
-                      <p className="font-extrabold text-slate-900 text-xs">{st.name}</p>
-                      <div className="font-mono text-[9px] text-slate-500">
-                        {st.id} • <span className="font-sans font-semibold text-blue-700">{st.classLevel}</span>
+                    <td className="p-4 pl-6 space-y-1.5">
+                      <p className="font-black text-slate-900 text-base">{st.name}</p>
+                      <div className="font-mono text-xs text-slate-500 flex items-center gap-1.5">
+                        <span>{st.id}</span>
+                        <span className="text-slate-300">|</span>
+                        <span className="font-sans font-extrabold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md text-xs">{st.classLevel}</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono">{st.email}</div>
-                      <div className="pt-1 flex flex-wrap items-center gap-1.5">
-                        <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                          st.paymentStatus === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
+                      <div className="text-xs text-slate-500 font-semibold">{st.email}</div>
+                      <div className="pt-1.5 flex flex-wrap items-center gap-2">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                          st.paymentStatus === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
                         }`}>
                           {st.paymentStatus}
                         </span>
@@ -224,17 +226,17 @@ export default function StudentsTab({
                           <button
                             type="button"
                             onClick={() => handleApproveCandidatePayment(st.id)}
-                            className="text-[9px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200 font-extrabold transition cursor-pointer"
+                            className="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-xl font-extrabold transition cursor-pointer shadow-sm"
                           >
                             Approve Cash
                           </button>
                         )}
                         {st.score !== undefined ? (
-                          <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 border border-blue-100 rounded-full text-[9px] font-extrabold">
+                          <span className="bg-blue-50 text-blue-700 px-2.5 py-1 border border-blue-150 rounded-full text-[10px] font-black">
                             Score: {st.score}%
                           </span>
                         ) : (
-                          <span className="bg-slate-50 text-slate-400 px-1.5 py-0.5 border border-slate-200 rounded-full text-[9px] font-bold">
+                          <span className="bg-slate-50 text-slate-400 px-2.5 py-1 border border-slate-200 rounded-full text-[10px] font-bold">
                             No Score
                           </span>
                         )}
@@ -251,7 +253,7 @@ export default function StudentsTab({
                               }
                             }
                           }}
-                          className="text-[9px] text-blue-600 hover:bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 font-bold transition flex items-center gap-0.5 cursor-pointer ml-1"
+                          className="text-[10px] text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-150 font-black transition flex items-center gap-0.5 cursor-pointer"
                         >
                           ✏️ {st.score !== undefined ? "Update" : "Add Result"}
                         </button>
@@ -259,38 +261,38 @@ export default function StudentsTab({
                     </td>
 
                     {/* Column 2: Stage 1 Venue & Release */}
-                    <td className="p-3 space-y-1">
-                      <div className="text-slate-600 leading-tight">
-                        <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Exam Venue (Same School)</span>
-                        <span className="font-semibold text-slate-800 text-[11px] block max-w-[210px] truncate">{st.schoolName}</span>
+                    <td className="p-4 space-y-2">
+                      <div className="text-slate-650 leading-tight">
+                        <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider">Exam Venue (Same School)</span>
+                        <span className="font-extrabold text-slate-800 text-sm block max-w-[210px] truncate mt-1">{st.schoolName}</span>
                       </div>
                       
                       {st.paymentStatus !== 'COMPLETED' ? (
-                        <span className="text-slate-400 text-[10px] italic block">🔒 Restricted (Awaiting Payment)</span>
+                        <span className="text-slate-450 text-xs font-bold italic block mt-1">🔒 Restricted (Awaiting Payment)</span>
                       ) : (
                         <div className="pt-1 flex items-center gap-2">
                           {st.stage1AdmitReleased ? (
                             <>
-                              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-300 font-mono text-[10px] rounded font-bold">
+                              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-300 font-mono text-xs rounded-lg font-black">
                                 Released: {st.stage1AdmitNumber || "PENDING"}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleStage1Release(st.id, false)}
-                                className="text-[9px] bg-slate-100 hover:bg-slate-200 hover:text-red-700 text-slate-500 font-extrabold px-1.5 py-0.5 rounded transition cursor-pointer"
+                                className="text-[10px] bg-slate-100 hover:bg-slate-200 hover:text-rose-700 text-slate-500 border border-slate-200 font-extrabold px-2.5 py-1 rounded-xl transition cursor-pointer"
                               >
                                 Lock
                               </button>
                             </>
                           ) : (
                             <>
-                              <span className="px-2 py-0.5 bg-slate-100 text-slate-500 border border-slate-200 text-[10px] rounded font-bold">
+                              <span className="px-2.5 py-1 bg-slate-50 text-slate-450 border border-slate-200 text-xs rounded-lg font-bold">
                                 Draft (Locked)
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleStage1Release(st.id, true)}
-                                className="text-[9px] bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-2 py-0.5 rounded transition cursor-pointer"
+                                className="text-[10px] bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-3 py-1 rounded-xl transition cursor-pointer shadow-sm"
                               >
                                 Release Admit
                               </button>
@@ -301,32 +303,32 @@ export default function StudentsTab({
                     </td>
 
                     {/* Column 3: Mains Selection */}
-                    <td className="p-3 text-center">
-                      <div className="inline-flex flex-col gap-1 items-center">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider mb-1.5 ${
-                          st.qualificationStatus === 'QUALIFIED' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
-                          st.qualificationStatus === 'NOT_QUALIFIED' ? 'bg-red-100 text-red-800 border border-red-200' :
-                          'bg-slate-100 text-slate-600 border border-slate-200'
+                    <td className="p-4 text-center">
+                      <div className="inline-flex flex-col gap-2 items-center">
+                        <span className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-1 ${
+                          st.qualificationStatus === 'QUALIFIED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-250' :
+                          st.qualificationStatus === 'NOT_QUALIFIED' ? 'bg-rose-50 text-rose-700 border border-rose-250' :
+                          'bg-slate-50 text-slate-600 border border-slate-200'
                         }`}>
                           {st.qualificationStatus === 'QUALIFIED' ? 'SELECTED (STAGE 2)' : 
                            st.qualificationStatus === 'NOT_QUALIFIED' ? 'PARTICIPATED ONLY' : 'TBD (MOCK EVAL)'}
                         </span>
                         
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <button
                             type="button"
                             onClick={() => handleManualQualify(st.id, 'QUALIFIED')}
-                            className={`px-2 py-1 rounded text-[9px] font-extrabold cursor-pointer transition ${
-                              st.qualificationStatus === 'QUALIFIED' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            className={`px-3 py-1 rounded-xl text-[10px] font-black cursor-pointer transition ${
+                              st.qualificationStatus === 'QUALIFIED' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-50 text-slate-650 border border-slate-200 hover:bg-slate-100'
                             }`}
                           >
-                            Select / Qualify
+                            Qualify
                           </button>
                           <button
                             type="button"
                             onClick={() => handleManualQualify(st.id, 'NOT_QUALIFIED')}
-                            className={`px-2 py-1 rounded text-[9px] font-extrabold cursor-pointer transition ${
-                              st.qualificationStatus === 'NOT_QUALIFIED' ? 'bg-red-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            className={`px-3 py-1 rounded-xl text-[10px] font-black cursor-pointer transition ${
+                              st.qualificationStatus === 'NOT_QUALIFIED' ? 'bg-rose-600 text-white shadow-sm' : 'bg-slate-50 text-slate-650 border border-slate-200 hover:bg-slate-100'
                             }`}
                           >
                             Disqualify
@@ -336,12 +338,12 @@ export default function StudentsTab({
                     </td>
 
                     {/* Column 4: Stage 2 Center Allocation */}
-                    <td className="p-3">
+                    <td className="p-4">
                       {st.qualificationStatus !== 'QUALIFIED' ? (
-                        <span className="text-slate-400 italic text-[10px]">🔒 Locked (Candidate Unqualified)</span>
+                        <span className="text-slate-450 font-bold italic text-xs">🔒 Locked (Candidate Unqualified)</span>
                       ) : (
                         <div className="space-y-1.5 max-w-[210px]">
-                          <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Exam Center Seating Allocation</span>
+                          <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider mb-0.5">Exam Center Seating</span>
                           <Combobox
                             options={[{ value: "", label: "-- No Location Scheduled --" }, ...centers.map((center) => ({ value: center.id, label: `${center.name} (${center.city})` }))] }
                             value={st.examCenterId || ""}
@@ -353,27 +355,27 @@ export default function StudentsTab({
                     </td>
 
                     {/* Column 5: Stage 2 Admit Release Toggle */}
-                    <td className="p-3 text-right pr-6">
+                    <td className="p-4 text-right pr-6">
                       {st.qualificationStatus !== 'QUALIFIED' ? (
-                        <span className="text-slate-400 italic text-[10px]">🔒 Stage 2 Disabled</span>
+                        <span className="text-slate-450 font-bold italic text-xs">🔒 Stage 2 Disabled</span>
                       ) : (
                         <div className="flex flex-col items-end gap-1.5">
                           {st.stage2AdmitReleased ? (
                             <>
-                              <span className="inline-block px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-300 font-mono text-[9px] rounded font-extrabold">
+                              <span className="inline-block px-2.5 py-1.5 bg-blue-50 text-blue-700 border border-blue-300 font-mono text-[10px] rounded-lg font-black">
                                 Released: {st.stage2AdmitNumber || "ENO-S2-RANDOM"}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleStage2Release(st.id, false)}
-                                className="text-[9px] bg-slate-100 hover:bg-slate-200 hover:text-red-700 text-slate-500 font-extrabold px-1.5 py-0.5 rounded transition cursor-pointer"
+                                className="text-[10px] bg-slate-100 hover:bg-slate-200 hover:text-rose-700 text-slate-500 border border-slate-200 font-extrabold px-2.5 py-1 rounded-xl transition cursor-pointer"
                               >
                                 Lock S2 Card
                               </button>
                             </>
                           ) : (
                             <>
-                              <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-500 border border-slate-200 text-[9px] rounded font-bold">
+                              <span className="inline-block px-2.5 py-1.5 bg-slate-50 text-slate-500 border border-slate-200 text-[10px] rounded-lg font-bold">
                                 Draft {st.examCenterId ? "(Seated)" : "(No Seat)"}
                               </span>
                               <button
@@ -381,10 +383,10 @@ export default function StudentsTab({
                                 disabled={!st.examCenterId}
                                 onClick={() => handleStage2Release(st.id, true)}
                                 title={!st.examCenterId ? "Assign an exam center before releasing admit card" : ""}
-                                className={`text-[9px] font-extrabold px-2 py-0.5 rounded transition cursor-pointer ${
+                                className={`text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition cursor-pointer ${
                                   st.examCenterId 
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                                    : 'bg-slate-100 text-slate-300 border border-slate-200 cursor-not-allowed'
+                                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm' 
+                                    : 'bg-slate-50 text-slate-300 border border-slate-200 cursor-not-allowed'
                                 }`}
                               >
                                 Release S2 Mains

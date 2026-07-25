@@ -21,8 +21,8 @@ export default function StudentSidebar({ student, activeTab, setActiveTab, setAc
 
         <button
           onClick={() => { setActiveTab('overview'); setActiveExam(null); }}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'overview' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'overview' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <Award className="w-4.5 h-4.5" />
@@ -31,8 +31,8 @@ export default function StudentSidebar({ student, activeTab, setActiveTab, setAc
 
         <button
           onClick={() => { setActiveTab('exams'); setActiveExam(null); }}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'exams' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'exams' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <Clock className="w-4.5 h-4.5" />
@@ -41,8 +41,8 @@ export default function StudentSidebar({ student, activeTab, setActiveTab, setAc
 
         <button
           onClick={() => { setActiveTab('admitCard'); setActiveExam(null); }}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'admitCard' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'admitCard' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <FileText className="w-4.5 h-4.5" />
@@ -51,8 +51,8 @@ export default function StudentSidebar({ student, activeTab, setActiveTab, setAc
 
         <button
           onClick={() => { setActiveTab('syllabus'); setActiveExam(null); }}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'syllabus' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'syllabus' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <BookOpen className="w-4.5 h-4.5" />
@@ -61,21 +61,20 @@ export default function StudentSidebar({ student, activeTab, setActiveTab, setAc
 
         <button
           onClick={() => { setActiveTab('profile'); setActiveExam(null); }}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
-            activeTab === 'profile' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            activeTab === 'profile' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/15 scale-[1.02]' : 'text-slate-600 hover:bg-slate-50 hover:translate-x-1'
           }`}
         >
           <User className="w-4.5 h-4.5" />
           My Profile & Photo
         </button>
 
-
       </div>
 
       <div className="border-t border-slate-100 pt-4 space-y-2">
-        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 text-center">
+        <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-4 rounded-2xl border border-slate-100 text-center shadow-inner">
           <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Pre-Exam Registration</span>
-          <p className="text-xs font-extrabold text-slate-700 mt-1 leading-none uppercase">{student.paymentStatus}</p>
+          <p className="text-xs font-black text-slate-700 mt-1.5 leading-none uppercase tracking-wide">{student.paymentStatus}</p>
         </div>
       </div>
     </aside>

@@ -193,8 +193,8 @@ export default function SchoolProfileView({
             {selectedSchoolProfile.status === 'APPROVED' ? (
               <div className="space-y-3">
                 <div className="bg-slate-50 border p-3 rounded-lg text-xs">
-                  <span className="text-slate-400 font-medium">Portal Password</span>
-                  <p className="font-mono font-bold text-slate-800 mt-0.5">{selectedSchoolProfile.password || 'school123'}</p>
+                  <span className="text-slate-400 font-medium">Portal Credentials Status</span>
+                  <p className="font-mono font-bold text-emerald-600 mt-0.5">Securely Encrypted</p>
                 </div>
                 <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg text-[10px] text-blue-800 font-semibold leading-relaxed">
                   Tip: Provide these credentials to coordinator teachers. They can log in to the School Dashboard to register students and check admit cards.

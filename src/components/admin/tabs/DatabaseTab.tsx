@@ -99,42 +99,42 @@ export default function DatabaseTab({
           </div>
 
           {/* Registered Items Directory */}
-          <div className="bg-white border rounded-2xl overflow-hidden shadow-sm p-6 space-y-4">
-            <h3 className="text-base font-bold font-display text-slate-950 text-sm">Published Study Resources ({dbItems.length})</h3>
-            <div className="overflow-x-auto text-xs">
-              <table className="w-full text-left">
+          <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm p-6 sm:p-8 space-y-6">
+            <h3 className="text-lg font-black font-display text-slate-950 tracking-tight">Published Study Resources ({dbItems.length})</h3>
+            <div className="overflow-x-auto rounded-2xl border border-slate-150 shadow-sm">
+              <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
-                  <tr className="bg-slate-50 font-bold text-slate-600 border-b uppercase text-[9px] tracking-wider">
-                    <th className="p-3">Resource Details</th>
-                    <th className="p-3">Category</th>
-                    <th className="p-3">Price</th>
-                    <th className="p-3 text-center">Actions</th>
+                  <tr className="bg-slate-900 text-white font-extrabold uppercase text-[10px] tracking-widest">
+                    <th className="p-4 pl-6">Resource Details</th>
+                    <th className="p-4">Category</th>
+                    <th className="p-4">Price</th>
+                    <th className="p-4 pr-6 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y text-slate-700 font-medium">
+                <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
                   {dbItems.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="p-6 text-center text-slate-500">No resources found in database.</td>
+                      <td colSpan={4} className="p-6 text-center text-slate-500 font-semibold">No resources found in database.</td>
                     </tr>
                   ) : (
                     dbItems.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50/50 text-xs">
-                        <td className="p-3 max-w-sm">
-                          <p className="font-extrabold text-slate-900">{item.name}</p>
-                          <p className="text-[10px] text-slate-400 font-normal leading-relaxed mt-0.5">{item.description}</p>
+                      <tr key={idx} className="hover:bg-blue-50/20 transition duration-150">
+                        <td className="p-4 pl-6 max-w-sm">
+                          <p className="font-black text-slate-900 text-sm">{item.name}</p>
+                          <p className="text-[10px] text-slate-400 font-bold leading-relaxed mt-1">{item.description}</p>
                         </td>
-                        <td className="p-3">
-                          <span className="px-2 py-0.5 bg-blue-50 text-blue-800 text-[10px] font-bold rounded uppercase">
+                        <td className="p-4">
+                          <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-[10px] font-black rounded-lg border border-blue-100 uppercase tracking-wide">
                             {item.category}
                           </span>
                         </td>
-                        <td className="p-3 font-mono font-bold text-slate-900">
+                        <td className="p-4 font-mono font-black text-slate-900">
                           {Number(item.price) === 0 ? 'FREE' : `₹${item.price}`}
                         </td>
-                        <td className="p-3 text-center">
+                        <td className="p-4 pr-6 text-center">
                           <button
                             onClick={() => item.id && handleDeleteDBItem(item.id)}
-                            className="px-2.5 py-1 text-red-600 hover:text-red-500 bg-red-50 hover:bg-red-100 rounded-lg text-[10px] font-bold transition select-none cursor-pointer"
+                            className="px-3 py-1.5 text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-[11px] font-extrabold transition select-none cursor-pointer shadow-sm"
                           >
                             Delete
                           </button>
@@ -151,10 +151,10 @@ export default function DatabaseTab({
 
         {/* Column 2: Database Users Registry (4 cols) */}
         <div className="xl:col-span-4 space-y-6">
-          <div className="bg-white border rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
             <div>
-              <h3 className="text-base font-bold font-display text-slate-950 text-sm">Database Users Registry</h3>
-              <p className="text-xs text-slate-500 mt-1">Lists all credentials stored in the SQL users table used for auth.</p>
+              <h3 className="text-lg font-black font-display text-slate-950 tracking-tight">Database Users Registry</h3>
+              <p className="text-xs text-slate-500 mt-1 font-semibold">Lists all credentials stored in the SQL users table used for auth.</p>
             </div>
 
             <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
@@ -162,22 +162,22 @@ export default function DatabaseTab({
                 <p className="text-center text-xs text-slate-500 py-6">No users found in database registry.</p>
               ) : (
                 dbUsers.map((u, i) => (
-                  <div key={i} className="p-4 bg-slate-50 border rounded-xl flex flex-col justify-between gap-2 font-sans">
+                  <div key={i} className="p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-100 rounded-2xl flex flex-col justify-between gap-2 font-sans transition">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-extrabold text-slate-950 text-xs font-display leading-tight">{u.name}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5 font-mono">{u.email}</p>
+                        <p className="font-black text-slate-950 text-xs font-display leading-tight">{u.name}</p>
+                        <p className="text-[10px] text-slate-400 mt-1 font-mono font-bold">{u.email}</p>
                       </div>
                       <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
-                        u.role === 'admin' ? 'bg-red-50 text-red-700 border border-red-200' :
-                        u.role === 'school' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                        u.role === 'admin' ? 'bg-rose-50 text-rose-700 border border-rose-250' :
+                        u.role === 'school' ? 'bg-amber-50 text-amber-750 border border-amber-250' :
                         'bg-blue-50 text-blue-800 border border-blue-200'
                       }`}>
                         {u.role}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-[9px] text-slate-400 pt-1.5 border-t border-slate-200/50">
-                      <span>SQL User ID: <strong>{u.id}</strong></span>
+                    <div className="flex justify-between items-center text-[9px] text-slate-400 pt-1.5 border-t border-slate-100">
+                      <span>SQL User ID: <strong className="font-mono">{u.id}</strong></span>
                       <span>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</span>
                     </div>
                   </div>

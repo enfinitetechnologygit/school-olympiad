@@ -69,26 +69,26 @@ export default function ExamsTab({
       <div className="xl:col-span-8 space-y-6">
         
         {/* Premium AI Generator Control Card */}
-        <div className="bg-gradient-to-r from-slate-950 to-slate-900 bg-slate-900 text-white rounded-2xl p-6 shadow-xl border border-slate-800 space-y-6" id="ai-generator-panel">
+        <div className="bg-gradient-to-r from-slate-950 to-slate-900 bg-slate-900 text-white rounded-3xl p-8 shadow-xl border border-slate-800 space-y-6" id="ai-generator-panel">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold font-mono tracking-widest text-[9px] rounded-full uppercase animate-pulse" id="badge-ai-model">
-                <Sparkles className="w-3 h-3 text-blue-400" />
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold font-mono tracking-widest text-[11px] rounded-full uppercase animate-pulse" id="badge-ai-model">
+                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                 Gemini Server-Side Intelligence
               </div>
-              <h3 className="text-lg font-black font-display text-white mt-2" id="title-ai-heading">AI-Powered Instant Olympiad Test Generator</h3>
-              <p className="text-xs text-slate-300 mt-1">
+              <h3 className="text-2xl font-black font-display text-white mt-3" id="title-ai-heading">AI-Powered Instant Olympiad Test Generator</h3>
+              <p className="text-sm text-slate-200 mt-2 leading-relaxed">
                 Generate a fully functional, curriculum-aligned Computer Science Olympiad trial mock exam in a single click. Select a class group or pick a custom sub-topic from the syllabus guide sidebar.
               </p>
             </div>
-            <div className="bg-slate-800 p-3 rounded-2xl text-white shrink-0 border border-slate-700 hidden sm:block">
-              <Brain className="w-7 h-7 text-blue-400" />
+            <div className="bg-slate-800 p-4 rounded-2xl text-white shrink-0 border border-slate-700 hidden sm:block">
+              <Brain className="w-8 h-8 text-blue-400" />
             </div>
           </div>
 
-          <form onSubmit={handleAIGenerateExam} className="bg-slate-950/50 p-5 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-12 gap-5 text-slate-200" id="form-ai-inputs">
+          <form onSubmit={handleAIGenerateExam} className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 grid grid-cols-1 md:grid-cols-12 gap-6 text-slate-200" id="form-ai-inputs">
             <div className="md:col-span-3">
-              <label className="font-bold text-slate-300 block mb-1.5 text-xs">Class Cohort Group</label>
+              <label className="font-bold text-slate-350 block mb-2 text-xs uppercase tracking-wider">Class Cohort Group</label>
               <Combobox
                 options={[
                   { value: "5-6", label: "Group A (Class 5th - 6th)" },
@@ -103,7 +103,7 @@ export default function ExamsTab({
             </div>
 
             <div className="md:col-span-3">
-              <label className="font-bold text-slate-300 block mb-1.5 text-xs">Cognitive Difficulty Level</label>
+              <label className="font-bold text-slate-355 block mb-2 text-xs uppercase tracking-wider">Cognitive Difficulty Level</label>
               <Combobox
                 options={[
                   { value: "EASY", label: "EASY (Foundational Concepts)" },
@@ -117,7 +117,7 @@ export default function ExamsTab({
             </div>
 
             <div className="md:col-span-3">
-              <label className="font-bold text-slate-300 block mb-1.5 text-xs">Total Questions Count</label>
+              <label className="font-bold text-slate-355 block mb-2 text-xs uppercase tracking-wider">Total Questions Count</label>
               <Combobox
                 options={[
                   { value: 3, label: "3 MCQ Questions" },
@@ -132,26 +132,26 @@ export default function ExamsTab({
             </div>
 
             <div className="md:col-span-3">
-              <label className="font-bold text-slate-300 block mb-1.5 text-xs">Duration (Minutes)</label>
+              <label className="font-bold text-slate-355 block mb-2 text-xs uppercase tracking-wider">Duration (Minutes)</label>
               <input
                 id="input-ai-duration"
                 type="number" required min="10" max="120"
                 value={aiDuration} onChange={(e) => setAiDuration(Number(e.target.value))}
-                className="w-full bg-slate-900 border border-slate-700/80 p-2.5 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
+                className="w-full bg-slate-900 border border-slate-700/80 p-3 rounded-lg text-white font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
               />
             </div>
 
             <div className="md:col-span-12">
-              <label className="font-bold text-slate-300 block mb-1.5 flex justify-between text-xs">
+              <label className="font-bold text-slate-355 block mb-2 flex justify-between text-xs uppercase tracking-wider">
                 <span>Custom Topic Focus (Optional Syllabus Sub-topic keywords)</span>
-                <span className="text-slate-500 font-mono text-[10px]">e.g. Recursion, Logic Gates, HTML Tags</span>
+                <span className="text-slate-500 font-mono text-xs lowercase">e.g. Recursion, Logic Gates, HTML Tags</span>
               </label>
               <input
                 id="input-ai-topic"
                 type="text"
                 placeholder="Leave empty or click any sub-topic in the right sidebar menu to auto-configure..."
                 value={aiTopic} onChange={(e) => setAiTopic(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
+                className="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg text-white font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
               />
             </div>
 
@@ -160,17 +160,17 @@ export default function ExamsTab({
                 id="btn-ai-generate"
                 type="submit"
                 disabled={aiGenerating}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 border border-indigo-500 text-white font-extrabold text-sm rounded-xl tracking-wide shadow-md flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 border border-indigo-500 text-white font-black text-sm rounded-xl tracking-wider shadow-md flex items-center justify-center gap-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-[0.99]"
               >
                 {aiGenerating ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>{aiStatusMessage}</span>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm">{aiStatusMessage}</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-white animate-pulse" />
-                    <span>Generate Interactive Draft Test</span>
+                    <Sparkles className="w-5 h-5 text-white animate-pulse" />
+                    <span className="text-sm">Generate Interactive Draft Test</span>
                   </>
                 )}
               </button>
@@ -328,17 +328,17 @@ export default function ExamsTab({
         </div>
 
         {/* Composition of active exams */}
-        <div className="bg-white border rounded-2xl p-6 shadow-sm space-y-3">
-          <h4 className="font-bold font-display text-slate-950 text-sm">Active Mock Exams In System Base ({exams.length})</h4>
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+          <h4 className="font-black font-display text-slate-950 text-lg tracking-tight">Active Mock Exams In System Base ({exams.length})</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {exams.map((ex, idx) => (
-              <div key={idx} className="p-4 bg-slate-50 border rounded-xl space-y-2">
-                <div className="flex justify-between text-[10px]">
-                  <span className="font-bold text-blue-600 uppercase tracking-wide">GROUP {ex.classGroup}</span>
-                  <span className="text-slate-400 font-mono">{ex.durationMinutes} Minutes</span>
+              <div key={idx} className="p-4 bg-slate-50 border border-slate-150 hover:bg-blue-50/20 hover:border-blue-200 rounded-2xl space-y-2 transition duration-200">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="font-extrabold text-blue-650 uppercase tracking-wider bg-blue-50/80 border border-blue-100 px-2 py-0.5 rounded-md">GROUP {ex.classGroup}</span>
+                  <span className="text-slate-500 font-mono font-bold">{ex.durationMinutes} Minutes</span>
                 </div>
-                <h4 className="text-xs font-bold text-slate-900 font-display leading-tight">{ex.title}</h4>
-                <p className="text-[10px] text-slate-500 font-mono">Contains: {ex.totalQuestions} questions • Exam Ref: {ex.id}</p>
+                <h4 className="text-sm font-black text-slate-900 font-display leading-tight">{ex.title}</h4>
+                <p className="text-xs text-slate-400 font-mono font-bold">Contains: {ex.totalQuestions} questions • Exam Ref: {ex.id}</p>
               </div>
             ))}
           </div>
@@ -347,20 +347,20 @@ export default function ExamsTab({
       </div>
 
       {/* Right Column: Syllabus Curriculum Guide Menu */}
-      <div className="xl:col-span-4 bg-white p-5 border border-slate-200 rounded-2xl space-y-5 shadow-sm">
+      <div className="xl:col-span-4 bg-white p-6 border border-slate-200/80 rounded-3xl space-y-6 shadow-sm">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-bold font-mono text-[9px] uppercase">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg font-bold font-mono text-[11px] uppercase">
             <BookOpen className="w-3.5 h-3.5" />
             Syllabus Guide
           </div>
-          <h4 className="text-xs font-bold font-display text-slate-900 mt-1.5">Interactive Curriculum Map</h4>
-          <p className="text-[10px] text-slate-500 leading-normal mt-0.5">
+          <h4 className="text-base font-black font-display text-slate-950 mt-3 tracking-tight">Interactive Curriculum Map</h4>
+          <p className="text-xs text-slate-500 font-medium leading-relaxed mt-1">
             Click any sub-topic in this official syllabus menu to automatically preconfigure the class cohort group and fill the Custom Topic Focus parameter.
           </p>
         </div>
 
         <div>
-          <label className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5 font-mono">Select Group Curriculum</label>
+          <label className="block text-xs text-slate-500 font-black uppercase tracking-wider mb-2 font-mono">Select Group Curriculum</label>
           <Combobox
             options={[
               { value: "5-6", label: "Group A (Class 5th - 6th)" },
@@ -376,16 +376,16 @@ export default function ExamsTab({
 
         {selectedAdminSyllabusId && OLYMPIAD_SYLLABUS[selectedAdminSyllabusId] && (
           <div className="space-y-4 pt-1 max-h-[620px] overflow-y-auto pr-1">
-            <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl text-[10px] text-blue-900 leading-normal">
-              <strong className="text-blue-900 block font-bold mb-0.5">{OLYMPIAD_SYLLABUS[selectedAdminSyllabusId].title}</strong>
+            <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl text-xs text-blue-900 leading-relaxed">
+              <strong className="text-blue-900 block font-bold mb-1">{OLYMPIAD_SYLLABUS[selectedAdminSyllabusId].title}</strong>
               {OLYMPIAD_SYLLABUS[selectedAdminSyllabusId].description}
             </div>
 
             <div className="space-y-3">
               {OLYMPIAD_SYLLABUS[selectedAdminSyllabusId].modules.map((mod, mIdx) => (
-                <div key={mIdx} className="border border-slate-100 p-3 rounded-xl space-y-2 bg-slate-50/40">
-                  <h5 className="font-extrabold text-[10px] uppercase tracking-wide text-slate-400 font-mono border-b pb-1.5">{mod.name}</h5>
-                  <div className="space-y-1">
+                <div key={mIdx} className="border border-slate-100 p-4 rounded-2xl space-y-3 bg-slate-50/40">
+                  <h5 className="font-extrabold text-[11px] uppercase tracking-wider text-slate-400 font-mono border-b pb-2">{mod.name}</h5>
+                  <div className="space-y-1.5">
                     {mod.topics.map((topic, tIdx) => (
                       <button
                         key={tIdx}
@@ -394,10 +394,10 @@ export default function ExamsTab({
                           setAiTopic(topic);
                           setAiGroup(selectedAdminSyllabusId);
                         }}
-                        className="w-full text-left p-1.5 hover:bg-blue-50 border border-transparent hover:border-blue-200 rounded text-[10px] text-slate-700 font-medium transition flex items-start gap-1 p-1 hover:text-blue-700 cursor-pointer"
+                        className="w-full text-left p-2 hover:bg-blue-50 border border-transparent hover:border-blue-200 rounded-xl text-xs text-slate-700 font-semibold transition flex items-start gap-1.5 hover:text-blue-700 cursor-pointer"
                         title="Click to load this syllabus topic focus"
                       >
-                        <span className="text-blue-500 font-bold shrink-0 select-none">+</span>
+                        <span className="text-blue-550 font-bold shrink-0 select-none text-xs">+</span>
                         <span className="leading-tight text-left">{topic}</span>
                       </button>
                     ))}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { useAdminData } from './admin/hooks/useAdminData';
 import AdminHeader from './admin/components/AdminHeader';
 import AdminSidebar from './admin/components/AdminSidebar';
@@ -22,83 +23,82 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
   const admin = useAdminData();
 
+
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans" id="eno-admin-panel">
       
-      {/* Admin header */}
+      {/* Top dashboard control header */}
       <AdminHeader onLogout={onLogout} />
 
+      {/* Main split viewport */}
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         
         {/* Mobile Navigation Horizontal Bar */}
         <div className="md:hidden flex items-center gap-2 p-2.5 bg-white border-b border-slate-200 overflow-x-auto shrink-0 scrollbar-none">
           <button
-            onClick={() => { admin.setActiveTab('approvals'); admin.setSelectedSchoolProfile(null); }}
+            onClick={() => admin.setActiveTab('approvals')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'approvals' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
           >
-            School Requests ({admin.schools.filter(s => s.status === 'PENDING').length})
+            School Requests
           </button>
           <button
-            onClick={() => { admin.setActiveTab('students'); admin.setSelectedSchoolProfile(null); }}
+            onClick={() => admin.setActiveTab('students')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'students' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
           >
             Manage Students
           </button>
           <button
-            onClick={() => { admin.setActiveTab('exams'); admin.setSelectedSchoolProfile(null); }}
+            onClick={() => admin.setActiveTab('exams')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'exams' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
           >
-            Mock Exam Composer
+            Mock Composer
           </button>
           <button
-            onClick={() => { admin.setActiveTab('broadcasting'); admin.setSelectedSchoolProfile(null); }}
+            onClick={() => admin.setActiveTab('broadcasting')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'broadcasting' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
           >
-            Broadcasting
+            Broadcaster
           </button>
           <button
-            onClick={() => { admin.setActiveTab('centers'); admin.setSelectedSchoolProfile(null); }}
+            onClick={() => admin.setActiveTab('centers')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'centers' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
           >
-            Exam Centers
+            Centers Desk
           </button>
           <button
-            onClick={() => { admin.setActiveTab('schedule'); admin.setSelectedSchoolProfile(null); }}
+            onClick={() => admin.setActiveTab('schedule')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'schedule' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
           >
             Schedule Desk
           </button>
           <button
-            onClick={() => { admin.setActiveTab('database'); admin.setSelectedSchoolProfile(null); }}
+            onClick={() => admin.setActiveTab('database')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'database' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
           >
             Database Desk
           </button>
           <button
-            onClick={() => { admin.setActiveTab('security'); admin.setSelectedSchoolProfile(null); }}
+            onClick={() => admin.setActiveTab('security')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition ${admin.activeTab === 'security' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}
           >
-            Security & Password
+            Security & Pass
           </button>
         </div>
 
-        {/* Left Toolbar Drawer */}
+        {/* Left Side Navigation Panel */}
         <AdminSidebar
           activeTab={admin.activeTab}
           setActiveTab={admin.setActiveTab}
           setSelectedSchoolProfile={admin.setSelectedSchoolProfile}
           pendingRequestsCount={admin.schools.filter(s => s.status === 'PENDING').length}
-          earnings={admin.stats ? admin.stats.totalEarnings : 0}
+          earnings={admin.stats?.totalEarnings ?? 0}
         />
 
-        {/* Dynamic content area */}
+        {/* Dynamic primary tab canvas */}
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
           
-          {admin.loading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          ) : admin.selectedSchoolProfile ? (
+          {admin.selectedSchoolProfile ? (
             <SchoolProfileView
               selectedSchoolProfile={admin.selectedSchoolProfile}
               setSelectedSchoolProfile={admin.setSelectedSchoolProfile}
@@ -127,157 +127,173 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
               {/* Tab views */}
               {admin.activeTab === 'approvals' && (
-                <ApprovalsTab
-                  schools={admin.schools}
-                  schoolSearch={admin.schoolSearch}
-                  setSchoolSearch={admin.setSchoolSearch}
-                  handleApproveSchool={admin.handleApproveSchool}
-                  handleRejectSchool={admin.handleRejectSchool}
-                  handleDeleteSchool={admin.handleDeleteSchool}
-                  setSelectedSchoolProfile={admin.setSelectedSchoolProfile}
-                />
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                  <ApprovalsTab
+                    schools={admin.schools}
+                    schoolSearch={admin.schoolSearch}
+                    setSchoolSearch={admin.setSchoolSearch}
+                    handleApproveSchool={admin.handleApproveSchool}
+                    handleRejectSchool={admin.handleRejectSchool}
+                    handleDeleteSchool={admin.handleDeleteSchool}
+                    setSelectedSchoolProfile={admin.setSelectedSchoolProfile}
+                  />
+                </motion.div>
               )}
 
               {admin.activeTab === 'students' && (
-                <StudentsTab
-                  students={admin.students}
-                  studentSearch={admin.studentSearch}
-                  setStudentSearch={admin.setStudentSearch}
-                  isBulkUploadOpen={admin.isBulkUploadOpen}
-                  setIsBulkUploadOpen={admin.setIsBulkUploadOpen}
-                  bulkStatusMessage={admin.bulkStatusMessage}
-                  setBulkStatusMessage={admin.setBulkStatusMessage}
-                  bulkInputText={admin.bulkInputText}
-                  setBulkInputText={admin.setBulkInputText}
-                  handleBulkUploadResultsSubmit={admin.handleBulkUploadResultsSubmit}
-                  handleApproveCandidatePayment={admin.handleApproveCandidatePayment}
-                  handleUpdateScore={admin.handleUpdateScore}
-                  handleStage1Release={admin.handleStage1Release}
-                  handleStage2Release={admin.handleStage2Release}
-                  handleManualQualify={admin.handleManualQualify}
-                  handleAllocateCenter={admin.handleAllocateCenter}
-                  centers={admin.centers}
-                />
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                  <StudentsTab
+                    students={admin.students}
+                    studentSearch={admin.studentSearch}
+                    setStudentSearch={admin.setStudentSearch}
+                    isBulkUploadOpen={admin.isBulkUploadOpen}
+                    setIsBulkUploadOpen={admin.setIsBulkUploadOpen}
+                    bulkStatusMessage={admin.bulkStatusMessage}
+                    setBulkStatusMessage={admin.setBulkStatusMessage}
+                    bulkInputText={admin.bulkInputText}
+                    setBulkInputText={admin.setBulkInputText}
+                    handleBulkUploadResultsSubmit={admin.handleBulkUploadResultsSubmit}
+                    handleApproveCandidatePayment={admin.handleApproveCandidatePayment}
+                    handleUpdateScore={admin.handleUpdateScore}
+                    handleStage1Release={admin.handleStage1Release}
+                    handleStage2Release={admin.handleStage2Release}
+                    handleManualQualify={admin.handleManualQualify}
+                    handleAllocateCenter={admin.handleAllocateCenter}
+                    centers={admin.centers}
+                  />
+                </motion.div>
               )}
 
               {admin.activeTab === 'exams' && (
-                <ExamsTab
-                  exams={admin.exams}
-                  aiGroup={admin.aiGroup}
-                  setAiGroup={admin.setAiGroup}
-                  aiDifficulty={admin.aiDifficulty}
-                  setAiDifficulty={admin.setAiDifficulty}
-                  aiCount={admin.aiCount}
-                  setAiCount={admin.setAiCount}
-                  aiDuration={admin.aiDuration}
-                  setAiDuration={admin.setAiDuration}
-                  aiTopic={admin.aiTopic}
-                  setAiTopic={admin.setAiTopic}
-                  aiGenerating={admin.aiGenerating}
-                  aiStatusMessage={admin.aiStatusMessage}
-                  aiError={admin.aiError}
-                  aiPreviewExam={admin.aiPreviewExam}
-                  handleAIGenerateExam={admin.handleAIGenerateExam}
-                  handleEditPreviewTitle={admin.handleEditPreviewTitle}
-                  handleEditPreviewClassGroup={admin.handleEditPreviewClassGroup}
-                  handleEditPreviewDuration={admin.handleEditPreviewDuration}
-                  handleAddPreviewQuestionSlot={admin.handleAddPreviewQuestionSlot}
-                  handleDeletePreviewQuestion={admin.handleDeletePreviewQuestion}
-                  handleEditPreviewQuestionText={admin.handleEditPreviewQuestionText}
-                  handleEditPreviewQuestionOption={admin.handleEditPreviewQuestionOption}
-                  handleEditPreviewQuestionCorrectOption={admin.handleEditPreviewQuestionCorrectOption}
-                  handlePublishAIExam={admin.handlePublishAIExam}
-                  selectedAdminSyllabusId={admin.selectedAdminSyllabusId}
-                  setSelectedAdminSyllabusId={admin.setSelectedAdminSyllabusId}
-                />
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                  <ExamsTab
+                    exams={admin.exams}
+                    aiGroup={admin.aiGroup}
+                    setAiGroup={admin.setAiGroup}
+                    aiDifficulty={admin.aiDifficulty}
+                    setAiDifficulty={admin.setAiDifficulty}
+                    aiCount={admin.aiCount}
+                    setAiCount={admin.setAiCount}
+                    aiDuration={admin.aiDuration}
+                    setAiDuration={admin.setAiDuration}
+                    aiTopic={admin.aiTopic}
+                    setAiTopic={admin.setAiTopic}
+                    aiGenerating={admin.aiGenerating}
+                    aiStatusMessage={admin.aiStatusMessage}
+                    aiError={admin.aiError}
+                    aiPreviewExam={admin.aiPreviewExam}
+                    handleAIGenerateExam={admin.handleAIGenerateExam}
+                    handleEditPreviewTitle={admin.handleEditPreviewTitle}
+                    handleEditPreviewClassGroup={admin.handleEditPreviewClassGroup}
+                    handleEditPreviewDuration={admin.handleEditPreviewDuration}
+                    handleAddPreviewQuestionSlot={admin.handleAddPreviewQuestionSlot}
+                    handleDeletePreviewQuestion={admin.handleDeletePreviewQuestion}
+                    handleEditPreviewQuestionText={admin.handleEditPreviewQuestionText}
+                    handleEditPreviewQuestionOption={admin.handleEditPreviewQuestionOption}
+                    handleEditPreviewQuestionCorrectOption={admin.handleEditPreviewQuestionCorrectOption}
+                    handlePublishAIExam={admin.handlePublishAIExam}
+                    selectedAdminSyllabusId={admin.selectedAdminSyllabusId}
+                    setSelectedAdminSyllabusId={admin.setSelectedAdminSyllabusId}
+                  />
+                </motion.div>
               )}
 
               {admin.activeTab === 'broadcasting' && (
-                <BroadcastingTab
-                  announcements={admin.announcements}
-                  noticeTitle={admin.noticeTitle}
-                  setNoticeTitle={admin.setNoticeTitle}
-                  noticeContent={admin.noticeContent}
-                  setNoticeContent={admin.setNoticeContent}
-                  noticeAudience={admin.noticeAudience}
-                  setNoticeAudience={admin.setNoticeAudience}
-                  handleCreateAnnouncement={admin.handleCreateAnnouncement}
-                  headerAnnouncementText={admin.headerAnnouncementText}
-                  setHeaderAnnouncementText={admin.setHeaderAnnouncementText}
-                  savingHeaderAnnouncement={admin.savingHeaderAnnouncement}
-                  headerAnnouncementSuccess={admin.headerAnnouncementSuccess}
-                  handleSaveHeaderAnnouncement={admin.handleSaveHeaderAnnouncement}
-                  handleDeleteHeaderAnnouncement={admin.handleDeleteHeaderAnnouncement}
-                  sliderImages={admin.sliderImages}
-                  newSliderImageUrl={admin.newSliderImageUrl}
-                  setNewSliderImageUrl={admin.setNewSliderImageUrl}
-                  savingSliderImage={admin.savingSliderImage}
-                  sliderSuccess={admin.sliderSuccess}
-                  handleSaveSliderImage={admin.handleSaveSliderImage}
-                  handleDeleteSliderImage={admin.handleDeleteSliderImage}
-                  handleUploadSliderImage={admin.handleUploadSliderImage}
-                />
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                  <BroadcastingTab
+                    announcements={admin.announcements}
+                    noticeTitle={admin.noticeTitle}
+                    setNoticeTitle={admin.setNoticeTitle}
+                    noticeContent={admin.noticeContent}
+                    setNoticeContent={admin.setNoticeContent}
+                    noticeAudience={admin.noticeAudience}
+                    setNoticeAudience={admin.setNoticeAudience}
+                    handleCreateAnnouncement={admin.handleCreateAnnouncement}
+                    headerAnnouncementText={admin.headerAnnouncementText}
+                    setHeaderAnnouncementText={admin.setHeaderAnnouncementText}
+                    savingHeaderAnnouncement={admin.savingHeaderAnnouncement}
+                    headerAnnouncementSuccess={admin.headerAnnouncementSuccess}
+                    handleSaveHeaderAnnouncement={admin.handleSaveHeaderAnnouncement}
+                    handleDeleteHeaderAnnouncement={admin.handleDeleteHeaderAnnouncement}
+                    sliderImages={admin.sliderImages}
+                    newSliderImageUrl={admin.newSliderImageUrl}
+                    setNewSliderImageUrl={admin.setNewSliderImageUrl}
+                    savingSliderImage={admin.savingSliderImage}
+                    sliderSuccess={admin.sliderSuccess}
+                    handleSaveSliderImage={admin.handleSaveSliderImage}
+                    handleDeleteSliderImage={admin.handleDeleteSliderImage}
+                    handleUploadSliderImage={admin.handleUploadSliderImage}
+                  />
+                </motion.div>
               )}
 
               {admin.activeTab === 'centers' && (
-                <CentersTab
-                  centers={admin.centers}
-                  cenName={admin.cenName}
-                  setCenName={admin.setCenName}
-                  cenCity={admin.cenCity}
-                  setCenCity={admin.setCenCity}
-                  cenCap={admin.cenCap}
-                  setCenCap={admin.setCenCap}
-                  handleCreateCenter={admin.handleCreateCenter}
-                />
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                  <CentersTab
+                    centers={admin.centers}
+                    cenName={admin.cenName}
+                    setCenName={admin.setCenName}
+                    cenCity={admin.cenCity}
+                    setCenCity={admin.setCenCity}
+                    cenCap={admin.cenCap}
+                    setCenCap={admin.setCenCap}
+                    handleCreateCenter={admin.handleCreateCenter}
+                  />
+                </motion.div>
               )}
 
               {admin.activeTab === 'database' && (
-                <DatabaseTab
-                  dbItems={admin.dbItems}
-                  dbUsers={admin.dbUsers}
-                  newItemName={admin.newItemName}
-                  setNewItemName={admin.setNewItemName}
-                  newItemCategory={admin.newItemCategory}
-                  setNewItemCategory={admin.setNewItemCategory}
-                  newItemDesc={admin.newItemDesc}
-                  setNewItemDesc={admin.setNewItemDesc}
-                  newItemPrice={admin.newItemPrice}
-                  setNewItemPrice={admin.setNewItemPrice}
-                  handleCreateDBItem={admin.handleCreateDBItem}
-                  handleDeleteDBItem={admin.handleDeleteDBItem}
-                />
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                  <DatabaseTab
+                    dbItems={admin.dbItems}
+                    dbUsers={admin.dbUsers}
+                    newItemName={admin.newItemName}
+                    setNewItemName={admin.setNewItemName}
+                    newItemCategory={admin.newItemCategory}
+                    setNewItemCategory={admin.setNewItemCategory}
+                    newItemDesc={admin.newItemDesc}
+                    setNewItemDesc={admin.setNewItemDesc}
+                    newItemPrice={admin.newItemPrice}
+                    setNewItemPrice={admin.setNewItemPrice}
+                    handleCreateDBItem={admin.handleCreateDBItem}
+                    handleDeleteDBItem={admin.handleDeleteDBItem}
+                  />
+                </motion.div>
               )}
 
               {admin.activeTab === 'schedule' && (
-                <ScheduleTab
-                  schedule={admin.schedule}
-                  setSchedule={admin.setSchedule}
-                  scheduleSuccess={admin.scheduleSuccess}
-                  setScheduleSuccess={admin.setScheduleSuccess}
-                  scheduleError={admin.scheduleError}
-                  setScheduleError={admin.setScheduleError}
-                  scheduleSaving={admin.scheduleSaving}
-                  setScheduleSaving={admin.setScheduleSaving}
-                  handleSaveSchedule={admin.handleSaveSchedule}
-                  schools={admin.schools}
-                  getSchoolExamStatus={admin.getSchoolExamStatus}
-                  scheduleSearchFilter={admin.scheduleSearchFilter}
-                  setScheduleSearchFilter={admin.setScheduleSearchFilter}
-                  scheduleStatusFilter={admin.scheduleStatusFilter}
-                  setScheduleStatusFilter={admin.setScheduleStatusFilter}
-                  scheduleStartDateFilter={admin.scheduleStartDateFilter}
-                  setScheduleStartDateFilter={admin.setScheduleStartDateFilter}
-                  scheduleEndDateFilter={admin.scheduleEndDateFilter}
-                  setScheduleEndDateFilter={admin.setScheduleEndDateFilter}
-                  handleEditScheduleClick={admin.handleEditScheduleClick}
-                />
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                  <ScheduleTab
+                    schedule={admin.schedule}
+                    setSchedule={admin.setSchedule}
+                    scheduleSuccess={admin.scheduleSuccess}
+                    setScheduleSuccess={admin.setScheduleSuccess}
+                    scheduleError={admin.scheduleError}
+                    setScheduleError={admin.setScheduleError}
+                    scheduleSaving={admin.scheduleSaving}
+                    setScheduleSaving={admin.setScheduleSaving}
+                    handleSaveSchedule={admin.handleSaveSchedule}
+                    schools={admin.schools}
+                    getSchoolExamStatus={admin.getSchoolExamStatus}
+                    scheduleSearchFilter={admin.scheduleSearchFilter}
+                    setScheduleSearchFilter={admin.setScheduleSearchFilter}
+                    scheduleStatusFilter={admin.scheduleStatusFilter}
+                    setScheduleStatusFilter={admin.setScheduleStatusFilter}
+                    scheduleStartDateFilter={admin.scheduleStartDateFilter}
+                    setScheduleStartDateFilter={admin.setScheduleStartDateFilter}
+                    scheduleEndDateFilter={admin.scheduleEndDateFilter}
+                    setScheduleEndDateFilter={admin.setScheduleEndDateFilter}
+                    handleEditScheduleClick={admin.handleEditScheduleClick}
+                  />
+                </motion.div>
               )}
 
               {admin.activeTab === 'security' && (
-                <div className="max-w-4xl mx-auto">
-                  <ChangePasswordCard role="admin" email={user?.email || "admin@eno.org"} />
-                </div>
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+                  <div className="max-w-4xl mx-auto">
+                    <ChangePasswordCard role="admin" email={user?.email || "admin@eno.org"} />
+                  </div>
+                </motion.div>
               )}
             </>
           )}

@@ -152,7 +152,7 @@ export default function OverviewTab({
       {/* Grid overview stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         
-        <div className="bg-white border border-slate-100 rounded-2xl p-5 relative flex flex-col justify-between shadow-sm hover:shadow-md transition">
+        <div className="glass-card rounded-2xl p-5 relative flex flex-col justify-between shadow-sm hover:shadow-md transition">
           <div className="flex justify-between items-start">
             <div>
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Exam Enrollment ID</span>
@@ -170,7 +170,7 @@ export default function OverviewTab({
           </div>
         </div>
 
-        <div className="bg-white border border-slate-100 rounded-2xl p-5 relative flex flex-col justify-between shadow-sm hover:shadow-md transition">
+        <div className="glass-card rounded-2xl p-5 relative flex flex-col justify-between shadow-sm hover:shadow-md transition">
           <div className="flex justify-between items-start">
             <div>
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Highest Practice Mock Score</span>
@@ -196,7 +196,7 @@ export default function OverviewTab({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left col: announcements */}
-        <div className="col-span-1 lg:col-span-7 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="col-span-1 lg:col-span-7 glass-card p-6 space-y-4 rounded-2xl">
           <h3 className="text-base font-bold font-display text-slate-950 flex items-center gap-2">
             <Volume2 className="w-5 h-5 text-blue-600" />
             Latest Board Announcements
@@ -206,7 +206,7 @@ export default function OverviewTab({
               <p className="text-xs text-slate-500">No active board broadcasts in memory details.</p>
             ) : (
               announcements.map((anc, idx) => (
-                <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-1.5">
+                <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-1.5 hover:bg-slate-100/50 transition">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">
                       {anc.postedBy}
@@ -227,7 +227,7 @@ export default function OverviewTab({
         <div className="col-span-1 lg:col-span-5 space-y-6">
           
           {/* Exam Venue & Practice Guidelines snippet */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="glass-card p-6 space-y-4 rounded-2xl">
             <h3 className="text-base font-bold font-display text-slate-950 flex items-center gap-2">
               <Info className="w-5 h-5 text-blue-600" />
               Exam & Practice Guidelines

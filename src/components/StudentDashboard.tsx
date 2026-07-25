@@ -1,5 +1,6 @@
 import React from 'react';
 import { Clock, AlertCircle } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useStudentData } from './student/hooks/useStudentData';
 import StudentHeader from './student/components/StudentHeader';
 import StudentSidebar from './student/components/StudentSidebar';
@@ -156,52 +157,62 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
 
           {/* OVERVIEW PANEL */}
           {activeTab === 'overview' && !activeExam && (
-            <OverviewTab
-              student={student}
-              classGroup={classGroup}
-              announcements={announcements}
-              simulatePayment={simulatePayment}
-            />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <OverviewTab
+                student={student}
+                classGroup={classGroup}
+                announcements={announcements}
+                simulatePayment={simulatePayment}
+              />
+            </motion.div>
           )}
 
           {/* ONLINE PRACTICE MOCK EXAMS PANEL */}
           {activeTab === 'exams' && !activeExam && (
-            <ExamsTab
-              classGroup={classGroup}
-              matchedExams={matchedExams}
-              attempts={attempts}
-              handleStartExam={handleStartExam}
-            />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <ExamsTab
+                classGroup={classGroup}
+                matchedExams={matchedExams}
+                attempts={attempts}
+                handleStartExam={handleStartExam}
+              />
+            </motion.div>
           )}
 
           {/* PRINTABLE ADMIT CARD DESIGN */}
           {activeTab === 'admitCard' && (
-            <AdmitCardTab
-              student={student}
-              schoolInfo={schoolInfo}
-              schedule={schedule}
-              centers={centers}
-              selectedAdmitStage={selectedAdmitStage}
-              setSelectedAdmitStage={setSelectedAdmitStage}
-              isPrinting={isPrinting}
-            />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <AdmitCardTab
+                student={student}
+                schoolInfo={schoolInfo}
+                schedule={schedule}
+                centers={centers}
+                selectedAdmitStage={selectedAdmitStage}
+                setSelectedAdmitStage={setSelectedAdmitStage}
+                isPrinting={isPrinting}
+              />
+            </motion.div>
           )}
 
           {/* OLYMPIAD SYLLABUS PANEL */}
           {activeTab === 'syllabus' && (
-            <SyllabusTab
-              classGroup={classGroup}
-              selectedSyllabusId={selectedSyllabusId}
-              setSelectedSyllabusId={setSelectedSyllabusId}
-            />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <SyllabusTab
+                classGroup={classGroup}
+                selectedSyllabusId={selectedSyllabusId}
+                setSelectedSyllabusId={setSelectedSyllabusId}
+              />
+            </motion.div>
           )}
 
           {/* CANDIDATE PROFILE MANAGEMENT PANEL */}
           {activeTab === 'profile' && (
-            <ProfileTab
-              student={student}
-              fetchDashboardData={fetchDashboardData}
-            />
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <ProfileTab
+                student={student}
+                fetchDashboardData={fetchDashboardData}
+              />
+            </motion.div>
           )}
 
         </main>

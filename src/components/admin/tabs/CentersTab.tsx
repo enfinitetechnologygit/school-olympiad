@@ -70,37 +70,39 @@ export default function CentersTab({
       </div>
 
       {/* Exam center directories lists */}
-      <div className="bg-white border rounded-2xl overflow-hidden shadow-sm p-6 space-y-4">
-        <h3 className="text-base font-bold font-display text-slate-950">Master National Exam Center Directory</h3>
-        <div className="overflow-x-auto text-xs">
-          <table className="w-full text-left">
+      <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm p-6 sm:p-8 space-y-6">
+        <h3 className="text-lg font-black font-display text-slate-950 tracking-tight">Master National Exam Center Directory</h3>
+        <div className="overflow-x-auto rounded-2xl border border-slate-150 shadow-sm">
+          <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
-              <tr className="bg-slate-50 font-bold text-slate-600 border-b uppercase text-[9px] tracking-wider">
-                <th className="p-3">Proctored Venue Network Name</th>
-                <th className="p-3">City Region</th>
-                <th className="p-3">Seating Capacity Limit</th>
-                <th className="p-3 text-center">Allocated Scholars</th>
-                <th className="p-3">Capacity Gauge Metric</th>
+              <tr className="bg-slate-900 text-white font-extrabold uppercase text-[10px] tracking-widest">
+                <th className="p-4 pl-6">Proctored Venue Network Name</th>
+                <th className="p-4">City Region</th>
+                <th className="p-4">Seating Capacity Limit</th>
+                <th className="p-4 text-center">Allocated Scholars</th>
+                <th className="p-4 pr-6">Capacity Gauge Metric</th>
               </tr>
             </thead>
-            <tbody className="divide-y text-slate-700 font-medium text-xs">
+            <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
               {centers.map((cen, idx) => {
                 const usageRatio = Math.round((cen.allocatedStudentsCount / cen.capacity) * 100);
                 return (
-                  <tr key={idx} className="hover:bg-slate-50/50">
-                    <td className="p-3 font-extrabold text-slate-900 flex items-center gap-2">
+                  <tr key={idx} className="hover:bg-blue-50/20 transition duration-150">
+                    <td className="p-4 pl-6 font-black text-slate-900 flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
                       {cen.name}
                     </td>
-                    <td className="p-3 font-semibold text-slate-900">{cen.city}</td>
-                    <td className="p-3 font-mono font-bold text-slate-500">{cen.capacity} Seats</td>
-                    <td className="p-3 text-center font-mono font-bold text-blue-600">{cen.allocatedStudentsCount} Candidates</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
-                          <div className="bg-blue-600 h-full" style={{ width: `${Math.min(usageRatio || 1, 100)}%` }} />
+                    <td className="p-4 font-bold text-slate-800">{cen.city}</td>
+                    <td className="p-4 font-mono font-bold text-slate-500">{cen.capacity} Seats</td>
+                    <td className="p-4 text-center font-mono font-black text-blue-600">
+                      <span className="bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 text-xs">{cen.allocatedStudentsCount} Candidates</span>
+                    </td>
+                    <td className="p-4 pr-6">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-28 bg-slate-200 h-2 rounded-full overflow-hidden">
+                          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-full" style={{ width: `${Math.min(usageRatio || 1, 100)}%` }} />
                         </div>
-                        <span className="font-mono text-[10px] text-slate-400 font-bold">{usageRatio}% filled</span>
+                        <span className="font-mono text-[10px] text-slate-400 font-extrabold">{usageRatio}% filled</span>
                       </div>
                     </td>
                   </tr>
