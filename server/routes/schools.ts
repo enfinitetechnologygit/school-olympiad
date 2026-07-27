@@ -92,7 +92,19 @@ router.post("", async (req, res) => {
   res.json({ status: "success", school: newSchool });
 });
 
-router.get("", (req, res) => {
+router.get("", async (req, res) => {
+  if (dbConnected && db) {
+    try {
+      const dbSchools = await db.collection("schools").find().toArray();
+      const formattedSchools = dbSchools.map(doc => {
+        const { _id, ...schoolData } = doc;
+        return schoolData;
+      });
+      return res.json(formattedSchools);
+    } catch (err: any) {
+      console.error("Error fetching schools from DB:", err.message);
+    }
+  }
   res.json(schools);
 });
 

@@ -9,7 +9,7 @@ export function useAdminData() {
   const [centers, setCenters] = useState<ExamCenter[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [selectedSchoolProfile, setSelectedSchoolProfile] = useState<School | null>(null);
-  
+
   const [activeTab, setActiveTab] = useState<'approvals' | 'students' | 'exams' | 'broadcasting' | 'centers' | 'database' | 'schedule' | 'security'>('approvals');
   const [dbItems, setDbItems] = useState<DBItem[]>([]);
   const [dbUsers, setDbUsers] = useState<DBUser[]>([]);
@@ -107,6 +107,7 @@ export function useAdminData() {
       // Fetch schools
       const sRes = await fetch('/api/schools');
       const sData = await sRes.json();
+      console.log('schools', sData);
       setSchools(sData);
 
       // Fetch students
@@ -387,12 +388,12 @@ export function useAdminData() {
         setPassingMarksSuccess(`Passing marks updated successfully! Re-evaluated qualification for ${data.updatedStudentsCount} students.`);
         setSchools(prev => prev.map(s => s.id === selectedSchoolProfile.id ? data.school : s));
         setSelectedSchoolProfile(data.school);
-        
+
         // Refresh students because qualification statuses updated
         const stRes = await fetch('/api/students');
         const stData = await stRes.json();
         setStudents(stData);
-        
+
         // Refresh overall stats
         const statRes = await fetch('/api/stats');
         const statData = await statRes.json();
@@ -578,7 +579,7 @@ export function useAdminData() {
     setAiGenerating(true);
     setAiError('');
     setAiPreviewExam(null);
-    
+
     // Custom status messages for authentic progress feedback
     const messages = [
       "Contacting Google Gemini engine...",
@@ -587,7 +588,7 @@ export function useAdminData() {
       "Verifying single-correct-answer constraints...",
       "Rendering final mock trial data structure..."
     ];
-    
+
     let currentIdx = 0;
     setAiStatusMessage(messages[0]);
     const timer = setInterval(() => {
@@ -860,13 +861,13 @@ export function useAdminData() {
     if (!school.preExamDate || school.preExamDate.trim() === '') return 'Not Scheduled';
     const parsed = Date.parse(school.preExamDate);
     if (isNaN(parsed)) return 'Not Scheduled';
-    
+
     const examDate = new Date(parsed);
     examDate.setHours(0, 0, 0, 0);
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (examDate.getTime() === today.getTime()) return 'Active';
     if (examDate.getTime() > today.getTime()) return 'Upcoming';
     return 'Completed';
