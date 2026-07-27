@@ -33,6 +33,29 @@ function getNextRequestId(): string {
   return `RQ-${maxNum + 1}`;
 }
 
+async function getSchoolIndexAndObject(targetId: string): Promise<{ school: School | null, index: number }> {
+  let idx = schools.findIndex(s => s.id === targetId);
+  if (idx !== -1) {
+    return { school: schools[idx], index: idx };
+  }
+
+  if (dbConnected && db) {
+    try {
+      const dbSchool = await db.collection("schools").findOne({ id: targetId });
+      if (dbSchool) {
+        const { _id, ...schoolData } = dbSchool;
+        const school = schoolData as School;
+        schools.push(school);
+        return { school, index: schools.length - 1 };
+      }
+    } catch (err: any) {
+      console.error("Error fetching school from DB for cache sync:", err.message);
+    }
+  }
+
+  return { school: null, index: -1 };
+}
+
 router.post("", async (req, res) => {
   const { name, principalName, coordinatorName, mobile, email, address, city, state, boardType, totalStudents } = req.body;
 
@@ -109,9 +132,9 @@ router.get("", async (req, res) => {
 });
 
 // Get a single school by ID
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   const targetId = req.params.id;
-  const school = schools.find(s => s.id === targetId);
+  const { school } = await getSchoolIndexAndObject(targetId);
   if (!school) {
     return res.status(404).json({ error: "School not found." });
   }
@@ -121,9 +144,9 @@ router.get("/:id", (req, res) => {
 // Update a school's Pre-Exam schedule
 router.post("/:id/schedule", async (req, res) => {
   const targetId = req.params.id;
-  const schoolIdx = schools.findIndex(s => s.id === targetId);
+  const { school, index: schoolIdx } = await getSchoolIndexAndObject(targetId);
 
-  if (schoolIdx === -1) {
+  if (schoolIdx === -1 || !school) {
     return res.status(404).json({ error: "School not found." });
   }
 
@@ -131,8 +154,6 @@ router.post("/:id/schedule", async (req, res) => {
   if (!preExamDate || !preExamTime || !preExamDuration) {
     return res.status(400).json({ error: "Missing required fields: preExamDate, preExamTime, preExamDuration." });
   }
-
-  const school = schools[schoolIdx];
   const isModification = !!(school.preExamDate || school.preExamTime || school.preExamDuration);
   const statusWord = isModification ? "modified" : "created";
 
@@ -224,13 +245,11 @@ router.post("/:id/schedule", async (req, res) => {
 // Approve a school
 router.post("/:id/approve", async (req, res) => {
   const targetId = req.params.id;
-  const schoolIdx = schools.findIndex(s => s.id === targetId);
+  const { school, index: schoolIdx } = await getSchoolIndexAndObject(targetId);
 
-  if (schoolIdx === -1) {
+  if (schoolIdx === -1 || !school) {
     return res.status(404).json({ error: "School registration request not found." });
   }
-
-  const school = schools[schoolIdx];
   const generatedSchoolId = getNextSchoolId();
   const oldId = school.id;
 
@@ -269,13 +288,13 @@ router.post("/:id/approve", async (req, res) => {
 // Reject a school
 router.post("/:id/reject", async (req, res) => {
   const targetId = req.params.id;
-  const schoolIdx = schools.findIndex(s => s.id === targetId);
+  const { school, index: schoolIdx } = await getSchoolIndexAndObject(targetId);
 
-  if (schoolIdx === -1) {
+  if (schoolIdx === -1 || !school) {
     return res.status(404).json({ error: "School registration request not found." });
   }
 
-  schools[schoolIdx].status = "REJECTED";
+  school.status = "REJECTED";
   saveFallbackData("db_schools.json", schools);
 
   if (dbConnected && db) {
@@ -289,19 +308,17 @@ router.post("/:id/reject", async (req, res) => {
     }
   }
 
-  res.json({ status: "success", school: schools[schoolIdx] });
+  res.json({ status: "success", school });
 });
 
 // Delete a school
 router.delete("/:id", async (req, res) => {
   const targetId = req.params.id;
-  const schoolIdx = schools.findIndex(s => s.id === targetId);
+  const { school, index: schoolIdx } = await getSchoolIndexAndObject(targetId);
 
-  if (schoolIdx === -1) {
+  if (schoolIdx === -1 || !school) {
     return res.status(404).json({ error: "School not found." });
   }
-
-  const school = schools[schoolIdx];
   schools.splice(schoolIdx, 1);
   saveFallbackData("db_schools.json", schools);
 
@@ -323,9 +340,9 @@ router.delete("/:id", async (req, res) => {
 // Set passing/qualification marks for a school's classes
 router.post("/:id/passing-marks", async (req, res) => {
   const targetId = req.params.id;
-  const schoolIdx = schools.findIndex(s => s.id === targetId);
+  const { school, index: schoolIdx } = await getSchoolIndexAndObject(targetId);
 
-  if (schoolIdx === -1) {
+  if (schoolIdx === -1 || !school) {
     return res.status(404).json({ error: "School not found." });
   }
 
@@ -344,7 +361,6 @@ router.post("/:id/passing-marks", async (req, res) => {
     sanitizedPassingMarks[key] = val;
   }
 
-  const school = schools[schoolIdx];
   school.passingMarks = sanitizedPassingMarks;
   schools[schoolIdx] = school;
   saveFallbackData("db_schools.json", schools);
@@ -404,13 +420,11 @@ router.post("/:id/passing-marks", async (req, res) => {
 // Update School Profile Details (Email & ID are read-only)
 router.put("/:id", async (req, res) => {
   const targetId = req.params.id;
-  const schoolIdx = schools.findIndex(s => s.id === targetId);
+  const { school, index: schoolIdx } = await getSchoolIndexAndObject(targetId);
 
-  if (schoolIdx === -1) {
+  if (schoolIdx === -1 || !school) {
     return res.status(404).json({ error: "School record not found." });
   }
-
-  const school = schools[schoolIdx];
   const { name, principalName, coordinatorName, mobile, address, city, state, boardType, totalStudents } = req.body;
 
   if (name) school.name = name;
