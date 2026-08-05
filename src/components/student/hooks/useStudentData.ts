@@ -57,7 +57,7 @@ export function useStudentData({ user, onLogout }: UseStudentDataProps) {
       if (matchedStudent) {
         setStudent(matchedStudent);
         setSelectedSyllabusId(mapClassToGroup(matchedStudent.classLevel));
-        
+
         try {
           const schRes = await fetch(`/api/schools/${matchedStudent.schoolId}`);
           if (schRes.ok) {
