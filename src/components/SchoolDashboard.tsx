@@ -149,6 +149,7 @@ export default function SchoolDashboard({ user, onLogout }: SchoolDashboardProps
           <SchoolStatsBar 
             totalStudents={students.length} 
             qualifiedCount={qualifiedCount} 
+            paidCount={paidCount}
             school={school} 
           />
 

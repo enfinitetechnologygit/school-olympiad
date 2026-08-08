@@ -6,6 +6,8 @@ import { Student } from "../../src/types";
 import bcryptjs from "bcryptjs";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
+import https from "https";
 
 const router = Router();
 
@@ -101,7 +103,161 @@ router.post("", async (req, res) => {
   res.json({ status: "success", student: newStudent });
 });
 
-// Process ₹200 Payment Simulation
+// ── Razorpay helpers ──────────────────────────────────────────────────────────
+
+/** Make a signed request to the Razorpay REST API */
+function razorpayRequest(method: string, urlPath: string, body?: object): Promise<any> {
+  const KEY_ID = process.env.KEY_ID;
+  const KEY_SECRET = process.env.KEY_SECRET;
+
+  if (!KEY_ID || !KEY_SECRET) {
+    return Promise.reject(new Error("Razorpay API keys not configured on server."));
+  }
+
+  const auth = Buffer.from(`${KEY_ID}:${KEY_SECRET}`).toString("base64");
+  const payload = body ? JSON.stringify(body) : null;
+  const payloadBuffer = payload ? Buffer.from(payload) : Buffer.alloc(0);
+
+  return new Promise((resolve, reject) => {
+    const headers: Record<string, string | number> = {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/json",
+      "Content-Length": payloadBuffer.length,
+    };
+
+    const options: https.RequestOptions = {
+      hostname: "api.razorpay.com",
+      path: urlPath,
+      method,
+      headers,
+    };
+
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => (data += chunk));
+      res.on("end", () => {
+        console.log(`[Razorpay] ${method} ${urlPath} → HTTP ${res.statusCode}: ${data.slice(0, 200)}`);
+        try {
+          const parsed = JSON.parse(data);
+          if (res.statusCode && res.statusCode >= 400) {
+            reject(new Error(parsed?.error?.description || parsed?.error?.code || "Razorpay API error"));
+          } else {
+            resolve(parsed);
+          }
+        } catch {
+          reject(new Error(`Failed to parse Razorpay response: ${data.slice(0, 100)}`));
+        }
+      });
+    });
+
+    req.on("error", (err) => {
+      console.error("[Razorpay] Network error:", err.message);
+      reject(err);
+    });
+    if (payloadBuffer.length > 0) req.write(payloadBuffer);
+    req.end();
+  });
+}
+
+// ── Create Razorpay Order ─────────────────────────────────────────────────────
+router.post("/:id/create-order", async (req, res) => {
+  const student = students.find((s) => s.id === req.params.id);
+  if (!student) {
+    return res.status(404).json({ error: "Student not found" });
+  }
+
+  if (student.paymentStatus === "COMPLETED") {
+    return res.status(400).json({ error: "Payment already completed for this student." });
+  }
+
+  try {
+    const order = await razorpayRequest("POST", "/v1/orders", {
+      amount: 20000,           // ₹200 in paise
+      currency: "INR",
+      receipt: `rcpt_${student.id}`,
+      notes: {
+        student_id: student.id,
+        student_name: student.name,
+        student_email: student.email,
+      },
+    });
+
+    res.json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId: process.env.KEY_ID,
+    });
+  } catch (err: any) {
+    console.error("Razorpay create-order error:", err.message);
+    res.status(502).json({ error: err.message || "Failed to create payment order." });
+  }
+});
+
+// ── Verify & Complete Razorpay Payment ────────────────────────────────────────
+router.post("/:id/verify-payment", async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    return res.status(400).json({ error: "Missing Razorpay payment verification fields." });
+  }
+
+  const studentIdx = students.findIndex((s) => s.id === req.params.id);
+  if (studentIdx === -1) {
+    return res.status(404).json({ error: "Student not found" });
+  }
+
+  // Verify HMAC-SHA256 signature
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.KEY_SECRET!)
+    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+    .digest("hex");
+
+  if (expectedSignature !== razorpay_signature) {
+    console.warn(`[Razorpay] Signature mismatch for student ${req.params.id}`);
+    return res.status(400).json({ error: "Payment verification failed: signature mismatch." });
+  }
+
+  // Mark payment complete and generate admit card
+  const student = students[studentIdx];
+  student.paymentStatus = "COMPLETED";
+  student.paymentId = razorpay_payment_id;
+  student.paymentAmount = 200;
+  student.paymentDate = new Date().toISOString();
+
+  student.admitCardGenerated = true;
+  student.admitCardNumber = "ENO-AC-" + Math.floor(10000 + Math.random() * 89999);
+  student.stage1AdmitNumber = "ENO-S1-" + Math.floor(10000 + Math.random() * 89999);
+  student.stage1AdmitReleased = true;
+
+  const center =
+    examCenters.find((c) => c.city.toLowerCase() === student.schoolName.toLowerCase()) ||
+    examCenters[0];
+  student.examCenterId = center.id;
+  center.allocatedStudentsCount += 1;
+
+  students[studentIdx] = student;
+  saveFallbackData("db_students.json", students);
+  saveFallbackData("db_exam_centers.json", examCenters);
+
+  if (dbConnected && db) {
+    try {
+      await db.collection("students").updateOne({ id: student.id }, { $set: student });
+      await db.collection("exam_centers").updateOne({ id: center.id }, { $set: center });
+      await db.collection("users").updateOne(
+        { email: student.email },
+        { $set: { email: student.email, password: student.password, name: student.name, role: "student" } },
+        { upsert: true }
+      );
+    } catch (err: any) {
+      console.error("Error updating verified payment in database:", err.message);
+    }
+  }
+
+  res.json({ status: "success", student });
+});
+
+// Process payment — accepts real Razorpay payment_id from frontend or generates one for admin/cash flows
 router.post("/:id/pay", async (req, res) => {
   const studentIdx = students.findIndex(s => s.id === req.params.id);
   if (studentIdx === -1) {
@@ -110,9 +266,11 @@ router.post("/:id/pay", async (req, res) => {
 
   const student = students[studentIdx];
   student.paymentStatus = "COMPLETED";
-  student.paymentId = "pay_ENO" + Math.floor(1000000 + Math.random() * 8999999);
+  // Use real Razorpay payment_id if provided by frontend, otherwise generate a fallback ID
+  student.paymentId = req.body?.razorpay_payment_id || ("pay_ENO" + Math.floor(1000000 + Math.random() * 8999999));
   student.paymentAmount = 200;
   student.paymentDate = new Date().toISOString();
+
 
   // Auto-generate Admit Card
   student.admitCardGenerated = true;

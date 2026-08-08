@@ -1,20 +1,65 @@
 import React from 'react';
-import { HelpCircle, BookOpen, ArrowRight } from 'lucide-react';
-import { MockExam, StudentExamAttempt } from '../../../types';
+import { HelpCircle, BookOpen, ArrowRight, Lock, CreditCard } from 'lucide-react';
+import { MockExam, StudentExamAttempt, Student } from '../../../types';
 
 interface ExamsTabProps {
   classGroup: string;
   matchedExams: MockExam[];
   attempts: StudentExamAttempt[];
   handleStartExam: (exam: MockExam) => void;
+  student: Student;
+  onPayNow?: () => void;
 }
 
 export default function ExamsTab({
   classGroup,
   matchedExams,
   attempts,
-  handleStartExam
+  handleStartExam,
+  student,
+  onPayNow,
 }: ExamsTabProps) {
+
+  const isPaid = student.paymentStatus === 'COMPLETED';
+
+  // If student hasn't paid, block access entirely with a payment wall
+  if (!isPaid) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-bold font-display text-slate-950">Practice Mock Exams</h3>
+          <p className="text-xs text-slate-500 mt-1">Online practice tests for Class Group <strong>{classGroup}</strong></p>
+        </div>
+
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-8 flex flex-col items-center text-center gap-5">
+          <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
+            <Lock className="w-8 h-8 text-amber-500" />
+          </div>
+          <div>
+            <h4 className="text-lg font-bold text-amber-900">Payment Required to Access Exams</h4>
+            <p className="text-sm text-amber-700 mt-2 max-w-md leading-relaxed">
+              Your registration fee of <strong>₹200</strong> is pending. Complete your payment to unlock
+              practice mock exams, your official Admit Card, and all Olympiad features.
+            </p>
+          </div>
+          {onPayNow && (
+            <button
+              onClick={onPayNow}
+              className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-xl text-sm flex items-center gap-2 cursor-pointer transition shadow-md"
+            >
+              <CreditCard className="w-5 h-5" />
+              Pay ₹200 Now — Unlock Access
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
+          <p className="text-[11px] text-amber-600 font-medium">
+            Already paid? Go to the Dashboard Overview tab to verify payment status.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>

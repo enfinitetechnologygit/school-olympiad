@@ -1,23 +1,19 @@
-import React, { useState } from 'react';
 import {
-  X,
-  School as SchoolIcon,
-  User,
-  Lock,
-  MapPin,
-  Mail,
-  Phone,
-  BookOpen,
-  CheckCircle2,
-  AlertTriangle,
-  Info,
-  ShieldAlert,
   Building,
+  CheckCircle2,
   CreditCard,
-  CreditCard as PaymentIcon,
   Eye,
-  EyeOff
+  EyeOff,
+  Info,
+  Lock,
+  Mail,
+  CreditCard as PaymentIcon,
+  ShieldAlert,
+  User,
+  X,
+  Sparkles
 } from 'lucide-react';
+import React, { useState } from 'react';
 import { School } from '../types';
 import Combobox from './ui/Combobox';
 import DatePicker from './ui/DatePicker';
@@ -246,24 +242,113 @@ export default function AuthModals({
     }
   };
 
-  // Mock Razorpay payment completion trigger
-  const handleCompleteRazorpayPayment = async () => {
+  // Simulate payment (Sandbox mode)
+  const handleSimulatePayment = async () => {
     if (!registeredStudentSnapshot) return;
-    setLoading(true);
     setError(null);
-
+    setLoading(true);
     try {
-      const res = await fetch(`/api/students/${registeredStudentSnapshot.id}/pay`, {
-        method: 'POST'
+      const payRes = await fetch(`/api/students/${registeredStudentSnapshot.id}/pay`, {
+        method: 'POST',
       });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Payment transaction processing failed.");
+      const payData = await payRes.json();
+      if (!payRes.ok) {
+        throw new Error(payData.error || 'Failed to confirm payment on server.');
       }
-
-      setRegisteredStudentSnapshot(data.student);
+      setRegisteredStudentSnapshot(payData.student);
       setPaymentDone(true);
       setModalView('studentSuccess');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Real Razorpay checkout — opens popup directly from browser (no server-side order creation needed)
+  const handleCompleteRazorpayPayment = async () => {
+    if (!registeredStudentSnapshot) return;
+    setError(null);
+
+    // Capture snapshot locally to avoid stale closure in Razorpay callback
+    const studentSnap = registeredStudentSnapshot;
+
+    // Check Razorpay SDK loaded
+    const { Razorpay } = window as any;
+    if (!Razorpay) {
+      setError("Payment gateway failed to initialize. Please refresh the page and try again.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 1. Create order on server
+      const orderRes = await fetch(`/api/students/${studentSnap.id}/create-order`, {
+        method: 'POST',
+      });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        throw new Error(orderData.error || 'Failed to create payment order.');
+      }
+
+      // 2. Open Razorpay Checkout widget
+      const rzp = new Razorpay({
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        order_id: orderData.orderId,
+        name: 'Enfinite National Olympiad',
+        description: 'ENO 2026 — Olympiad Registration Fee',
+        image: '/logo.png',
+        prefill: {
+          name: studentSnap.name,
+          email: studentSnap.email,
+          contact: studentSnap.mobile || '',
+        },
+        notes: {
+          student_id: studentSnap.id,
+          student_name: studentSnap.name,
+        },
+        theme: { color: '#2563eb' },
+        modal: {
+          ondismiss: () => {
+            setError("Payment was cancelled. Click 'Pay ₹200 Online' to try again.");
+          },
+        },
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          // Payment captured — mark student as paid on our backend
+          setLoading(true);
+          try {
+            // 3. Verify payment signature on backend
+            const verifyRes = await fetch(`/api/students/${studentSnap.id}/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            const payData = await verifyRes.json();
+            if (!verifyRes.ok) {
+              throw new Error(payData.error || 'Failed to confirm payment on server.');
+            }
+            setRegisteredStudentSnapshot(payData.student);
+            setPaymentDone(true);
+            setModalView('studentSuccess');
+          } catch (err: any) {
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        },
+      });
+
+      rzp.open();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -938,45 +1023,78 @@ export default function AuthModals({
                 </div>
               </div>
 
-              {/* Simulated payment action panel */}
+              {/* Secure payment panel */}
               <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
                 <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                   <PaymentIcon className="w-4 h-4 text-blue-600" />
-                  Select Payment Option (Mock Gateway)
+                  Secure Online Payment
                 </h4>
 
-                <div className="grid grid-cols-3 gap-2.5">
-                  <button type="button" className="p-3 border-2 border-blue-600 bg-blue-50/50 rounded-xl text-center flex flex-col items-center justify-center gap-1 cursor-pointer">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
-                    <span className="text-[10px] font-bold text-blue-900">Cards</span>
-                  </button>
-                  <button type="button" disabled className="p-3 border border-slate-200 bg-slate-50 opacity-60 rounded-xl text-center flex flex-col items-center justify-center gap-1 cursor-not-allowed">
-                    <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" /></svg>
-                    <span className="text-[10px] font-bold text-slate-500">UPI/GPay</span>
-                  </button>
-                  <button type="button" disabled className="p-3 border border-slate-200 bg-slate-50 opacity-60 rounded-xl text-center flex flex-col items-center justify-center gap-1 cursor-not-allowed">
-                    <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" /></svg>
-                    <span className="text-[10px] font-bold text-slate-500">Net Banking</span>
-                  </button>
+                {/* Clear explanation — popup handles method selection */}
+                <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-xs text-blue-800 flex items-start gap-2">
+                  <svg className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+                  </svg>
+                  <span>
+                    Clicking <strong>"Pay ₹200 Online"</strong> will open the secure checkout portal where you can pay using <strong>Card, UPI, Net Banking, or Wallet</strong> — all methods are supported.
+                  </span>
                 </div>
 
-                <div className="border border-slate-100 rounded-xl p-3 bg-slate-50/55 space-y-3">
-                  <div className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Mock Visa / Master Card Input</div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <input type="text" disabled value="4111 2222 3333 4444" className="col-span-3 bg-white border border-slate-200 rounded-lg p-2 font-mono text-xs text-slate-500" />
-                    <input type="text" disabled value="12/29" className="bg-white border border-slate-200 rounded-lg p-2 font-mono text-xs text-slate-500 text-center" />
-                    <input type="password" disabled value="123" className="bg-white border border-slate-200 rounded-lg p-2 font-mono text-xs text-slate-500 text-center" />
-                  </div>
+                {/* Accepted methods — purely informational badges */}
+                <div className="flex flex-wrap gap-2">
+                  {['💳 Debit / Credit Cards', '📱 UPI & GPay', '🏦 Net Banking', '👛 Wallets'].map((m) => (
+                    <span key={m} className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">
+                      {m}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Security badge */}
+                <div className="flex items-center gap-2 text-[10px] text-slate-500 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">
+                  <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>256-bit SSL encrypted • PCI DSS compliant Secure Connection</span>
                 </div>
 
                 <button
                   type="button"
                   onClick={handleCompleteRazorpayPayment}
                   disabled={loading}
-                  className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition shadow flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-4 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60"
                 >
-                  {loading ? "Processing Payment Gateway..." : "Pay ₹200 Now"}
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                      Connecting to Secure Gateway...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                        <line x1="1" y1="10" x2="23" y2="10" />
+                      </svg>
+                      Pay ₹200 Online — Opens Secure Gateway
+                    </>
+                  )}
                 </button>
+
+                <button
+                  type="button"
+                  onClick={handleSimulatePayment}
+                  disabled={loading}
+                  className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs uppercase tracking-wider transition border border-slate-700/60 flex items-center justify-center gap-2 cursor-pointer transform active:scale-95 disabled:opacity-60"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>Simulate Payment (Sandbox Bypass)</span>
+                </button>
+
+                <p className="text-center text-[10px] text-slate-400">
+                  A secure checkout window will open. Select your preferred payment method there.
+                </p>
               </div>
             </div>
           )}

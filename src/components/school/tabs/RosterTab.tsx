@@ -225,6 +225,7 @@ export default function RosterTab({
                 <th className="p-4">Contact Info</th>
                 <th className="p-4">Parent/Guardian</th>
                 <th className="p-4">Admit Serial</th>
+                <th className="p-4">Payment Status</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -242,6 +243,27 @@ export default function RosterTab({
                   </td>
                   <td className="p-4 font-semibold text-slate-700">{st.parentName || "—"}</td>
                   <td className="p-4 font-mono font-bold text-slate-500">{st.admitCardNumber || "—"}</td>
+                  <td className="p-4">
+                    {st.paymentStatus === 'COMPLETED' ? (
+                      <div className="space-y-1">
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                          Paid ✓
+                        </span>
+                        {st.paymentId && (
+                          <p className="text-[9px] font-mono text-slate-400">{st.paymentId}</p>
+                        )}
+                        {st.paymentDate && (
+                          <p className="text-[9px] text-slate-400">{new Date(st.paymentDate).toLocaleDateString('en-IN')}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse inline-block"></span>
+                        Pending
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

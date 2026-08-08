@@ -53,6 +53,63 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
     simulatePayment
   } = studentData;
 
+  // Razorpay handler that can be triggered from ExamsTab payment wall
+  const handlePayNow = async () => {
+    // Switch to overview tab where the Razorpay button lives,
+    // or open Razorpay directly here
+    if (!student) return;
+    const { Razorpay } = window as any;
+    if (!Razorpay) {
+      alert('Payment gateway failed to initialize. Please hard-refresh (Ctrl+Shift+R) and try again.');
+      return;
+    }
+
+    try {
+      // 1. Create order on server
+      const orderRes = await fetch(`/api/students/${student.id}/create-order`, {
+        method: 'POST',
+      });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        alert(orderData.error || 'Failed to create payment order.');
+        return;
+      }
+
+      // 2. Open Razorpay Checkout widget
+      const rzp = new Razorpay({
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        order_id: orderData.orderId,
+        name: 'Enfinite National Olympiad',
+        description: 'ENO 2026 — Olympiad Registration Fee',
+        image: '/logo.png',
+        prefill: { name: student.name, email: student.email, contact: student.mobile || '' },
+        notes: { student_id: student.id },
+        theme: { color: '#2563eb' },
+        handler: async (response: any) => {
+          try {
+            // 3. Verify payment signature on backend
+            const verifyRes = await fetch(`/api/students/${student.id}/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            if (verifyRes.ok) fetchDashboardData();
+          } catch (err) { console.error(err); }
+        },
+      });
+      rzp.open();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+
   if (loading && !student) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
@@ -127,11 +184,11 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
 
         {/* Left Side menu */}
         {!isPrinting && (
-          <StudentSidebar 
-            student={student} 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            setActiveExam={setActiveExam} 
+          <StudentSidebar
+            student={student}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            setActiveExam={setActiveExam}
           />
         )}
 
@@ -163,6 +220,7 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
                 classGroup={classGroup}
                 announcements={announcements}
                 simulatePayment={simulatePayment}
+                onPaymentSuccess={fetchDashboardData}
               />
             </motion.div>
           )}
@@ -175,6 +233,8 @@ export default function StudentDashboard({ user, onLogout }: StudentDashboardPro
                 matchedExams={matchedExams}
                 attempts={attempts}
                 handleStartExam={handleStartExam}
+                student={student}
+                onPayNow={handlePayNow}
               />
             </motion.div>
           )}

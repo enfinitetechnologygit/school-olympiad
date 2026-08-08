@@ -34,6 +34,10 @@ export async function startServer() {
   });
 
   // Mount routers
+  app.get("/api/config/razorpay", (req, res) => {
+    res.json({ keyId: process.env.KEY_ID || "" });
+  });
+
   app.use("/api/auth", authRouter);
   app.use("/api/schools", schoolsRouter);
   app.use("/api/students", studentsRouter);
