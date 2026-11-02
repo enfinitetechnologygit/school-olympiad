@@ -94,56 +94,30 @@ export default function OverviewTab({
             </div>
           </div>
 
-          {/* Right Column: Status Card (Payment / Registration Status) */}
+          {/* Right Column: Status Card (Free Registration Status) */}
           <div className="w-full lg:w-auto shrink-0">
-            {student.paymentStatus !== "COMPLETED" ? (
-              /* Payment Pending Card */
-              <div className="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 md:p-5 backdrop-blur-md shadow-xl max-w-md w-full space-y-3">
+            <div className="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 md:p-5 backdrop-blur-md shadow-xl max-w-sm w-full space-y-2.5">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                  <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
-                    Registration Pending
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-black text-emerald-400 uppercase tracking-wider">
+                    Verified Free Registration
                   </span>
                 </div>
-                
-                <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                  Entry fee of <strong className="text-white">₹200.00</strong> pending. Complete payment to issue your official Stage 1 Admit Card.
-                </p>
-                
-                <button 
-                  onClick={simulatePayment}
-                  className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all duration-200 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer transform active:scale-95"
-                >
-                  <CreditCard className="w-4 h-4" />
-                  <span>Complete Payment (₹200)</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
               </div>
-            ) : (
-              /* Payment Completed Card */
-              <div className="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 md:p-5 backdrop-blur-md shadow-xl max-w-sm w-full space-y-2.5">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-xs font-black text-emerald-400 uppercase tracking-wider">
-                      Verified Candidate
-                    </span>
-                  </div>
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                </div>
 
-                <div className="text-xs text-slate-300 font-medium">
-                  Receipt Ref: <span className="font-mono text-xs font-bold text-white bg-slate-800 px-2 py-0.5 rounded border border-slate-700">{student.paymentId}</span>
-                </div>
-
-                <div className="pt-1 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-full font-bold">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Stage 1 Admit Card Ready</span>
-                  </span>
-                </div>
+              <div className="text-xs text-slate-300 font-medium">
+                Registration Status: <span className="font-mono text-xs font-bold text-emerald-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">100% FREE</span>
               </div>
-            )}
+
+              <div className="pt-1 flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-full font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Official Admit Card Active</span>
+                </span>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -245,10 +219,10 @@ export default function OverviewTab({
               <div className="p-3.5 bg-indigo-50/50 rounded-xl border border-indigo-100">
                 <h4 className="font-extrabold text-indigo-900 uppercase tracking-wider text-[10px] flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                  Stage 1 Pre-Exam (Official)
+                  November Olympiad Exam (Official)
                 </h4>
                 <p className="text-slate-600 mt-1 leading-relaxed">
-                  The official Pre-Exam is a written test held **offline at your enrolled school campus**. Please print your Stage 1 Admit Card and consult your school coordinator for schedule and seating details.
+                  The official Olympiad exam is conducted in November **at your enrolled school campus**. The exact exam date is mutually decided with your school. Print your Admit Card and check with your school coordinator for schedule details.
                 </p>
               </div>
             </div>

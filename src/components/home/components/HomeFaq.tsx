@@ -21,12 +21,12 @@ export default function HomeFaq({ faqOpen, toggleFaq }: HomeFaqProps) {
       a: "Yes! If your school has not yet completed registration, you can still register using the student portal by choosing a nearby registered school as your geographical Pre-Exam center from our extensive nationwide drop-down list."
     },
     {
-      q: "What is the fee structure and the payment model?",
-      a: "A nominal entry fee of ₹200 (including tax) is charged per student to support national question drafting, automated timers, secure centers, and merit logistics. The payment is handled via our integrated secure checkout system which issues digital receipt proofs."
+      q: "Is there any registration fee for students?",
+      a: "No! Olympiad registration is completely FREE for all students. There are no registration fees, payment gateways, or hidden charges. Students get instant access to their candidate profile, admit card, and learning materials upon registering."
     },
     {
-      q: "What are the two stages of the Olympiad examination?",
-      a: "Stage 1 (Pre-Examination) is conducted inside respective campus environments (online/offline support). High scorers (top 15% per region) qualify for Stage 2 (Mains Examination), which is conducted synchronously under strict live visual oversight at designated national regional information centers."
+      q: "When is the Olympiad exam conducted and how is it structured?",
+      a: "There is only one Olympiad exam, conducted in November. The exact exam date is mutually scheduled with each participating school. There are no multi-stage, preliminary, or mains exams."
     }
   ];
 

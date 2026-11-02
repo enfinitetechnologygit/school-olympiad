@@ -76,6 +76,9 @@ export default function AuthModals({
   // --- Login Form State ---
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [firstNewPassword, setFirstNewPassword] = useState('');
+  const [firstConfirmPassword, setFirstConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   // --- School Register Form State ---
@@ -105,6 +108,11 @@ export default function AuthModals({
   // Mock Payment UI State after successful student submit
   const [showPaymentReceipt, setShowPaymentReceipt] = useState(false);
   const [registeredStudentSnapshot, setRegisteredStudentSnapshot] = useState<any | null>(null);
+  const [initialPassword, setInitialPassword] = useState('');
+  const [resetCredential, setResetCredential] = useState('');
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [resetConfirm, setResetConfirm] = useState('');
+  const [copyMessage, setCopyMessage] = useState('');
   const [showRazorpayModal, setShowRazorpayModal] = useState(false);
   const [paymentDone, setPaymentDone] = useState(false);
 
@@ -118,6 +126,7 @@ export default function AuthModals({
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (mustChangePassword && firstNewPassword !== firstConfirmPassword) { setError('Passwords do not match.'); return; }
     setLoading(true);
 
     try {
@@ -126,8 +135,9 @@ export default function AuthModals({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           role: activeLoginRole,
-          email: loginEmail,
+          ...(activeLoginRole === 'student' ? { mobile: loginEmail } : { email: loginEmail }),
           password: loginPassword,
+          ...(mustChangePassword ? { newPassword: firstNewPassword } : {}),
         }),
       });
 
@@ -141,6 +151,14 @@ export default function AuthModals({
         throw new Error(data.error || "Authentication failed.");
       }
 
+      if (data.status === 'password_change_required') {
+        setMustChangePassword(true);
+        return;
+      }
+      setMustChangePassword(false);
+      setFirstNewPassword('');
+      setFirstConfirmPassword('');
+      setLoginPassword('');
       onLoginSuccess(activeLoginRole, data.user);
       onClose();
     } catch (err: any) {
@@ -238,7 +256,8 @@ export default function AuthModals({
       }
 
       setRegisteredStudentSnapshot(data.student);
-      setModalView('studentPayment');
+      setInitialPassword(data.initialPassword);
+      setModalView('studentSuccess');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -278,12 +297,12 @@ export default function AuthModals({
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
+      const response = await fetch(activeLoginRole === 'student' ? '/api/auth/student-reset/request' : '/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           role: activeLoginRole,
-          email: loginEmail
+          ...(activeLoginRole === 'student' ? { mobile: loginEmail } : { email: loginEmail })
         }),
       });
 
@@ -298,6 +317,18 @@ export default function AuthModals({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRedeemReset = async (e: React.FormEvent) => {
+    e.preventDefault(); setError(null); setSuccess(null);
+    if (resetNewPassword !== resetConfirm) { setError('Passwords do not match.'); return; }
+    setLoading(true);
+    try {
+      const response = await fetch('/api/auth/student-reset/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mobile: loginEmail, credential: resetCredential.trim(), newPassword: resetNewPassword }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Password reset failed.');
+      setResetCredential(''); setResetNewPassword(''); setResetConfirm(''); setSuccess(data.message);
+    } catch (err: any) { setError(err.message); } finally { setLoading(false); }
   };
 
   return (
@@ -320,7 +351,7 @@ export default function AuthModals({
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => { setInitialPassword(''); setCopyMessage(''); onClose(); }}
             className="p-1 px-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition text-sm font-semibold cursor-pointer"
           >
             <X className="w-5 h-5 inline-block" />
@@ -430,17 +461,17 @@ export default function AuthModals({
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
                   <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1">
-                    {activeLoginRole === 'student' && "Registered Student Email Address"}
+                    {activeLoginRole === 'student' && "Registered Student Mobile Number"}
                     {activeLoginRole === 'school' && "School Coordinator Email"}
                     {activeLoginRole === 'admin' && "National Admin Username / Email"}
                   </label>
                   <div className="relative mt-1">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
-                      type="email"
+                      type={activeLoginRole === 'student' ? 'tel' : 'email'}
                       required
                       placeholder={
-                        activeLoginRole === 'student' ? "rohan@eno.org" :
+                        activeLoginRole === 'student' ? "10-digit mobile number" :
                           activeLoginRole === 'school' ? "dpsrkp@edu.in" : "admin@eno.org"
                       }
                       value={loginEmail}
@@ -490,6 +521,14 @@ export default function AuthModals({
                     </button>
                   </div>
                 </div>
+
+                {mustChangePassword && activeLoginRole === 'student' && (
+                  <div className="space-y-3 rounded-xl bg-blue-50 p-3 text-sm">
+                    <p>Choose a new password before entering the student portal.</p>
+                    <input className="w-full rounded-lg border p-2" type="password" minLength={6} required placeholder="New password" value={firstNewPassword} onChange={e => setFirstNewPassword(e.target.value)} />
+                    <input className="w-full rounded-lg border p-2" type="password" minLength={6} required placeholder="Confirm new password" value={firstConfirmPassword} onChange={e => setFirstConfirmPassword(e.target.value)} />
+                  </div>
+                )}
 
                 <button
                   type="submit"
@@ -541,7 +580,7 @@ export default function AuthModals({
             <div className="space-y-4">
               <div className="p-3 bg-blue-50 text-blue-900 rounded-xl border border-blue-100 text-xs flex items-center gap-2">
                 <Info className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Enter your email address below. We will generate a new secure password and send it to your email inbox.</span>
+                <span>{activeLoginRole === 'student' ? 'Request a reset, then contact the Olympiad office for identity verification. An administrator can provide a one-time credential through a trusted process.' : 'Enter your email address to receive a password reset link.'}</span>
               </div>
 
               {/* UTILITY TABS for Forgot Password Role */}
@@ -566,14 +605,14 @@ export default function AuthModals({
               <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
                 <div>
                   <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider block mb-1">
-                    Registered Email Address
+                    {activeLoginRole === 'student' ? 'Registered Mobile Number' : 'Registered Email Address'}
                   </label>
                   <div className="relative mt-1">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
-                      type="email"
+                      type={activeLoginRole === 'student' ? 'tel' : 'email'}
                       required
-                      placeholder="Enter your registered email address"
+                      placeholder={activeLoginRole === 'student' ? 'Enter your registered mobile number' : 'Enter your registered email address'}
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl p-3 pl-10 text-sm outline-none transition"
@@ -586,7 +625,7 @@ export default function AuthModals({
                   disabled={loading}
                   className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm tracking-wide rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition"
                 >
-                  {loading ? "Verifying identity & resetting..." : "RESET & SEND NEW PASSWORD"}
+                  {loading ? "Submitting..." : activeLoginRole === 'student' ? "REQUEST PASSWORD RESET" : "SEND RESET LINK"}
                 </button>
 
                 <div className="text-center pt-2 text-xs text-slate-500 border-t border-slate-100 mt-4">
@@ -604,6 +643,16 @@ export default function AuthModals({
                   </button>
                 </div>
               </form>
+              {activeLoginRole === 'student' && (
+                <form onSubmit={handleRedeemReset} className="space-y-3 border-t border-slate-200 pt-4">
+                  <p className="font-bold text-sm text-slate-700">Already received a reset credential?</p>
+                  <input className="w-full bg-slate-50 border rounded-xl p-3 text-sm" required type="tel" pattern="[0-9]{10}" placeholder="Registered mobile number" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} />
+                  <input className="w-full bg-slate-50 border rounded-xl p-3 text-sm" required type="text" autoComplete="off" placeholder="One-time reset credential" value={resetCredential} onChange={e => setResetCredential(e.target.value)} />
+                  <input className="w-full bg-slate-50 border rounded-xl p-3 text-sm" required minLength={6} type="password" placeholder="New password" value={resetNewPassword} onChange={e => setResetNewPassword(e.target.value)} />
+                  <input className="w-full bg-slate-50 border rounded-xl p-3 text-sm" required minLength={6} type="password" placeholder="Confirm new password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} />
+                  <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white rounded-xl p-3 font-bold text-sm">Set New Password</button>
+                </form>
+              )}
             </div>
           )}
 
@@ -753,15 +802,15 @@ export default function AuthModals({
           {modalView === 'studentRegister' && !success && (
             <form onSubmit={handleStudentRegisterSubmit} className="space-y-4">
 
-              <div className="p-3 bg-blue-50 text-blue-900 rounded-xl border border-blue-100 text-xs flex justify-between items-center shrink-0">
+              <div className="p-3 bg-emerald-50 text-emerald-900 rounded-xl border border-emerald-200 text-xs flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-blue-600" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                   <div>
-                    <p className="font-bold">Required Olympiad Entry Fee: ₹200.00</p>
-                    <p className="text-[10px] text-slate-500">Auto receipts, admit tracking cards, and quiz grids unlock post checkout.</p>
+                    <p className="font-bold text-emerald-800">Olympiad Registration: 100% FREE</p>
+                    <p className="text-[10px] text-emerald-700">Free Registration • One Exam in November • Exam Date Mutually Scheduled with Your School</p>
                   </div>
                 </div>
-                <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded font-extrabold uppercase">SECURE ENTRY LOOP</span>
+                <span className="text-[10px] bg-emerald-600 text-white px-2.5 py-0.5 rounded font-extrabold uppercase shrink-0">FREE ENTRY</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -839,9 +888,9 @@ export default function AuthModals({
               </div>
 
               <div>
-                <label className="text-xs text-slate-600 font-bold">Email Address ID (Login Username)</label>
+                <label className="text-xs text-slate-600 font-bold">Email Address (optional)</label>
                 <input
-                  type="email" required placeholder="e.g. loginstudent@example.com"
+                  type="email" placeholder="e.g. student@example.com"
                   value={studentEmail} onChange={(e) => setStudentEmail(e.target.value)}
                   className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm"
                 />
@@ -991,14 +1040,15 @@ export default function AuthModals({
               <div>
                 <h3 className="text-xl font-bold font-display text-slate-900">Registration Successful!</h3>
                 <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-                  Welcome to the Enfinite National Olympiad. Your payment has been received, and your candidate profile is fully activated.
+                  Welcome to the Enfinite National Olympiad! Registration is 100% FREE and your candidate profile &amp; admit card are fully activated.
                 </p>
               </div>
 
-              {/* Receipt detail card */}
+              {/* Registration detail card */}
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4 max-w-md mx-auto text-left">
-                <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider pb-2 border-b border-dashed border-slate-200">
-                  Payment Receipt Summary
+                <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider pb-2 border-b border-dashed border-slate-200 flex justify-between items-center">
+                  <span>Candidate Registration Summary</span>
+                  <span className="text-emerald-600 font-extrabold text-xs">FREE ENTRY</span>
                 </div>
 
                 <div className="space-y-2 text-xs">
@@ -1007,12 +1057,20 @@ export default function AuthModals({
                     <span className="font-bold text-slate-800">{registeredStudentSnapshot.name}</span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-slate-500 font-medium">Registered Email:</span>
-                    <span className="font-mono font-bold text-slate-800">{registeredStudentSnapshot.email}</span>
+                    <span className="text-slate-500 font-medium">Candidate ID:</span>
+                    <span className="font-mono font-bold text-blue-600">{registeredStudentSnapshot.id}</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-slate-500 font-medium">Login Mobile:</span>
+                    <span className="font-mono font-bold text-slate-800">{registeredStudentSnapshot.mobile}</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-slate-500 font-medium">Class Level:</span>
+                    <span className="font-bold text-slate-800">{registeredStudentSnapshot.classLevel}</span>
                   </div>
                   <div className="flex justify-between py-1 border-t border-dashed border-slate-200 pt-2 font-semibold text-slate-700">
-                    <span>Payment Receipt Status:</span>
-                    <span className="text-emerald-600 font-bold">₹200.00 PAID</span>
+                    <span>Registration Fee Status:</span>
+                    <span className="text-emerald-600 font-bold">100% FREE</span>
                   </div>
                 </div>
               </div>
@@ -1020,35 +1078,24 @@ export default function AuthModals({
               <div className="p-3 bg-blue-50 border border-blue-100 text-blue-800 rounded-xl text-xs max-w-md mx-auto leading-relaxed flex gap-2 text-left">
                 <Info className="w-4.5 h-4.5 shrink-0 text-blue-600 mt-0.5" />
                 <p>
-                  An automatic welcome credentials email has been sent to your email address: <strong className="font-mono">{registeredStudentSnapshot.email}</strong>. Please check your inbox for exam schedules and admit download links.
+                  Initial Password: <strong className="font-mono select-all">{initialPassword}</strong>. Save your login credentials securely now; the password will not be shown again. You will be asked to change it when you sign in.
                 </p>
               </div>
 
+              {copyMessage && <p className="text-xs text-slate-600" role="status">{copyMessage}</p>}
               <div className="pt-2 flex justify-center gap-3 shrink-0">
+                <button type="button" onClick={async () => { try { await navigator.clipboard.writeText(initialPassword); setCopyMessage('Password copied.'); } catch { setCopyMessage('Copy failed. Select the password to copy it.'); } }} className="px-5 py-3 border border-blue-300 text-blue-700 font-bold text-xs rounded-xl cursor-pointer">Copy Password</button>
                 <button
                   type="button"
                   onClick={() => {
-                    window.print();
+                    setModalView('studentLogin');
+                    setLoginEmail(registeredStudentSnapshot.mobile);
+                    setActiveLoginRole('student');
+                    setInitialPassword('');
                   }}
-                  className="px-4 py-2.5 border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer"
+                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow cursor-pointer"
                 >
-                  Print Payment Receipt
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onLoginSuccess('student', {
-                      role: 'student',
-                      id: registeredStudentSnapshot.id,
-                      email: registeredStudentSnapshot.email,
-                      name: registeredStudentSnapshot.name,
-                      details: registeredStudentSnapshot
-                    });
-                    onClose();
-                  }}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow cursor-pointer"
-                >
-                  Access Student Portal
+                  Go to Login
                 </button>
               </div>
             </div>

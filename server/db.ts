@@ -80,19 +80,6 @@ export async function initializeDatabase() {
     console.log("Successfully connected to MongoDB database!");
     dbConnected = true;
 
-    // Database cleanup for mock data
-    const mockSchool = await db.collection("schools").findOne({ id: "SCH-2001" });
-    if (mockSchool) {
-      console.log("Mock data detected in database. Clearing schools, students, exam attempts, and non-admin users...");
-      await db.collection("schools").deleteMany({ id: { $in: ["SCH-2001", "SCH-2002", "SCH-2003", "SCH-2004", "RQ-9001", "RQ-9002"] } });
-      await db.collection("students").deleteMany({ id: { $in: ["ENO-2026-1001", "ENO-2026-1002", "ENO-2026-1003", "ENO-2026-1004"] } });
-      await db.collection("exam_attempts").deleteMany({ id: { $in: ["ATT-1", "ATT-2", "ATT-3"] } });
-      await db.collection("announcements").deleteMany({ id: { $in: ["ANC-001", "ANC-002", "ANC-003"] } });
-      await db.collection("users").deleteMany({ email: { $in: ["dpsrkp@edu.in", "greenwood@edu.in", "heritage@edu.in", "davaundh@edu.in", "xavier@edu.in", "nps@edu.in", "rohan@eno.org", "arjun@eno.org", "sid@eno.org", "sneha@eno.org"] } });
-      await db.collection("exam_centers").updateMany({}, { $set: { allocatedStudentsCount: 0 } });
-      console.log("Mock data successfully cleared!");
-    }
-
     // Create collections and verify indexes
     const collections = await db.listCollections().toArray();
     const collectionNames = collections.map(c => c.name);
@@ -111,7 +98,11 @@ export async function initializeDatabase() {
     if (!collectionNames.includes("students")) {
       await db.createCollection("students");
     }
-    await db.collection("students").createIndex({ email: 1 }, { unique: true });
+    const studentIndexes = await db.collection("students").indexes();
+    const oldEmailIndex = studentIndexes.find(index => index.name === "email_1" && !index.partialFilterExpression);
+    if (oldEmailIndex) await db.collection("students").dropIndex("email_1");
+    await db.collection("students").createIndex({ email: 1 }, { unique: true, partialFilterExpression: { email: { $type: "string" } } });
+    await db.collection("students").createIndex({ loginMobile: 1 }, { unique: true, partialFilterExpression: { loginMobile: { $type: "string" } } });
     await db.collection("students").createIndex({ id: 1 }, { unique: true });
 
     if (!collectionNames.includes("mock_exams")) {
@@ -307,16 +298,6 @@ export async function initializeDatabase() {
             { upsert: true }
           );
         }
-      }
-      // Seed default students
-      for (const st of students) {
-        const pass = st.password || 'student123';
-        st.password = bcryptjs.hashSync(pass, 10);
-        await db.collection("users").updateOne(
-          { email: st.email },
-          { $setOnInsert: { email: st.email, password: st.password, name: st.name, role: 'student' } },
-          { upsert: true }
-        );
       }
       console.log("Default users seeded.");
     }

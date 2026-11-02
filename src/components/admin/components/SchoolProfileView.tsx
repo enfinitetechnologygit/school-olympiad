@@ -21,7 +21,7 @@ interface SchoolProfileViewProps {
   schoolRosterClassFilter: string;
   setSchoolRosterClassFilter: (val: string) => void;
   students: Student[];
-  handleApproveCandidatePayment: (studentId: string) => void;
+  handleApproveCandidatePayment?: (studentId: string) => void;
   handleUpdateScore: (studentId: string, score: number) => void;
 }
 
@@ -43,10 +43,69 @@ export default function SchoolProfileView({
   schoolRosterClassFilter,
   setSchoolRosterClassFilter,
   students,
-  handleApproveCandidatePayment,
   handleUpdateScore
 }: SchoolProfileViewProps) {
+  const [schDate, setSchDate] = React.useState<string>('');
+  const [schTime, setSchTime] = React.useState<string>('');
+  const [schDuration, setSchDuration] = React.useState<string>('120');
+  const [schSaving, setSchSaving] = React.useState<boolean>(false);
+  const [schSuccess, setSchSuccess] = React.useState<string>('');
+  const [schError, setSchError] = React.useState<string>('');
+
+  React.useEffect(() => {
+    if (selectedSchoolProfile) {
+      const existingDate = selectedSchoolProfile.examDate || selectedSchoolProfile.preExamDate || '';
+      let dateVal = existingDate;
+      if (existingDate && !/^\d{4}-\d{2}-\d{2}$/.test(existingDate)) {
+        const parsed = Date.parse(existingDate);
+        if (!isNaN(parsed)) {
+          const d = new Date(parsed);
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          dateVal = `${d.getFullYear()}-${month}-${day}`;
+        }
+      }
+      setSchDate(dateVal);
+      setSchTime(selectedSchoolProfile.examTime || selectedSchoolProfile.preExamTime || '10:00 AM');
+      setSchDuration(selectedSchoolProfile.examDuration || selectedSchoolProfile.preExamDuration || '120');
+    }
+  }, [selectedSchoolProfile]);
+
   if (!selectedSchoolProfile) return null;
+
+  const handleSaveSchoolExamSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSchSaving(true);
+    setSchSuccess('');
+    setSchError('');
+
+    try {
+      const res = await fetch(`/api/schools/${selectedSchoolProfile.id}/schedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          examDate: schDate,
+          examTime: schTime,
+          examDuration: schDuration,
+          preExamDate: schDate,
+          preExamTime: schTime,
+          preExamDuration: schDuration
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        setSchSuccess('November Olympiad exam date updated and notification dispatched!');
+        fetchAdminData();
+      } else {
+        setSchError(data.error || 'Failed to save exam date.');
+      }
+    } catch (err: any) {
+      setSchError(err.message || 'Network error updating exam schedule.');
+    } finally {
+      setSchSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -110,7 +169,7 @@ export default function SchoolProfileView({
             </span>
           </div>
           <p className="text-xs text-slate-500 font-medium">
-            {selectedSchoolProfile.boardType} Board Affiliated • Established Record Directory
+            {selectedSchoolProfile.boardType} Board Affiliated • Free Olympiad Registration Center
           </p>
         </div>
         <div className="bg-slate-50 border p-3 rounded-xl flex flex-col text-right">
@@ -170,7 +229,7 @@ export default function SchoolProfileView({
               <span className="text-slate-400 font-medium">Registered Candidate Cap:</span>
               <p className="font-bold text-slate-800 mt-0.5 flex items-center gap-1.5 text-xs">
                 <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                {selectedSchoolProfile.totalStudents} Candidates
+                {selectedSchoolProfile.totalStudents} Candidates (Free Enrolled)
               </p>
             </div>
 
@@ -186,6 +245,73 @@ export default function SchoolProfileView({
 
         {/* Right Column Stack */}
         <div className="space-y-6 md:col-span-1">
+          {/* School Exam Schedule Panel */}
+          {selectedSchoolProfile.status === 'APPROVED' && (
+            <form onSubmit={handleSaveSchoolExamSchedule} className="bg-white border rounded-2xl p-6 shadow-sm space-y-4">
+              <div className="border-b pb-2 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-blue-600" />
+                <h3 className="text-sm font-bold text-slate-900">November Exam Date</h3>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Set or update the mutually agreed November Olympiad exam date and time for this school.
+              </p>
+
+              {schSuccess && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl font-semibold text-[11px]">
+                  {schSuccess}
+                </div>
+              )}
+              {schError && (
+                <div className="bg-red-50 border border-red-200 text-red-800 p-2.5 rounded-xl font-semibold text-[11px]">
+                  {schError}
+                </div>
+              )}
+
+              <div className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Exam Date (November)</label>
+                  <input
+                    type="date"
+                    value={schDate}
+                    onChange={(e) => setSchDate(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-lg p-2 font-mono font-bold text-slate-800 outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Exam Time</label>
+                    <input
+                      type="text"
+                      placeholder="10:00 AM"
+                      value={schTime}
+                      onChange={(e) => setSchTime(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-lg p-2 font-mono text-slate-800 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Duration (mins)</label>
+                    <input
+                      type="number"
+                      placeholder="120"
+                      value={schDuration}
+                      onChange={(e) => setSchDuration(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-lg p-2 font-mono text-slate-800 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={schSaving}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer select-none"
+              >
+                {schSaving ? 'Saving Date...' : 'Save & Update Schedule'}
+              </button>
+            </form>
+          )}
+
           {/* Secure Passwords / Credentials Panel */}
           <div className="bg-white border rounded-2xl p-6 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-900 border-b pb-2">Administrative Keys</h3>
@@ -197,7 +323,7 @@ export default function SchoolProfileView({
                   <p className="font-mono font-bold text-emerald-600 mt-0.5">Securely Encrypted</p>
                 </div>
                 <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg text-[10px] text-blue-800 font-semibold leading-relaxed">
-                  Tip: Provide these credentials to coordinator teachers. They can log in to the School Dashboard to register students and check admit cards.
+                  Tip: Provide these credentials to coordinator teachers. They can log in to the School Dashboard to register students free of charge.
                 </div>
               </div>
             ) : (
@@ -207,16 +333,16 @@ export default function SchoolProfileView({
             )}
           </div>
 
-          {/* Pre-Exam Qualification Thresholds Panel */}
+          {/* Merit Qualification Thresholds Panel */}
           {selectedSchoolProfile.status === 'APPROVED' && (
             <form onSubmit={handleSavePassingMarks} className="bg-white border rounded-2xl p-6 shadow-sm space-y-4">
               <div className="border-b pb-2 flex items-center gap-2">
                 <Award className="w-5 h-5 text-blue-600" />
-                <h3 className="text-sm font-bold text-slate-900">Pre-Exam Thresholds</h3>
+                <h3 className="text-sm font-bold text-slate-900">Merit Thresholds</h3>
               </div>
               
               <p className="text-[11px] text-slate-500 leading-relaxed">
-                Define the minimum score (%) required to qualify for Stage 2 Mains per class level. (Default is 60%)
+                Define the minimum score (%) required to earn merit qualification per class level. (Default is 60%)
               </p>
 
               {passingMarksSuccess && (
@@ -344,8 +470,8 @@ export default function SchoolProfileView({
                     <th className="p-3">Student ID</th>
                     <th className="p-3">Class Level</th>
                     <th className="p-3">Contact Email</th>
-                    <th className="p-3">Payment Status</th>
-                    <th className="p-3">Pre Exam Marks</th>
+                    <th className="p-3">Registration Type</th>
+                    <th className="p-3">Exam Score</th>
                     <th className="p-3">Qualification</th>
                   </tr>
                 </thead>
@@ -357,21 +483,9 @@ export default function SchoolProfileView({
                       <td className="p-3 font-semibold text-slate-600">{st.classLevel.replace(/class\s+/gi, '')}</td>
                       <td className="p-3 font-mono text-slate-500">{st.email}</td>
                       <td className="p-3">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${
-                            st.paymentStatus === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
-                          }`}>
-                            {st.paymentStatus}
-                          </span>
-                          {st.paymentStatus !== 'COMPLETED' && (
-                            <button
-                              onClick={() => handleApproveCandidatePayment(st.id)}
-                              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800 font-extrabold px-1.5 py-0.5 rounded text-[9px] transition cursor-pointer border border-emerald-200 focus:outline-none"
-                            >
-                              Approve Cash
-                            </button>
-                          )}
-                        </div>
+                        <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          FREE REGISTRATION
+                        </span>
                       </td>
                       <td className="p-3">
                         <div className="flex items-center gap-1">

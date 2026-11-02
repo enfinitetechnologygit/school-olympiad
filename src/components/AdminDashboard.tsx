@@ -14,6 +14,7 @@ import CentersTab from './admin/tabs/CentersTab';
 import DatabaseTab from './admin/tabs/DatabaseTab';
 import ScheduleTab from './admin/tabs/ScheduleTab';
 import ChangePasswordCard from './ui/ChangePasswordCard';
+import StudentResetDesk from './admin/components/StudentResetDesk';
 
 interface AdminDashboardProps {
   user: any;
@@ -292,6 +293,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
                   <div className="max-w-4xl mx-auto">
                     <ChangePasswordCard role="admin" email={user?.email || "admin@eno.org"} />
+                    <StudentResetDesk adminEmail={user?.email || "admin@eno.org"} />
                   </div>
                 </motion.div>
               )}

@@ -522,7 +522,7 @@ export default function ProfileTab({ student, fetchDashboardData }: ProfileTabPr
       </form>
 
       {/* Security & Password Update Section */}
-      <ChangePasswordCard role="student" email={student.email} />
+      <ChangePasswordCard role="student" email={student.mobile} />
 
     </div>
   );

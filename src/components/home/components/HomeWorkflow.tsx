@@ -39,16 +39,16 @@ export default function HomeWorkflow() {
       glowColor: "rgba(59, 130, 246, 0.15)"
     },
     {
-      title: "Candidate Enrollment",
-      subtitle: "Profile Activation",
+      title: "Free Candidate Enrollment",
+      subtitle: "Instant Profile Activation",
       badge: "Step 02",
       role: "Olympiad Candidate",
-      desc: "Students sign up, link with their approved school, and complete a simulated ₹200 fee. Credentials are sent securely via email.",
+      desc: "Students sign up online and link with their approved school. Registration is 100% FREE. Login credentials and admit card are issued instantly.",
       features: [
+        "100% Free Student Registration",
         "School-Link Search Verification",
-        "Mock Razorpay Payment Gateway",
         "Hashed Secure Password Database",
-        "Instant Prep Material unlock"
+        "Instant Prep Material & Admit Card unlock"
       ],
       icon: UserCheck,
       themeColor: "emerald",
@@ -56,16 +56,16 @@ export default function HomeWorkflow() {
       glowColor: "rgba(16, 185, 129, 0.15)"
     },
     {
-      title: "Stage 1 Practice & Test",
-      subtitle: "Curriculum Screening",
+      title: "Prep & AI Mock Exams",
+      subtitle: "Curriculum Preparation",
       badge: "Step 03",
-      role: "Assessment phase",
-      desc: "Candidates access syllabus guides and take unlimited AI-generated mock tests. The Stage 1 exam is held at their school.",
+      role: "Candidate Preparation",
+      desc: "Candidates access syllabus guides and take unlimited AI-generated mock tests to benchmark skills before the official November exam.",
       features: [
         "Interactive Practice Mock Exams",
         "Class Level Syllabus Guides",
-        "Instant Grading & Statistics",
-        "Auto-Evaluated Qualifier Statuses"
+        "Instant Grading & Analytics",
+        "Comprehensive Solved Practice Kits"
       ],
       icon: BookOpen,
       themeColor: "purple",
@@ -73,16 +73,16 @@ export default function HomeWorkflow() {
       glowColor: "rgba(139, 92, 246, 0.15)"
     },
     {
-      title: "Stage 2 Mains Finals",
-      subtitle: "National Coding Exams",
+      title: "November Olympiad Exam",
+      subtitle: "School-Scheduled Exam",
       badge: "Step 04",
-      role: "Qualified Candidates (Top 10%)",
-      desc: "Qualified rankers progress to the Stage 2 coding and logic examination hosted synchronously at certified regional computer centers.",
+      role: "Official Olympiad Examination",
+      desc: "The single official Olympiad exam is conducted in November on dates mutually decided with each participating school campus.",
       features: [
-        "Regional IT Proctored Centers",
-        "Center Seat Allocation system",
-        "Release of Secure Stage 2 Admit Cards",
-        "National Merit Score Rankings"
+        "Single National Exam in November",
+        "Mutually Scheduled School Exam Dates",
+        "In-Campus Proctored Environment",
+        "National Merit Score Rankings & Awards"
       ],
       icon: Terminal,
       themeColor: "violet",
@@ -294,7 +294,7 @@ export default function HomeWorkflow() {
                       </motion.div>
                     )}
 
-                    {/* STEP 2 MOCK - CANDIDATE REGISTER & PAY */}
+                    {/* STEP 2 MOCK - FREE CANDIDATE REGISTER */}
                     {activeStep === 1 && (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -302,30 +302,27 @@ export default function HomeWorkflow() {
                         className="space-y-4 text-xs font-sans text-left max-w-sm mx-auto w-full bg-slate-950/40 p-4 rounded-xl border border-slate-800"
                       >
                         <div className="flex justify-between items-center border-b border-slate-850 pb-2">
-                          <span className="font-bold text-slate-300">Olympiad Admission Checkout</span>
-                          <span className="font-bold text-emerald-400">₹200.00 Due</span>
+                          <span className="font-bold text-slate-300">Olympiad Student Registration</span>
+                          <span className="font-bold text-emerald-400">100% FREE</span>
                         </div>
                         <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
                           <div>
-                            <p className="font-bold text-slate-300">Simulate Razorpay Wallet</p>
-                            <p className="text-[10px] text-slate-500">Secure Direct Checkout</p>
+                            <p className="font-bold text-slate-300">Free Registration</p>
+                            <p className="text-[10px] text-slate-500">No Entry Fee Required</p>
                           </div>
                           
-                          <motion.button
-                            initial={{ backgroundColor: "#2563eb", content: "Pay Now" }}
-                            animate={{ backgroundColor: "#059669", content: "Successful!" }}
-                            transition={{ delay: 2.2, duration: 0.8 }}
-                            className="p-2 px-3 rounded-lg text-[10px] font-bold text-white cursor-pointer hover:bg-opacity-90"
+                          <motion.span
+                            className="p-2 px-3 rounded-lg text-[10px] font-bold text-white bg-emerald-600"
                           >
-                            Pay Now
-                          </motion.button>
+                            FREE
+                          </motion.span>
                         </div>
 
                         {/* Success card popping up */}
                         <motion.div
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 3.5 }}
+                          transition={{ delay: 1.5 }}
                           className="bg-emerald-950/40 border border-emerald-900/30 p-2.5 rounded-lg flex items-center gap-3"
                         >
                           <div className="w-8 h-8 rounded-full bg-emerald-900/60 text-emerald-400 flex items-center justify-center">
@@ -333,13 +330,13 @@ export default function HomeWorkflow() {
                           </div>
                           <div>
                             <span className="text-[10px] text-emerald-400 font-bold block uppercase tracking-wider">Olympiad Profile Activated</span>
-                            <span className="text-[10px] text-slate-400 mt-0.5 block">Access credentials securely sent to email.</span>
+                            <span className="text-[10px] text-slate-400 mt-0.5 block">Access credentials & admit card issued instantly.</span>
                           </div>
                         </motion.div>
                       </motion.div>
                     )}
 
-                    {/* STEP 3 MOCK - STAGE 1 EXAM SCREEN */}
+                    {/* STEP 3 MOCK - EXAM PREP & MOCK TESTS */}
                     {activeStep === 2 && (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -350,7 +347,7 @@ export default function HomeWorkflow() {
                         <div className="flex justify-between items-center border-b border-slate-850 pb-2 text-[10px]">
                           <span className="font-bold text-slate-400 flex items-center gap-1">
                             <Code2 className="w-3.5 h-3.5 text-purple-400" />
-                            stage_1_algorithms.py
+                            olympiad_practice_mock.py
                           </span>
                           <span className="text-red-400 font-mono flex items-center gap-1 font-bold">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
@@ -368,14 +365,14 @@ export default function HomeWorkflow() {
 
                         {/* Click Submit Answers */}
                         <div className="flex justify-between items-center pt-2">
-                          <span className="text-[10px] text-slate-500">Auto-grading instant engine</span>
+                          <span className="text-[10px] text-slate-500">Auto-grading practice engine</span>
                           <motion.button
                             initial={{ scale: 1, backgroundColor: "#6d28d9" }}
                             animate={{ scale: [1, 0.96, 1], backgroundColor: "#4c1d95" }}
                             transition={{ delay: 2.5, duration: 0.5 }}
                             className="p-1.5 px-3 rounded text-[10px] font-bold text-white cursor-pointer"
                           >
-                            Submit Answers
+                            Submit Practice Test
                           </motion.button>
                         </div>
 
@@ -386,13 +383,13 @@ export default function HomeWorkflow() {
                           transition={{ delay: 3.5 }}
                           className="bg-purple-950/40 border border-purple-900/30 p-2 text-center rounded text-[10px]"
                         >
-                          <span className="font-black text-purple-400 block tracking-wider uppercase">Grading Finished: 92% Score</span>
-                          <span className="text-slate-400 mt-0.5 block font-bold">STATUS: QUALIFIED FOR STAGE 2 MAINS</span>
+                          <span className="font-black text-purple-400 block tracking-wider uppercase">Practice Test Finished: 92% Score</span>
+                          <span className="text-slate-400 mt-0.5 block font-bold">READY FOR NOVEMBER OLYMPIAD EXAM</span>
                         </motion.div>
                       </motion.div>
                     )}
 
-                    {/* STEP 4 MOCK - STAGE 2 FINALS MAP/CENTER */}
+                    {/* STEP 4 MOCK - NOVEMBER EXAM SCHEDULE */}
                     {activeStep === 3 && (
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -400,34 +397,34 @@ export default function HomeWorkflow() {
                         className="space-y-4 text-xs font-sans text-left max-w-sm mx-auto w-full bg-slate-950/40 p-4 rounded-xl border border-slate-800"
                       >
                         <div className="flex justify-between items-center border-b border-slate-850 pb-2">
-                          <span className="font-bold text-slate-300">Stage 2 Mains Admit Ticket</span>
-                          <span className="text-[9px] font-mono text-violet-400 font-bold bg-violet-950/60 p-0.5 px-2 rounded border border-violet-900/30">Verified seat</span>
+                          <span className="font-bold text-slate-300">November Olympiad Hall Ticket</span>
+                          <span className="text-[9px] font-mono text-violet-400 font-bold bg-violet-950/60 p-0.5 px-2 rounded border border-violet-900/30">School Scheduled</span>
                         </div>
 
                         <div className="space-y-2">
                           <div className="flex gap-2.5 items-start">
                             <MapPin className="w-4 h-4 text-violet-400 mt-0.5 shrink-0 animate-bounce" />
                             <div>
-                              <p className="font-bold text-slate-300">Regional Technical Center Allocation</p>
-                              <p className="text-[10px] text-slate-500 font-medium">Metro Technology Center HQ, Delhi (CEN-3928)</p>
+                              <p className="font-bold text-slate-300">Mutually Scheduled Exam Date</p>
+                              <p className="text-[10px] text-slate-400 font-medium">November 2026 • In-Campus School Venue</p>
                             </div>
                           </div>
                           
                           <div className="flex gap-2.5 items-start">
                             <Award className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
                             <div>
-                              <p className="font-bold text-slate-300">Olympiad Merit Awards</p>
+                              <p className="font-bold text-slate-300">National Olympiad Merit Awards</p>
                               <p className="text-[10px] text-slate-500 font-medium">Contend for national rank citations and gold medallions.</p>
                             </div>
                           </div>
                         </div>
 
-                        {/* Bottom visual seat grid */}
+                        {/* Bottom visual status */}
                         <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center text-[10px]">
-                          <span className="text-slate-400 font-semibold">Seat coordinates status:</span>
+                          <span className="text-slate-400 font-semibold">Registration Status:</span>
                           <span className="text-emerald-400 font-bold flex items-center gap-1 uppercase">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Allocated Seat A-12
+                            100% FREE REGISTRATION
                           </span>
                         </div>
                       </motion.div>

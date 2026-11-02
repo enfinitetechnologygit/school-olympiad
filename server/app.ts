@@ -33,6 +33,18 @@ export async function startServer() {
     next();
   });
 
+  // Never serialize stored password hashes in API responses.
+  app.use("/api", (req, res, next) => {
+    const json = res.json.bind(res);
+    const sanitize = (value: any): any => {
+      if (Array.isArray(value)) return value.map(sanitize);
+      if (!value || typeof value !== "object" || value instanceof Date) return value;
+      return Object.fromEntries(Object.entries(value).filter(([key]) => key !== "password").map(([key, item]) => [key, sanitize(item)]));
+    };
+    res.json = (body: any) => json(sanitize(body));
+    next();
+  });
+
   // Mount routers
   app.use("/api/auth", authRouter);
   app.use("/api/schools", schoolsRouter);

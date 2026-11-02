@@ -35,8 +35,8 @@ export default function StatsBar({ stats }: StatsBarProps) {
 
       <div className="bg-white border rounded-2xl p-5 relative flex items-center justify-between shadow-sm">
         <div>
-          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Olympiad Earnings Pool</span>
-          <p className="text-2xl font-black font-display text-emerald-600 mt-1">₹{stats ? stats.totalEarnings : 0}</p>
+          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Registration Fee</span>
+          <p className="text-2xl font-black font-display text-emerald-600 mt-1">100% FREE</p>
         </div>
         <div className="bg-emerald-50 p-3 text-emerald-600 rounded-xl">
           <CreditCard className="w-5 h-5" />
@@ -45,7 +45,7 @@ export default function StatsBar({ stats }: StatsBarProps) {
 
       <div className="bg-white border rounded-2xl p-5 relative flex items-center justify-between shadow-sm">
         <div>
-          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider text-indigo-800">Stage 2 Mains Qualifiers</span>
+          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider text-indigo-800">Merit Scholars Qualified</span>
           <p className="text-xl font-black font-display text-indigo-700 mt-1">{stats ? stats.qualifiedStudents : 0} Candidates</p>
         </div>
         <div className="bg-indigo-50 p-3 text-indigo-600 rounded-xl">

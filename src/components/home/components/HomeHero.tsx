@@ -11,7 +11,8 @@ import {
   ArrowRight, 
   Code2, 
   Atom, 
-  Laptop
+  Laptop,
+  Sparkles
 } from 'lucide-react';
 
 interface HomeHeroProps {
@@ -77,6 +78,16 @@ export default function HomeHero({ onOpenModal }: HomeHeroProps) {
             
             {/* Main Headlines */}
             <div className="my-auto">
+              {/* Prominent Free Registration & November Exam Announcement Badge */}
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-300 text-emerald-900 font-extrabold text-xs px-4 py-2 rounded-full mb-4 shadow-sm"
+              >
+                <Sparkles className="w-4 h-4 text-emerald-600 animate-pulse" />
+                <span>Free Registration • One Exam in November • Exam Date Mutually Scheduled with Your School</span>
+              </motion.div>
+
               <motion.h1 
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -92,7 +103,7 @@ export default function HomeHero({ onOpenModal }: HomeHeroProps) {
 
               {/* Sub-headline */}
               <p className="text-slate-700 font-semibold text-base sm:text-lg leading-relaxed max-w-xl mb-8">
-                A National Level Olympiad to Recognize, Reward &amp; Nurture Young Minds.
+                A National Level Olympiad to Recognize, Reward &amp; Nurture Young Minds. 100% Free Student Registration.
               </p>
 
               {/* 4 Feature Columns */}
@@ -251,12 +262,12 @@ export default function HomeHero({ onOpenModal }: HomeHeroProps) {
 
             {/* Highlight 3 */}
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-blue-900/60 border border-blue-500/40 flex items-center justify-center text-sky-400 shrink-0">
+              <div className="w-9 h-9 rounded-full bg-blue-900/60 border border-blue-500/40 flex items-center justify-center text-emerald-400 shrink-0">
                 <FileText className="w-4 h-4" />
               </div>
               <div>
-                <h5 className="text-xs font-bold text-white leading-tight">Two-Level Assessment</h5>
-                <p className="text-[11px] text-blue-300 font-medium leading-tight">(Prelims &amp; Mains)</p>
+                <h5 className="text-xs font-bold text-white leading-tight">Single November Exam</h5>
+                <p className="text-[11px] text-emerald-400 font-bold leading-tight">Free Registration</p>
               </div>
             </div>
 

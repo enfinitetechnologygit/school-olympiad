@@ -24,7 +24,7 @@ export default function SchoolStatsBar({ totalStudents, qualifiedCount, school }
 
       <div className="bg-white border rounded-2xl p-5 relative flex items-center justify-between shadow-sm">
         <div>
-          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Stage 2 Qualified</span>
+          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Merit Scholars</span>
           <p className="text-2xl font-black font-display text-indigo-600 mt-1">{qualifiedCount}</p>
         </div>
         <div className="bg-indigo-50 p-3 text-indigo-600 rounded-xl">
