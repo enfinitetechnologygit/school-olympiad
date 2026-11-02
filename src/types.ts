@@ -13,6 +13,9 @@ export interface School {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   createdAt: string;
   password?: string;
+  examDate?: string;
+  examTime?: string;
+  examDuration?: string;
   preExamDate?: string;
   preExamTime?: string;
   preExamDuration?: string;
@@ -28,11 +31,13 @@ export interface Student {
   mobile: string;
   parentName: string;
   parentMobile: string;
-  email: string;
+  email?: string;
   password?: string;
+  mustChangePassword?: boolean;
+  loginMobile?: string;
   schoolId: string; // References School.id
   schoolName: string;
-  paymentStatus: 'PENDING' | 'COMPLETED';
+  paymentStatus?: 'PENDING' | 'COMPLETED';
   paymentId?: string;
   paymentAmount?: number;
   paymentDate?: string;
@@ -249,6 +254,9 @@ export interface DBItem {
 }
 
 export interface ExamSchedule {
+  examDate?: string;
+  examTime?: string;
+  examDuration?: string;
   preExamDate?: string;
   preExamTime?: string;
   preExamDuration?: string;

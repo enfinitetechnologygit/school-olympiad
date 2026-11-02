@@ -21,42 +21,45 @@ export default function HomeTimeline() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="p-5 border border-slate-100 bg-slate-50 rounded-xl relative flex flex-col justify-between">
+            <span className="absolute top-2 right-2 bg-emerald-600 text-[9px] font-bold text-white uppercase tracking-wider px-2 py-0.5 rounded">
+              100% FREE
+            </span>
             <div>
-              <Calendar className="w-8 h-8 text-blue-600 mb-3" />
-              <h4 className="font-bold text-slate-900 font-display text-base">May 1 - July 15, 2026</h4>
-              <p className="text-xs text-slate-500 uppercase font-semibold tracking-wider mt-1">Registration Portal Open</p>
+              <Calendar className="w-8 h-8 text-emerald-600 mb-3" />
+              <h4 className="font-bold text-slate-900 font-display text-base">May 1 - October 31, 2026</h4>
+              <p className="text-xs text-emerald-700 uppercase font-semibold tracking-wider mt-1">Free Registration Open</p>
             </div>
-            <p className="text-xs text-slate-500 mt-3 leading-relaxed">Schools obtain authorization first, followed by students registering online.</p>
+            <p className="text-xs text-slate-500 mt-3 leading-relaxed">Schools and students register online. Registration is completely free for all students.</p>
           </div>
 
           <div className="p-5 border border-blue-200 bg-blue-50/50 rounded-xl relative flex flex-col justify-between">
-            <span className="absolute top-2 right-2 bg-blue-600 text-[9px] font-bold text-white uppercase tracking-wider px-2 py-0.5 rounded">
-              MAIN ASSAY
-            </span>
             <div>
               <Calendar className="w-8 h-8 text-blue-600 mb-3" />
-              <h4 className="font-bold text-blue-900 font-display text-base">July 30, 2026</h4>
-              <p className="text-xs text-blue-600 uppercase font-semibold tracking-wider mt-1">Stage 1 Pre-Exam Date</p>
+              <h4 className="font-bold text-blue-900 font-display text-base">Ongoing Prep</h4>
+              <p className="text-xs text-blue-600 uppercase font-semibold tracking-wider mt-1">AI Mock Exams & Study Material</p>
             </div>
-            <p className="text-xs text-slate-600 mt-3 leading-relaxed">Conducted offline/online at respective campus classrooms under teacher supervision.</p>
+            <p className="text-xs text-slate-600 mt-3 leading-relaxed">Students access curriculum syllabus and attempt unlimited online mock tests for preparation.</p>
           </div>
 
-          <div className="p-5 border border-slate-100 bg-slate-50 rounded-xl relative flex flex-col justify-between">
+          <div className="p-5 border border-amber-300 bg-amber-50/60 rounded-xl relative flex flex-col justify-between">
+            <span className="absolute top-2 right-2 bg-amber-500 text-[9px] font-bold text-white uppercase tracking-wider px-2 py-0.5 rounded">
+              MAIN EXAM
+            </span>
             <div>
-              <Calendar className="w-8 h-8 text-blue-600 mb-3" />
-              <h4 className="font-bold text-slate-900 font-display text-base">August 10, 2026</h4>
-              <p className="text-xs text-slate-500 uppercase font-semibold tracking-wider mt-1">Result & Admit Roll</p>
+              <Calendar className="w-8 h-8 text-amber-600 mb-3" />
+              <h4 className="font-bold text-slate-900 font-display text-base">November 2026</h4>
+              <p className="text-xs text-amber-700 uppercase font-semibold tracking-wider mt-1">Single Olympiad Exam</p>
             </div>
-            <p className="text-xs text-slate-500 mt-3 leading-relaxed">Publishing of list of qualified students eligible for high-stakes Mains examination.</p>
+            <p className="text-xs text-slate-600 mt-3 leading-relaxed">The exact exam date is mutually decided with each participating school campus.</p>
           </div>
 
           <div className="p-5 border border-indigo-200 bg-indigo-50/40 rounded-xl relative flex flex-col justify-between">
             <div>
               <Calendar className="w-8 h-8 text-indigo-600 mb-3" />
-              <h4 className="font-bold text-indigo-900 font-display text-base">August 25, 2026</h4>
-              <p className="text-xs text-indigo-600 uppercase font-semibold tracking-wider mt-1">Stage 2 Mains Examination</p>
+              <h4 className="font-bold text-indigo-900 font-display text-base">December 2026</h4>
+              <p className="text-xs text-indigo-600 uppercase font-semibold tracking-wider mt-1">Results & National Merit Awards</p>
             </div>
-            <p className="text-xs text-slate-600 mt-3 leading-relaxed">Hosted inside certified city centers under live online monitoring systems.</p>
+            <p className="text-xs text-slate-600 mt-3 leading-relaxed">Publishing of national merit rank lists, e-certificates, trophy distribution, and rewards.</p>
           </div>
         </div>
       </div>

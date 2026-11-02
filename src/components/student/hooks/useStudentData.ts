@@ -53,7 +53,7 @@ export function useStudentData({ user, onLogout }: UseStudentDataProps) {
       // Fetch students list to pinpoint logged-in profile
       const stRes = await fetch('/api/students');
       const stData = await stRes.json();
-      const matchedStudent = stData.find((s: Student) => s.email.toLowerCase() === user.email.toLowerCase());
+      const matchedStudent = stData.find((s: Student) => s.id === user.id);
       if (matchedStudent) {
         setStudent(matchedStudent);
         setSelectedSyllabusId(mapClassToGroup(matchedStudent.classLevel));

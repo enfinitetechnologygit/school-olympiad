@@ -35,9 +35,9 @@ export default function HomeHeader({ onOpenModal }: HomeHeaderProps) {
       )}
 
       {/* High-fidelity Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm px-6 py-4 flex items-center justify-between no-print relative">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm px-4 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between no-print relative">
         <div className="flex items-center shrink-0">
-          <img src="/logo.png?v=3" alt="Enfinite Logo" className="h-12 md:h-14 w-auto object-contain" />
+          <img src="/logo.png?v=3" alt="Enfinite Logo" className="h-8 sm:h-10 w-auto object-contain" />
         </div>
 
         {/* Centered Navigation Links */}

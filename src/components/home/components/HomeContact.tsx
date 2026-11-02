@@ -26,7 +26,7 @@ export default function HomeContact() {
               </div>
               <div>
                 <p className="text-xs text-slate-400">Academic Coordinator Email</p>
-                <p className="text-sm font-semibold">deeksha.eno@enfinitenationalolympiad.com</p>
+                <p className="text-sm font-semibold">connect@enfiniteolympiad.com</p>
               </div>
             </div>
 

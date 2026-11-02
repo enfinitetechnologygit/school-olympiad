@@ -12,16 +12,16 @@ export default function QualifiersTab({ students }: QualifiersTabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-bold font-display text-slate-950">Mains Stage 2 Qualified Scholar Pool</h3>
+        <h3 className="text-lg font-bold font-display text-slate-950">Merit Qualified Scholar Pool</h3>
         <p className="text-xs text-slate-500 mt-1">
-          Students listed here have achieved a high-scale practice/pre-exam mock score at or above <strong>60%</strong> and are authorized for Mains Stage 2 final.
+          Students listed here have achieved an outstanding score at or above <strong>60%</strong> in Olympiad evaluation.
         </p>
       </div>
 
       {qualifiedStudents.length === 0 ? (
         <div className="p-8 bg-white text-center rounded-xl border border-dashed space-y-2">
           <Award className="w-10 h-10 text-slate-300 mx-auto" />
-          <p className="text-sm font-semibold text-slate-500">Currently no students under this campus coordinates hit the Stage 2 criteria threshold.</p>
+          <p className="text-sm font-semibold text-slate-500">Currently no students under this campus have hit the 60% merit threshold.</p>
         </div>
       ) : (
         <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">

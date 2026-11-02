@@ -152,7 +152,7 @@ export async function sendLoginCredentials(email: string, role: string, id: stri
           </table>
         </div>
         
-        <p>You can now use these credentials to log in to the secure portal. If you are a student, please proceed to pay the ₹200 fee to generate your Admit Card and activate your learning prep library.</p>
+        <p>You can now use these credentials to log in to your secure portal. Registration is completely FREE for all students. Log in to access your official Admit Card, November exam schedule, and learning prep library.</p>
         <p style="margin-bottom: 0;">Best regards,<br/><strong>Enfinite Olympiad Board Desk</strong></p>
       </div>
       <div style="text-align: center; font-size: 11px; color: #94a3b8; background-color: #f8fafc; padding: 15px; border-top: 1px solid #e2e8f0;">

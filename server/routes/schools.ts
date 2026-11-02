@@ -150,16 +150,22 @@ router.post("/:id/schedule", async (req, res) => {
     return res.status(404).json({ error: "School not found." });
   }
 
-  const { preExamDate, preExamTime, preExamDuration } = req.body;
-  if (!preExamDate || !preExamTime || !preExamDuration) {
-    return res.status(400).json({ error: "Missing required fields: preExamDate, preExamTime, preExamDuration." });
-  }
-  const isModification = !!(school.preExamDate || school.preExamTime || school.preExamDuration);
-  const statusWord = isModification ? "modified" : "created";
+  const examDate = req.body.examDate || req.body.preExamDate;
+  const examTime = req.body.examTime || req.body.preExamTime;
+  const examDuration = req.body.examDuration || req.body.preExamDuration;
 
-  school.preExamDate = preExamDate;
-  school.preExamTime = preExamTime;
-  school.preExamDuration = String(preExamDuration);
+  if (!examDate || !examTime || !examDuration) {
+    return res.status(400).json({ error: "Missing required fields: examDate, examTime, examDuration." });
+  }
+  const isModification = !!(school.examDate || school.preExamDate);
+  const statusWord = isModification ? "modified" : "scheduled";
+
+  school.examDate = examDate;
+  school.examTime = examTime;
+  school.examDuration = String(examDuration);
+  school.preExamDate = examDate;
+  school.preExamTime = examTime;
+  school.preExamDuration = String(examDuration);
 
   schools[schoolIdx] = school;
   saveFallbackData("db_schools.json", schools);
@@ -170,6 +176,9 @@ router.post("/:id/schedule", async (req, res) => {
         { id: targetId },
         {
           $set: {
+            examDate: school.examDate,
+            examTime: school.examTime,
+            examDuration: school.examDuration,
             preExamDate: school.preExamDate,
             preExamTime: school.preExamTime,
             preExamDuration: school.preExamDuration
@@ -182,20 +191,20 @@ router.post("/:id/schedule", async (req, res) => {
   }
 
   // Send notifications asynchronously
-  const subject = `Enfinite National Olympiad - Pre-Exam Schedule ${isModification ? "Updated" : "Scheduled"}`;
+  const subject = `Enfinite National Olympiad - Exam Schedule ${isModification ? "Updated" : "Scheduled"}`;
 
   const coordinatorHtml = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
         <div style="background-color: #2563eb; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; color: white;">
-          <h2 style="margin: 0; font-size: 20px;">Pre-Exam Schedule ${isModification ? "Updated" : "Scheduled"}</h2>
+          <h2 style="margin: 0; font-size: 20px;">November Olympiad Exam Schedule ${isModification ? "Updated" : "Scheduled"}</h2>
         </div>
         <div style="padding: 20px; color: #334155; line-height: 1.6;">
           <p>Dear Coordinator,</p>
-          <p>The Pre-Exam schedule for <strong>${school.name}</strong> has been ${statusWord} by the Administrator.</p>
+          <p>The November Olympiad Exam schedule for <strong>${school.name}</strong> has been ${statusWord} by the Administrator.</p>
           <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0 0 8px 0;"><strong>Date:</strong> ${preExamDate}</p>
-            <p style="margin: 0 0 8px 0;"><strong>Start Time:</strong> ${preExamTime}</p>
-            <p style="margin: 0;"><strong>Duration:</strong> ${preExamDuration} minutes</p>
+            <p style="margin: 0 0 8px 0;"><strong>Date:</strong> ${examDate}</p>
+            <p style="margin: 0 0 8px 0;"><strong>Start Time:</strong> ${examTime}</p>
+            <p style="margin: 0;"><strong>Duration:</strong> ${examDuration} minutes</p>
           </div>
           <p>Please log in to the School Dashboard to view additional details.</p>
           <p style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 14px; color: #64748b;">
@@ -204,7 +213,7 @@ router.post("/:id/schedule", async (req, res) => {
         </div>
       </div>
     `;
-  const coordinatorText = `Dear Coordinator,\n\nThe Pre-Exam schedule for ${school.name} has been ${statusWord} by the Administrator.\n\nDate: ${preExamDate}\nStart Time: ${preExamTime}\nDuration: ${preExamDuration} minutes\n\nPlease log in to the School Dashboard for more details.\n\nBest regards,\nEnfinite Olympiad Board`;
+  const coordinatorText = `Dear Coordinator,\n\nThe November Olympiad Exam schedule for ${school.name} has been ${statusWord} by the Administrator.\n\nDate: ${examDate}\nStart Time: ${examTime}\nDuration: ${examDuration} minutes\n\nPlease log in to the School Dashboard for more details.\n\nBest regards,\nEnfinite Olympiad Board`;
 
   sendNotificationEmail(school.email, subject, coordinatorHtml, coordinatorText).catch((e) => {
     console.error("Error sending school schedule update email:", e.message);
@@ -215,24 +224,24 @@ router.post("/:id/schedule", async (req, res) => {
     const studentHtml = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
           <div style="background-color: #2563eb; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; color: white;">
-            <h2 style="margin: 0; font-size: 20px;">Your Olympiad Pre-Exam Schedule ${isModification ? "Updated" : "Scheduled"}</h2>
+            <h2 style="margin: 0; font-size: 20px;">Your Olympiad Exam Schedule ${isModification ? "Updated" : "Scheduled"}</h2>
           </div>
           <div style="padding: 20px; color: #334155; line-height: 1.6;">
             <p>Dear ${student.name},</p>
-            <p>The Pre-Exam schedule for your school <strong>${school.name}</strong> has been ${statusWord}.</p>
+            <p>The November Olympiad Exam schedule for your school <strong>${school.name}</strong> has been ${statusWord}.</p>
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 20px 0;">
-              <p style="margin: 0 0 8px 0;"><strong>Date:</strong> ${preExamDate}</p>
-              <p style="margin: 0 0 8px 0;"><strong>Start Time:</strong> ${preExamTime}</p>
-              <p style="margin: 0;"><strong>Duration:</strong> ${preExamDuration} minutes</p>
+              <p style="margin: 0 0 8px 0;"><strong>Date:</strong> ${examDate}</p>
+              <p style="margin: 0 0 8px 0;"><strong>Start Time:</strong> ${examTime}</p>
+              <p style="margin: 0;"><strong>Duration:</strong> ${examDuration} minutes</p>
             </div>
-            <p>You can now view and download your Stage 1 Admit Card from your Student Dashboard.</p>
+            <p>You can now view and download your Official Hall Ticket from your Student Dashboard.</p>
             <p style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 14px; color: #64748b;">
               Best regards,<br/>Enfinite Olympiad Board
             </p>
           </div>
         </div>
       `;
-    const studentText = `Dear ${student.name},\n\nThe Pre-Exam schedule for your school ${school.name} has been ${statusWord}.\n\nDate: ${preExamDate}\nStart Time: ${preExamTime}\nDuration: ${preExamDuration} minutes\n\nYou can now view and download your Stage 1 Admit Card from your Student Dashboard.\n\nBest regards,\nEnfinite Olympiad Board`;
+    const studentText = `Dear ${student.name},\n\nThe November Olympiad Exam schedule for your school ${school.name} has been ${statusWord}.\n\nDate: ${examDate}\nStart Time: ${examTime}\nDuration: ${examDuration} minutes\n\nYou can now view and download your Official Hall Ticket from your Student Dashboard.\n\nBest regards,\nEnfinite Olympiad Board`;
 
     sendNotificationEmail(student.email, subject, studentHtml, studentText).catch((e) => {
       console.error(`Error sending student schedule update email to ${student.email}:`, e.message);

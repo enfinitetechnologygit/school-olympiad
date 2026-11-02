@@ -24,12 +24,12 @@ export default function HomeHighlights() {
           </div>
         </div>
         <div className="flex gap-4 items-start">
-          <div className="bg-blue-50 text-blue-600 p-3 rounded-lg">
+          <div className="bg-emerald-50 text-emerald-600 p-3 rounded-lg">
             <Layers className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900 font-display">National Staged Assessment</h3>
-            <p className="text-sm text-slate-500 mt-1">Participate alongside thousands of students nationwide to achieve top state credentials.</p>
+            <h3 className="text-base font-bold text-slate-900 font-display">100% Free Registration</h3>
+            <p className="text-sm text-slate-500 mt-1">Single exam conducted in November with dates mutually decided with each participating school.</p>
           </div>
         </div>
       </div>

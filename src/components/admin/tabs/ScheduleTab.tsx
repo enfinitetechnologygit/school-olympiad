@@ -121,16 +121,16 @@ export default function ScheduleTab({
   return (
     <div className="space-y-8 max-w-6xl mx-auto animate-fade-in pb-12">
       
-      {/* TOP: GLOBAL STAGE 2 MAINS SCHEDULE */}
+      {/* TOP: NOVEMBER OLYMPIAD MASTER SCHEDULE OVERVIEW */}
       <div className="bg-white border rounded-2xl p-6 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
           <div>
-            <h3 className="text-lg font-bold font-display text-slate-950">Global Stage 2 (Mains) Schedule</h3>
-            <p className="text-xs text-slate-500 mt-1">Configure official dates, timings, and durations for the global Stage 2 Mains Exam (held at external venues).</p>
+            <h3 className="text-lg font-bold font-display text-slate-950">November Olympiad Master Schedule</h3>
+            <p className="text-xs text-slate-500 mt-1">There is only one Olympiad exam, conducted in November. Set and update the exact exam date mutually with each participating school below.</p>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold font-mono tracking-wider text-[10px] rounded-full uppercase">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold font-mono tracking-wider text-[10px] rounded-full uppercase">
             <Calendar className="w-3.5 h-3.5" />
-            Mains Controller
+            November Exam Controller
           </div>
         </div>
 
@@ -148,118 +148,17 @@ export default function ScheduleTab({
           </div>
         )}
 
-        <form onSubmit={handleSaveSchedule} className="space-y-6 text-xs text-slate-700">
-          <div className="bg-slate-50/60 border border-slate-200 p-5 rounded-2xl space-y-4 max-w-2xl">
-            <div className="flex items-center gap-2 border-b pb-2">
-              <div className="bg-amber-500 text-white p-1 rounded-lg">
-                <span className="font-bold px-1 text-[10px]">S2</span>
-              </div>
-              <h4 className="font-extrabold text-slate-900 text-sm font-display">Stage 2: Main Exam (External Venue)</h4>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="font-bold block mb-1">Mains Exam Date</label>
-                <DatePicker
-                  value={formatDateToInput(schedule.mainExamDate)}
-                  onChange={(val) => setSchedule(prev => ({ ...prev, mainExamDate: val }))}
-                  placeholder="Mains Exam Date"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1">Exam Start Time</label>
-                <input
-                  id="input-main-time"
-                  type="text"
-                  placeholder="e.g. 10:00 AM"
-                  value={schedule.mainExamTime || ''}
-                  onChange={(e) => setSchedule(prev => ({ ...prev, mainExamTime: e.target.value }))}
-                  className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-lg p-2.5 text-slate-900 font-semibold outline-none transition text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1">Duration (Minutes)</label>
-                <input
-                  id="input-main-duration"
-                  type="number"
-                  min="10"
-                  placeholder="e.g. 180"
-                  value={schedule.mainExamDuration || ''}
-                  onChange={(e) => setSchedule(prev => ({ ...prev, mainExamDuration: e.target.value }))}
-                  className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-lg p-2.5 text-slate-900 font-semibold outline-none transition text-xs"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t flex flex-col sm:flex-row justify-between items-center gap-4 max-w-2xl text-xs">
-            <button
-              type="button"
-              id="btn-schedule-clear"
-              onClick={async () => {
-                const cleared = {
-                  ...schedule,
-                  mainExamDate: '',
-                  mainExamTime: '',
-                  mainExamDuration: ''
-                };
-                setScheduleSaving(true);
-                setScheduleSuccess('');
-                setScheduleError('');
-                try {
-                  const res = await fetch('/api/exam-schedule', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(cleared)
-                  });
-                  const data = await res.json();
-                  if (res.ok && data.status === 'success') {
-                    setScheduleSuccess('Stage 2 Mains schedule settings reset/cleared successfully.');
-                    setSchedule(data.schedule);
-                  } else {
-                    setScheduleError('Failed to clear Mains schedule.');
-                  }
-                } catch (err: any) {
-                  setScheduleError(err.message || 'Error occurred clearing schedule.');
-                } finally {
-                  setScheduleSaving(false);
-                }
-              }}
-              className="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 border rounded-xl text-slate-700 font-bold tracking-wide transition cursor-pointer select-none"
-            >
-              Clear Mains Schedule Details
-            </button>
-
-            <button
-              type="submit"
-              id="btn-schedule-save"
-              disabled={scheduleSaving}
-              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 border border-indigo-500 text-white font-extrabold text-sm rounded-xl tracking-wide shadow-md flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {scheduleSaving ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Saving Timings...</span>
-                </>
-              ) : (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>Publish Stage 2 Schedule & Release Admit Cards</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+        <div className="p-4 bg-blue-50/60 border border-blue-200 rounded-2xl text-xs text-blue-900 leading-relaxed font-medium">
+          <strong>Mutual Scheduling Note:</strong> Each participating school can have a customized exam date in November. Select any school from the directory table below and click <strong>"Edit Schedule"</strong> to set or update its official exam date, start time, and duration.
+        </div>
       </div>
 
-      {/* BOTTOM: SCHOOL PRE-EXAM SCHEDULES LIST & FILTERS */}
+      {/* BOTTOM: SCHOOL NOVEMBER EXAM SCHEDULES LIST & FILTERS */}
       <div className="bg-white border rounded-2xl p-6 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
           <div>
-            <h3 className="text-lg font-bold font-display text-slate-950">School Pre-Exam Schedules</h3>
-            <p className="text-xs text-slate-500 mt-1">Manage independent Pre-Exam schedules for each approved school. Students will only see schedules assigned to their registered school.</p>
+            <h3 className="text-lg font-bold font-display text-slate-950">School November Exam Schedules</h3>
+            <p className="text-xs text-slate-500 mt-1">Manage independent November exam schedules for each approved school. Students will see the exact schedule set for their school.</p>
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 font-bold font-mono tracking-wider text-[10px] rounded-full uppercase">
             <Building className="w-3.5 h-3.5" />

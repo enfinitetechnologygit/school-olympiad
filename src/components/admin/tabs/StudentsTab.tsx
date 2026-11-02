@@ -191,11 +191,11 @@ export default function StudentsTab({
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className="bg-slate-900 text-white font-extrabold uppercase text-[10px] tracking-widest">
-                <th className="p-4 pl-6 min-w-[200px]">Candidate Details</th>
-                <th className="p-4 min-w-[220px]">Stage 1 (Campus & Release)</th>
-                <th className="p-4 text-center min-w-[170px]">Mains Selection</th>
-                <th className="p-4 min-w-[220px]">Stage 2 Seating Location</th>
-                <th className="p-4 pr-6 text-right min-w-[160px]">Stage 2 Mains Admit</th>
+                <th className="p-4 pl-6 min-w-[220px]">Candidate Details</th>
+                <th className="p-4 min-w-[200px]">Exam Venue & Schedule</th>
+                <th className="p-4 text-center min-w-[170px]">Merit Status</th>
+                <th className="p-4 min-w-[220px]">Assigned Exam Center</th>
+                <th className="p-4 pr-6 text-right min-w-[160px]">Official Hall Ticket</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
@@ -207,7 +207,7 @@ export default function StudentsTab({
                 filteredStudents.map((st, i) => (
                   <tr key={i} className="hover:bg-blue-50/20 transition duration-150">
                     
-                    {/* Column 1: Candidate Details & Fee */}
+                    {/* Column 1: Candidate Details */}
                     <td className="p-4 pl-6 space-y-1.5">
                       <p className="font-black text-slate-900 text-base">{st.name}</p>
                       <div className="font-mono text-xs text-slate-500 flex items-center gap-1.5">
@@ -217,20 +217,9 @@ export default function StudentsTab({
                       </div>
                       <div className="text-xs text-slate-500 font-semibold">{st.email}</div>
                       <div className="pt-1.5 flex flex-wrap items-center gap-2">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          st.paymentStatus === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
-                        }`}>
-                          {st.paymentStatus}
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          FREE REGISTRATION
                         </span>
-                        {st.paymentStatus !== 'COMPLETED' && (
-                          <button
-                            type="button"
-                            onClick={() => handleApproveCandidatePayment(st.id)}
-                            className="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-xl font-extrabold transition cursor-pointer shadow-sm"
-                          >
-                            Approve Cash
-                          </button>
-                        )}
                         {st.score !== undefined ? (
                           <span className="bg-blue-50 text-blue-700 px-2.5 py-1 border border-blue-150 rounded-full text-[10px] font-black">
                             Score: {st.score}%
@@ -260,49 +249,18 @@ export default function StudentsTab({
                       </div>
                     </td>
 
-                    {/* Column 2: Stage 1 Venue & Release */}
+                    {/* Column 2: Venue & Schedule */}
                     <td className="p-4 space-y-2">
                       <div className="text-slate-650 leading-tight">
-                        <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider">Exam Venue (Same School)</span>
+                        <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider">Host School</span>
                         <span className="font-extrabold text-slate-800 text-sm block max-w-[210px] truncate mt-1">{st.schoolName}</span>
                       </div>
-                      
-                      {st.paymentStatus !== 'COMPLETED' ? (
-                        <span className="text-slate-450 text-xs font-bold italic block mt-1">🔒 Restricted (Awaiting Payment)</span>
-                      ) : (
-                        <div className="pt-1 flex items-center gap-2">
-                          {st.stage1AdmitReleased ? (
-                            <>
-                              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-300 font-mono text-xs rounded-lg font-black">
-                                Released: {st.stage1AdmitNumber || "PENDING"}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleStage1Release(st.id, false)}
-                                className="text-[10px] bg-slate-100 hover:bg-slate-200 hover:text-rose-700 text-slate-500 border border-slate-200 font-extrabold px-2.5 py-1 rounded-xl transition cursor-pointer"
-                              >
-                                Lock
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <span className="px-2.5 py-1 bg-slate-50 text-slate-450 border border-slate-200 text-xs rounded-lg font-bold">
-                                Draft (Locked)
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleStage1Release(st.id, true)}
-                                className="text-[10px] bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-3 py-1 rounded-xl transition cursor-pointer shadow-sm"
-                              >
-                                Release Admit
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      )}
+                      <span className="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-bold rounded-md">
+                        Exam: November 2026
+                      </span>
                     </td>
 
-                    {/* Column 3: Mains Selection */}
+                    {/* Column 3: Merit Selection */}
                     <td className="p-4 text-center">
                       <div className="inline-flex flex-col gap-2 items-center">
                         <span className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-1 ${
@@ -310,8 +268,8 @@ export default function StudentsTab({
                           st.qualificationStatus === 'NOT_QUALIFIED' ? 'bg-rose-50 text-rose-700 border border-rose-250' :
                           'bg-slate-50 text-slate-600 border border-slate-200'
                         }`}>
-                          {st.qualificationStatus === 'QUALIFIED' ? 'SELECTED (STAGE 2)' : 
-                           st.qualificationStatus === 'NOT_QUALIFIED' ? 'PARTICIPATED ONLY' : 'TBD (MOCK EVAL)'}
+                          {st.qualificationStatus === 'QUALIFIED' ? 'MERIT QUALIFIED' : 
+                           st.qualificationStatus === 'NOT_QUALIFIED' ? 'PARTICIPATED ONLY' : 'REGISTERED (PENDING EXAM)'}
                         </span>
                         
                         <div className="flex gap-2">
@@ -337,64 +295,50 @@ export default function StudentsTab({
                       </div>
                     </td>
 
-                    {/* Column 4: Stage 2 Center Allocation */}
+                    {/* Column 4: Center Allocation */}
                     <td className="p-4">
-                      {st.qualificationStatus !== 'QUALIFIED' ? (
-                        <span className="text-slate-450 font-bold italic text-xs">🔒 Locked (Candidate Unqualified)</span>
-                      ) : (
-                        <div className="space-y-1.5 max-w-[210px]">
-                          <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider mb-0.5">Exam Center Seating</span>
-                          <Combobox
-                            options={[{ value: "", label: "-- No Location Scheduled --" }, ...centers.map((center) => ({ value: center.id, label: `${center.name} (${center.city})` }))] }
-                            value={st.examCenterId || ""}
-                            onChange={(val) => handleAllocateCenter(st.id, val)}
-                            placeholder="Select Center..."
-                          />
-                        </div>
-                      )}
+                      <div className="space-y-1.5 max-w-[210px]">
+                        <span className="text-xs text-slate-400 font-extrabold block uppercase tracking-wider mb-0.5">Exam Center Seating</span>
+                        <Combobox
+                          options={[{ value: "", label: "-- Host School Venue --" }, ...centers.map((center) => ({ value: center.id, label: `${center.name} (${center.city})` }))] }
+                          value={st.examCenterId || ""}
+                          onChange={(val) => handleAllocateCenter(st.id, val)}
+                          placeholder="Select Center..."
+                        />
+                      </div>
                     </td>
 
-                    {/* Column 5: Stage 2 Admit Release Toggle */}
+                    {/* Column 5: Admit Card Release */}
                     <td className="p-4 text-right pr-6">
-                      {st.qualificationStatus !== 'QUALIFIED' ? (
-                        <span className="text-slate-450 font-bold italic text-xs">🔒 Stage 2 Disabled</span>
-                      ) : (
-                        <div className="flex flex-col items-end gap-1.5">
-                          {st.stage2AdmitReleased ? (
-                            <>
-                              <span className="inline-block px-2.5 py-1.5 bg-blue-50 text-blue-700 border border-blue-300 font-mono text-[10px] rounded-lg font-black">
-                                Released: {st.stage2AdmitNumber || "ENO-S2-RANDOM"}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => handleStage2Release(st.id, false)}
-                                className="text-[10px] bg-slate-100 hover:bg-slate-200 hover:text-rose-700 text-slate-500 border border-slate-200 font-extrabold px-2.5 py-1 rounded-xl transition cursor-pointer"
-                              >
-                                Lock S2 Card
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <span className="inline-block px-2.5 py-1.5 bg-slate-50 text-slate-500 border border-slate-200 text-[10px] rounded-lg font-bold">
-                                Draft {st.examCenterId ? "(Seated)" : "(No Seat)"}
-                              </span>
-                              <button
-                                type="button"
-                                disabled={!st.examCenterId}
-                                onClick={() => handleStage2Release(st.id, true)}
-                                title={!st.examCenterId ? "Assign an exam center before releasing admit card" : ""}
-                                className={`text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition cursor-pointer ${
-                                  st.examCenterId 
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm' 
-                                    : 'bg-slate-50 text-slate-300 border border-slate-200 cursor-not-allowed'
-                                }`}
-                              >
-                                Release S2 Mains
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      )}
+                      <div className="flex flex-col items-end gap-1.5">
+                        {st.admitCardNumber || st.stage1AdmitReleased ? (
+                          <>
+                            <span className="inline-block px-2.5 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-300 font-mono text-[10px] rounded-lg font-black">
+                              Issued: {st.admitCardNumber || st.stage1AdmitNumber || "ENO-2026-HALL"}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleStage1Release(st.id, false)}
+                              className="text-[10px] bg-slate-100 hover:bg-slate-200 hover:text-rose-700 text-slate-500 border border-slate-200 font-extrabold px-2.5 py-1 rounded-xl transition cursor-pointer"
+                            >
+                              Revoke
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="inline-block px-2.5 py-1.5 bg-slate-50 text-slate-500 border border-slate-200 text-[10px] rounded-lg font-bold">
+                              Auto-Generated
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleStage1Release(st.id, true)}
+                              className="text-[10px] bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-3 py-1.5 rounded-xl transition cursor-pointer shadow-sm"
+                            >
+                              Release Hall Ticket
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
 
                   </tr>

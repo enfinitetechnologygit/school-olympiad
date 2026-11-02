@@ -16,10 +16,155 @@ interface ResetTokenData {
 
 const resetTokensMap = new Map<string, ResetTokenData>();
 
+// Both identifier and source are limited, including attempts against unknown numbers.
+const attempts = new Map<string, { count: number; until: number }>();
+const LIMIT_WINDOW = 15 * 60 * 1000;
+function limited(key: string): boolean {
+  const entry = attempts.get(key);
+  if (entry && entry.until > Date.now()) return entry.count >= 5;
+  attempts.delete(key);
+  return false;
+}
+function failed(key: string) {
+  const entry = attempts.get(key);
+  if (!entry || entry.until <= Date.now()) attempts.set(key, { count: 1, until: Date.now() + LIMIT_WINDOW });
+  else entry.count++;
+}
+function normalizeMobile(value: unknown): string {
+  return typeof value === "string" ? value.replace(/\D/g, "").replace(/^(?:91|0)(?=\d{10}$)/, "") : "";
+}
+async function studentAuthentication(req: any, res: any, changeOnly = false) {
+  const mobile = req.body.mobile;
+  const password = changeOnly ? req.body.currentPassword : req.body.password;
+  if (typeof mobile !== "string" || !/^\d{10}$/.test(mobile) || typeof password !== "string") {
+    return res.status(400).json({ error: "Enter your 10-digit mobile number and password." });
+  }
+  const keys = [`mobile:${mobile}`, `ip:${req.ip}`];
+  if (keys.some(limited)) return res.status(429).json({ error: "Too many attempts. Try again in 15 minutes." });
+  const records = dbConnected && db ? await db.collection("students").find({}).toArray() : students;
+  const matches = records.filter(s => normalizeMobile(s.mobile) === mobile);
+  if (matches.length !== 1) {
+    keys.forEach(failed);
+    return res.status(401).json({ error: "Unable to sign in. Check your credentials or contact the Olympiad office." });
+  }
+  const student: any = matches[0];
+  const legacyUser = dbConnected && db && student.email ? await db.collection("users").findOne({ email: student.email, role: "student" }) : null;
+  const hash = legacyUser?.password || student.password;
+  if (!hash || !bcryptjs.compareSync(password, hash)) {
+    keys.forEach(failed);
+    return res.status(401).json({ error: "Unable to sign in. Check your credentials or contact the Olympiad office." });
+  }
+  const newPassword = req.body.newPassword;
+  if (changeOnly || (student.mustChangePassword && newPassword)) {
+    if (typeof newPassword !== "string" || newPassword.length < 6 || bcryptjs.compareSync(newPassword, hash)) {
+      return res.status(400).json({ error: "Choose a different password of at least 6 characters." });
+    }
+    const newHash = bcryptjs.hashSync(newPassword, 10);
+    if (dbConnected && db) {
+      await db.collection("students").updateOne({ id: student.id }, { $set: { password: newHash, mustChangePassword: false } });
+      if (legacyUser) await db.collection("users").updateOne({ _id: legacyUser._id }, { $set: { password: newHash } });
+    }
+    const cached = students.find(s => s.id === student.id);
+    if (cached) { cached.password = newHash; cached.mustChangePassword = false; }
+    student.mustChangePassword = false;
+    saveFallbackData("db_students.json", students);
+    if (changeOnly) { keys.forEach(k => attempts.delete(k)); return res.json({ status: "success", message: "Password updated." }); }
+  }
+  if (student.mustChangePassword) return res.json({ status: "password_change_required" });
+  keys.forEach(k => attempts.delete(k));
+  const { password: _password, ...details } = student;
+  return res.json({ status: "success", user: { role: "student", id: student.id, name: student.name, mobile: student.mobile, email: student.email, details } });
+}
+
+// Offline recovery is available only with a persistent database and a non-default admin credential.
+async function authorizeResetAdmin(req: any, res: any) {
+  if (!dbConnected || !db) { res.status(503).json({ error: "Password reset requests require the database to be online." }); return null; }
+  const key = `reset-admin:${req.ip}`;
+  if (limited(key)) { res.status(429).json({ error: "Too many attempts. Try again later." }); return null; }
+  const { adminEmail, adminPassword, recoveryAdminSecret } = req.body;
+  const configuredSecret = process.env.ENO_RECOVERY_ADMIN_SECRET;
+  if (!configuredSecret || configuredSecret.length < 32) { res.status(503).json({ error: "Admin reset authorization is not configured." }); return null; }
+  const expected = Buffer.from(configuredSecret);
+  const supplied = Buffer.from(typeof recoveryAdminSecret === "string" ? recoveryAdminSecret : "");
+  if (supplied.length !== expected.length || !crypto.timingSafeEqual(supplied, expected)) { failed(key); res.status(401).json({ error: "Invalid reset authorization." }); return null; }
+  if (typeof adminEmail !== "string" || typeof adminPassword !== "string") { res.status(400).json({ error: "Admin credentials are required." }); return null; }
+  const admin = await db.collection("users").findOne({ email: adminEmail.trim().toLowerCase(), role: "admin" });
+  if (!admin?.password || !bcryptjs.compareSync(adminPassword, admin.password) || bcryptjs.compareSync("admin123", admin.password)) {
+    failed(key); res.status(401).json({ error: "A non-default administrator credential is required." }); return null;
+  }
+  attempts.delete(key);
+  return admin;
+}
+
+router.post("/student-reset/request", async (req, res, next) => {
+  try {
+    if (!dbConnected || !db) return res.status(503).json({ error: "Reset requests are temporarily unavailable. Contact the Olympiad office directly." });
+    const { mobile } = req.body;
+    if (typeof mobile !== "string" || !/^\d{10}$/.test(mobile)) return res.status(400).json({ error: "Enter a 10-digit mobile number." });
+    const key = `reset-request:${req.ip}`;
+    if (limited(key)) return res.status(429).json({ error: "Too many requests. Try again later." });
+    failed(key);
+    await db.collection("student_reset_requests").insertOne({ requestId: crypto.randomUUID(), mobile, status: "pending", createdAt: new Date() });
+    return res.json({ message: "Your request has been recorded. Contact the Olympiad office for identity verification." });
+  } catch (err) { next(err); }
+});
+
+router.post("/student-reset/admin/list", async (req, res, next) => {
+  try {
+    const admin = await authorizeResetAdmin(req, res); if (!admin || !db) return;
+    const requests = await db.collection("student_reset_requests").find({ status: "pending" }, { projection: { _id: 0, requestId: 1, mobile: 1, createdAt: 1 } }).sort({ createdAt: -1 }).limit(100).toArray();
+    res.set("Cache-Control", "no-store"); return res.json({ requests });
+  } catch (err) { next(err); }
+});
+
+router.post("/student-reset/admin/issue", async (req, res, next) => {
+  try {
+    const admin = await authorizeResetAdmin(req, res); if (!admin || !db) return;
+    const { requestId, verificationNote } = req.body;
+    if (typeof requestId !== "string" || typeof verificationNote !== "string" || verificationNote.trim().length < 10 || verificationNote.length > 500) return res.status(400).json({ error: "Record how the student's identity was verified (at least 10 characters)." });
+    const request = await db.collection("student_reset_requests").findOne({ requestId, status: "pending" });
+    if (!request) return res.status(404).json({ error: "Pending request not found." });
+    const allStudents = await db.collection("students").find({}).toArray();
+    const matches = allStudents.filter(s => normalizeMobile(s.mobile) === request.mobile);
+    if (matches.length !== 1) return res.status(409).json({ error: "Mobile number is missing or ambiguous. Resolve the student records before issuing a credential." });
+    const claimed = await db.collection("student_reset_requests").findOneAndUpdate({ requestId, status: "pending" }, { $set: { status: "issued", verifiedBy: admin.email, verificationNote: verificationNote.trim(), verifiedAt: new Date() } });
+    if (!claimed) return res.status(409).json({ error: "This request has already been processed." });
+    const credential = crypto.randomBytes(32).toString("hex");
+    const credentialHash = crypto.createHash("sha256").update(credential).digest("hex");
+    await db.collection("student_reset_credentials").deleteMany({ studentId: matches[0].id });
+    await db.collection("student_reset_credentials").insertOne({ credentialHash, studentId: matches[0].id, expiresAt: new Date(Date.now() + 30 * 60 * 1000), used: false });
+    res.set("Cache-Control", "no-store"); return res.json({ credential, expiresInMinutes: 30 });
+  } catch (err) { next(err); }
+});
+
+router.post("/student-reset/redeem", async (req, res, next) => {
+  try {
+    if (!dbConnected || !db) return res.status(503).json({ error: "Password reset is temporarily unavailable." });
+    const { mobile, credential, newPassword } = req.body;
+    if (typeof mobile !== "string" || !/^\d{10}$/.test(mobile) || typeof credential !== "string" || !/^[a-f0-9]{64}$/.test(credential) || typeof newPassword !== "string" || newPassword.length < 6) return res.status(400).json({ error: "Enter your mobile number, reset credential, and a new password of at least 6 characters." });
+    const keys = [`reset-mobile:${mobile}`, `reset-ip:${req.ip}`];
+    if (keys.some(limited)) return res.status(429).json({ error: "Too many attempts. Try again later." });
+    const matches = (await db.collection("students").find({}).toArray()).filter(s => normalizeMobile(s.mobile) === mobile);
+    if (matches.length !== 1) { keys.forEach(failed); return res.status(400).json({ error: "Invalid or expired reset credential." }); }
+    const student = matches[0];
+    const credentialHash = crypto.createHash("sha256").update(credential).digest("hex");
+    const consumed = await db.collection("student_reset_credentials").findOneAndUpdate({ credentialHash, studentId: student.id, used: false, expiresAt: { $gt: new Date() } }, { $set: { used: true, usedAt: new Date() } });
+    if (!consumed) { keys.forEach(failed); return res.status(400).json({ error: "Invalid or expired reset credential." }); }
+    const passwordHash = bcryptjs.hashSync(newPassword, 10);
+    await db.collection("students").updateOne({ id: student.id }, { $set: { password: passwordHash, mustChangePassword: false } });
+    if (student.email) await db.collection("users").updateOne({ email: student.email, role: "student" }, { $set: { password: passwordHash } });
+    const cached = students.find(s => s.id === student.id);
+    if (cached) { cached.password = passwordHash; cached.mustChangePassword = false; }
+    keys.forEach(k => attempts.delete(k));
+    return res.json({ message: "Password updated. You can now sign in." });
+  } catch (err) { next(err); }
+});
+
 router.post("/login", async (req, res, next) => {
   try {
     const { role, email, password } = req.body;
 
+    if (role === "student") return await studentAuthentication(req, res);
     if (!email || !password || !role) {
       return res.status(400).json({ error: "Missing login details: email, password, and role are required." });
     }
@@ -37,7 +182,7 @@ router.post("/login", async (req, res, next) => {
             if (role === "school") {
               extraDetails = schools.find(s => s.email.toLowerCase() === email.toLowerCase()) || {};
             } else if (role === "student") {
-              extraDetails = students.find(s => s.email.toLowerCase() === email.toLowerCase()) || {};
+              extraDetails = students.find(s => s.email?.toLowerCase() === email.toLowerCase()) || {};
             }
             return res.json({
               status: "success",
@@ -67,19 +212,6 @@ router.post("/login", async (req, res, next) => {
       return res.status(401).json({ error: "Invalid School Credentials. Please verify your email and password." });
     }
 
-    if (role === "student") {
-      const student = students.find(s => s.email.toLowerCase() === email.trim().toLowerCase());
-      if (student) {
-        if (student.password && bcryptjs.compareSync(password, student.password)) {
-          return res.json({
-            status: "success",
-            user: { role: "student", id: student.id, name: student.name, email: student.email, details: student }
-          });
-        }
-      }
-      return res.status(401).json({ error: "Invalid Student Credentials. Please verify your email and password." });
-    }
-
     if (role === "admin") {
       if (email.trim().toLowerCase() === "admin@eno.org" && password === "admin123") {
         return res.json({
@@ -99,6 +231,7 @@ router.post("/login", async (req, res, next) => {
 // Request Password Reset Link (Sends Email with Secure Token Link)
 router.post("/forgot-password", async (req, res) => {
   const { role, email } = req.body;
+  if (role === "student") return res.status(503).json({ error: "Mobile recovery is unavailable. Contact the Olympiad office for identity verification." });
 
   if (!email || !role) {
     return res.status(400).json({ error: "Email and portal role selection are required." });
@@ -122,7 +255,7 @@ router.post("/forgot-password", async (req, res) => {
       userName = school.coordinatorName || school.name;
     }
   } else if (role === "student") {
-    const student = students.find(s => s.email.toLowerCase() === cleanEmail);
+    const student = students.find(s => s.email?.toLowerCase() === cleanEmail);
     if (student) {
       accountFound = true;
       userName = student.name;
@@ -303,7 +436,7 @@ router.post("/reset-password", async (req, res) => {
       );
     }
   } else if (role === "student") {
-    const studentIdx = students.findIndex(s => s.email.toLowerCase() === email.toLowerCase());
+    const studentIdx = students.findIndex(s => s.email?.toLowerCase() === email.toLowerCase());
     if (studentIdx !== -1) {
       students[studentIdx].password = hashedPassword;
       saveFallbackData("db_students.json", students);
@@ -335,8 +468,9 @@ router.post("/reset-password", async (req, res) => {
 });
 
 // Change Password for Logged-In User (Student, School, or Admin)
-router.post("/change-password", async (req, res) => {
+router.post("/change-password", async (req, res, next) => {
   const { role, email, currentPassword, newPassword } = req.body;
+  if (role === "student") return studentAuthentication(req, res, true).catch(next);
 
   if (!role || !email || !currentPassword || !newPassword) {
     return res.status(400).json({ error: "Missing required fields: role, email, currentPassword, and newPassword are required." });
@@ -380,7 +514,7 @@ router.post("/change-password", async (req, res) => {
         userFound = true;
       }
     } else if (role === "student") {
-      const student = students.find(s => s.email.toLowerCase() === cleanEmail);
+      const student = students.find(s => s.email?.toLowerCase() === cleanEmail);
       if (student && student.password) {
         existingHashedPassword = student.password;
         userFound = true;
@@ -434,7 +568,7 @@ router.post("/change-password", async (req, res) => {
       );
     }
   } else if (role === "student") {
-    const studentIdx = students.findIndex(s => s.email.toLowerCase() === cleanEmail);
+    const studentIdx = students.findIndex(s => s.email?.toLowerCase() === cleanEmail);
     if (studentIdx !== -1) {
       students[studentIdx].password = newHashedPassword;
       saveFallbackData("db_students.json", students);

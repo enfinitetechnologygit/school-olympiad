@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { db, dbConnected } from "../db";
 import { students, schools, examCenters, saveFallbackData } from "../store";
-import { sendLoginCredentials } from "../email";
 import { Student } from "../../src/types";
 import bcryptjs from "bcryptjs";
 import fs from "fs";
@@ -29,28 +28,33 @@ router.get("/", (req, res) => {
 });
 
 router.post("", async (req, res) => {
-  const { name, classLevel, gender, dob, mobile, parentName, parentMobile, email, password, schoolId } = req.body;
+  const { name, classLevel, gender, dob, mobile, parentName, parentMobile, email, schoolId } = req.body;
 
-  if (!name || !classLevel || !dob || !email || !schoolId) {
-    return res.status(400).json({ error: "Required fields name, classLevel, dob, email, and school selection must be supplied." });
+  if (!name || !classLevel || !dob || !mobile || !schoolId) {
+    return res.status(400).json({ error: "Required fields name, classLevel, dob, mobile, and school selection must be supplied." });
   }
 
-  // Check duplicate in database first if connected
-  if (dbConnected && db) {
-    try {
-      const existingStudent = await db.collection("students").findOne({
-        email: { $regex: new RegExp(`^${email.trim()}$`, "i") }
-      });
-      if (existingStudent) {
-        return res.status(400).json({ error: "A student is already registered with this email address." });
-      }
-    } catch (err: any) {
-      console.error("Error checking duplicate student in DB:", err.message);
-    }
-  } else {
-    if (students.some(st => st.email.toLowerCase() === email.toLowerCase())) {
-      return res.status(400).json({ error: "A student is already registered with this email address." });
-    }
+  if (typeof name !== "string" || !/^\p{L}[\p{L}\p{M}'?.-]*(?:\s+\p{L}[\p{L}\p{M}'?.-]*)*$/u.test(name.trim())) {
+    return res.status(400).json({ error: "Please enter a valid student name." });
+  }
+  const dateMatch = typeof dob === "string" && /^(?:(\d{4})-(\d{2})-(\d{2})|(\d{2})-(\d{2})-(\d{4}))$/.exec(dob);
+  if (!dateMatch) return res.status(400).json({ error: "Please enter a valid date of birth (YYYY-MM-DD or DD-MM-YYYY)." });
+  const year = Number(dateMatch[1] || dateMatch[6]);
+  const month = Number(dateMatch[2] || dateMatch[5]);
+  const day = Number(dateMatch[3] || dateMatch[4]);
+  const birthDate = new Date(Date.UTC(year, month - 1, day));
+  if (year < 1000 || birthDate.getUTCFullYear() !== year || birthDate.getUTCMonth() !== month - 1 || birthDate.getUTCDate() !== day || birthDate.getTime() > Date.now()) {
+    return res.status(400).json({ error: "Please enter a valid date of birth that is not in the future." });
+  }
+
+  if (typeof mobile !== "string" || !/^\d{10}$/.test(mobile)) {
+    return res.status(400).json({ error: "Enter a valid 10-digit mobile number." });
+  }
+  // Include legacy formatted numbers; ambiguous numbers cannot identify an account.
+  const normalizeMobile = (value: unknown) => typeof value === "string" ? value.replace(/\D/g, "").replace(/^(?:91|0)(?=\d{10}$)/, "") : "";
+  const records = dbConnected && db ? await db.collection("students").find({}, { projection: { mobile: 1 } }).toArray() : students;
+  if (records.some(st => normalizeMobile(st.mobile) === mobile)) {
+    return res.status(409).json({ error: "This mobile number is already registered. Contact the Olympiad office for assistance." });
   }
 
   const parentSchool = schools.find(s => s.id === schoolId);
@@ -59,48 +63,48 @@ router.post("", async (req, res) => {
   }
 
   const genStudentId = getNextStudentId();
-  const generatedPassword = Math.random().toString(36).slice(-8);
+  const firstName = name.trim().split(/\s+/u)[0].toLowerCase();
+  const generatedPassword = firstName.charAt(0).toUpperCase() + firstName.slice(1) + "@" + year;
   const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
   const newStudent: Student = {
     id: genStudentId,
-    name,
+    name: name.trim(),
     classLevel,
     gender: gender || "Other",
     dob,
     mobile: mobile || "",
     parentName: parentName || "TBD",
     parentMobile: parentMobile || "",
-    email,
+    ...(typeof email === "string" && email.trim() ? { email: email.trim() } : {}),
     password: hashedPassword,
+    mustChangePassword: true,
+    loginMobile: mobile,
     schoolId: parentSchool.id,
     schoolName: parentSchool.name,
-    paymentStatus: "PENDING",
+    paymentStatus: "COMPLETED",
+    paymentAmount: 0,
     qualificationStatus: "TBD",
-    admitCardGenerated: false
+    admitCardGenerated: true,
+    admitCardNumber: "ENO-AC-" + Math.floor(10000 + Math.random() * 89999),
+    stage1AdmitNumber: "ENO-AC-" + Math.floor(10000 + Math.random() * 89999),
+    stage1AdmitReleased: true
   };
-
-  students.push(newStudent);
-  saveFallbackData("db_students.json", students);
 
   if (dbConnected && db) {
     try {
       await db.collection("students").insertOne(newStudent);
-      await db.collection("users").updateOne(
-        { email: newStudent.email },
-        { $set: { email: newStudent.email, password: hashedPassword, name: newStudent.name, role: "student" } },
-        { upsert: true }
-      );
     } catch (err: any) {
-      console.error("Error inserting registered student to database:", err.message);
+      if (err.code === 11000) return res.status(409).json({ error: "This mobile number or email is already registered." });
+      console.error("Error inserting registered student:", err.message);
+      return res.status(503).json({ error: "Registration could not be saved. Please try again." });
     }
   }
+  students.push(newStudent);
+  saveFallbackData("db_students.json", students);
 
-  // Send credentials welcome email immediately on registration (before payment)
-  sendLoginCredentials(newStudent.email, "student", newStudent.id, generatedPassword, newStudent.name).catch((e) => {
-    console.error("Error sending student welcome email:", e.message);
-  });
-
-  res.json({ status: "success", student: newStudent });
+  const { password: _passwordHash, ...studentDetails } = newStudent;
+  res.set("Cache-Control", "no-store");
+  res.json({ status: "success", student: studentDetails, initialPassword: generatedPassword });
 });
 
 // ── Razorpay helpers ──────────────────────────────────────────────────────────
@@ -297,11 +301,7 @@ router.post("/:id/pay", async (req, res) => {
         { id: center.id },
         { $set: center }
       );
-      await db.collection("users").updateOne(
-        { email: student.email },
-        { $set: { email: student.email, password: student.password, name: student.name, role: "student" } },
-        { upsert: true }
-      );
+
     } catch (err: any) {
       console.error("Error updating payment in database:", err.message);
     }
@@ -355,11 +355,7 @@ router.post("/:id/approve-payment", async (req, res) => {
         { id: center.id },
         { $set: center }
       );
-      await db.collection("users").updateOne(
-        { email: student.email },
-        { $set: { email: student.email, password: student.password, name: student.name, role: "student" } },
-        { upsert: true }
-      );
+
     } catch (err: any) {
       console.error("Error updating payment in database:", err.message);
     }
@@ -652,7 +648,9 @@ router.put("/:id", async (req, res) => {
   if (classLevel) student.classLevel = classLevel;
   if (gender) student.gender = gender;
   if (dob) student.dob = dob;
-  if (mobile !== undefined) student.mobile = mobile;
+  if (mobile !== undefined && mobile !== student.mobile) {
+    return res.status(400).json({ error: "Contact the Olympiad office to update your login mobile number." });
+  }
   if (parentName) student.parentName = parentName;
   if (parentMobile !== undefined) student.parentMobile = parentMobile;
   if (photo !== undefined) student.photo = photo;
@@ -677,8 +675,8 @@ router.put("/:id", async (req, res) => {
         { id: student.id },
         { $set: student }
       );
-      await db.collection("users").updateOne(
-        { email: student.email },
+      if (student.email) await db.collection("users").updateOne(
+        { email: student.email, role: "student" },
         { $set: { name: student.name } }
       );
     } catch (err: any) {
